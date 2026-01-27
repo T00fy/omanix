@@ -55,5 +55,7 @@ in
     pkgs.blueman
     pkgs.nautilus
     pkgs.chromium
+
+    pkgs.firefox
   ];
 }
