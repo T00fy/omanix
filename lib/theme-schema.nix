@@ -2,18 +2,18 @@
 with lib;
 types.submodule {
   options = {
-    # Metadata
     meta.name = mkOption { type = types.str; };
     meta.slug = mkOption { type = types.str; };
+    # FIX 5: Add missing option
+    meta.icon_theme = mkOption { type = types.str; };
 
-    # Assets
     assets.wallpaper = mkOption { type = types.path; };
 
     # UI Colors
-    colors.background = mkOption { type = types.str; }; # #1a1b26
-    colors.foreground = mkOption { type = types.str; }; # #a9b1d6
+    colors.background = mkOption { type = types.str; }; 
+    colors.foreground = mkOption { type = types.str; }; 
     colors.cursor = mkOption { type = types.str; };
-    colors.accent = mkOption { type = types.str; };     # #7aa2f7
+    colors.accent = mkOption { type = types.str; };     
     colors.selection_background = mkOption { type = types.str; };
     colors.selection_foreground = mkOption { type = types.str; };
 

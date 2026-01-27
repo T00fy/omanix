@@ -3,11 +3,10 @@
     meta = {
       name = "Tokyo Night";
       slug = "tokyo-night";
+      icon_theme = "Yaru-magenta";
     };
 
     assets = {
-      # This assumes you ran the `cp` command in Phase 0 correctly.
-      # Path is relative to this file (lib/themes.nix -> ../assets/...)
       wallpaper = ../assets/wallpapers/2-Pawel-Czerwinski-Abstract-Purple-Blue.jpg;
     };
 

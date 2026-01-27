@@ -1,0 +1,79 @@
+{ config, pkgs, ... }:
+let
+  theme = config.omarchy.activeTheme;
+in
+{
+  programs.waybar = {
+    enable = true;
+    
+    # FIX 3: Add basic settings so Waybar runs
+    settings = {
+      mainBar = {
+        layer = "top";
+        position = "top";
+        height = 26;
+        modules-left = [ "hyprland/workspaces" ];
+        modules-center = [ "clock" ];
+        modules-right = [ "pulseaudio" "network" "battery" ];
+      };
+    };
+
+    style = ''
+      @define-color background ${theme.colors.background};
+      @define-color foreground ${theme.colors.foreground};
+      @define-color accent ${theme.colors.accent};
+
+      * {
+        background-color: @background;
+        color: @foreground;
+        border: none;
+        border-radius: 0;
+        min-height: 0;
+        font-family: '${config.omarchy.font}';
+        font-size: 12px;
+      }
+
+      .modules-left { margin-left: 8px; }
+      .modules-right { margin-right: 8px; }
+
+      #workspaces button {
+        all: initial;
+        padding: 0 6px;
+        margin: 0 1.5px;
+        min-width: 9px;
+      }
+
+      #workspaces button.empty { opacity: 0.5; }
+
+      #cpu, #battery, #pulseaudio, #custom-omarchy, 
+      #custom-screenrecording-indicator, #custom-update {
+        min-width: 12px;
+        margin: 0 7.5px;
+      }
+
+      #tray { margin-right: 16px; }
+      #bluetooth { margin-right: 17px; }
+      #network { margin-right: 13px; }
+      #custom-expand-icon { margin-right: 18px; }
+
+      tooltip { padding: 2px; }
+      #custom-update { font-size: 10px; }
+      #clock { margin-left: 8.75px; }
+      .hidden { opacity: 0; }
+
+      #custom-screenrecording-indicator {
+        min-width: 12px;
+        margin-left: 5px;
+        font-size: 10px;
+        padding-bottom: 1px;
+      }
+      #custom-screenrecording-indicator.active { color: #a55555; }
+
+      #custom-voxtype {
+        min-width: 12px;
+        margin: 0 0 0 7.5px;
+      }
+      #custom-voxtype.recording { color: #a55555; }
+    '';
+  };
+}

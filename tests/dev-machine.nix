@@ -1,15 +1,33 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 {
-  # Minimal dummy config for testing module evaluation
+  # 1. Fix Bootloader Assertion
+  boot.loader.grub.enable = false;
   boot.loader.systemd-boot.enable = true;
-  fileSystems."/" = { device = "/dev/dummy"; fsType = "ext4"; };
   
-  # Enable Home Manager so we can test your module
-  home-manager.users.dev = { pkgs, ... }: {
-    home.stateVersion = "24.11";
-    # We don't need to import the module here explicitly because 
-    # flake.nix injects it into this configuration
-    omarchy.theme = "tokyo-night"; 
+  # 2. Fix Filesystem Assertion (Dummy)
+  fileSystems."/" = { device = "/dev/dummy"; fsType = "ext4"; };
+
+  # 3. Fix XDG Portal Assertion
+  environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
+
+  # Home Manager setup
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    extraSpecialArgs = { inherit inputs; };
+    users.dev = { pkgs, ... }: {
+      home.username = "dev";
+      home.homeDirectory = lib.mkForce "/home/dev";
+      home.stateVersion = "24.11";
+      omarchy.theme = "tokyo-night"; 
+    };
+  };
+
+  users.users.dev = {
+    isNormalUser = true;
+    home = "/home/dev";
+    uid = 1000;
+    group = "users";
   };
 
   system.stateVersion = "24.11";
