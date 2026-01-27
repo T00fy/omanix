@@ -1,16 +1,12 @@
 { config, pkgs, inputs, lib, ... }:
 {
-  # 1. Fix Bootloader Assertion
-  boot.loader.grub.enable = false;
   boot.loader.systemd-boot.enable = true;
-  
-  # 2. Fix Filesystem Assertion (Dummy)
   fileSystems."/" = { device = "/dev/dummy"; fsType = "ext4"; };
-
-  # 3. Fix XDG Portal Assertion
   environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
 
-  # Home Manager setup
+  # Enable the system-level Hyprland stub (required for many Wayland tools)
+  programs.hyprland.enable = true;
+
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
@@ -19,7 +15,12 @@
       home.username = "dev";
       home.homeDirectory = lib.mkForce "/home/dev";
       home.stateVersion = "24.11";
+      
+      # This triggers Phase 1 logic
       omarchy.theme = "tokyo-night"; 
+      
+      # This triggers Phase 2 & 3 logic via the default imports
+      # (Ensure your modules/home-manager/default.nix is updated with all imports)
     };
   };
 

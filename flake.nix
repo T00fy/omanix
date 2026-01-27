@@ -26,6 +26,7 @@
     {
       # Export the library for external use
       lib = omarchyLib;
+      nixosModules.default = import ./modules/nixos;
 
       # Home Manager module (user-level)
       homeManagerModules.default = { config, pkgs, lib, ... }: {

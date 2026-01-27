@@ -12,12 +12,63 @@ in
         layer = "top";
         position = "top";
         height = 26;
+        spacing = 0;
+        
         modules-left = [ "hyprland/workspaces" ];
         modules-center = [ "clock" ];
-        modules-right = [ "pulseaudio" "network" "battery" ];
+        modules-right = [ "tray" "bluetooth" "network" "pulseaudio" "battery" ];
+
+        "hyprland/workspaces" = {
+          format = "{icon}";
+          on-click = "activate";
+          format-icons = {
+            "1" = "1"; "2" = "2"; "3" = "3"; "4" = "4"; "5" = "5";
+            "6" = "6"; "7" = "7"; "8" = "8"; "9" = "9"; "10" = "0";
+            active = "󱓻";
+            default = "";
+          };
+        };
+
+        clock = {
+          format = "{:%A %H:%M}";
+          format-alt = "{:%d %B %Y}";
+          tooltip-format = "<tt><small>{calendar}</small></tt>";
+        };
+
+        network = {
+          format-wifi = "{icon}";
+          format-ethernet = "󰀂";
+          format-disconnected = "󰤮";
+          format-icons = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
+          tooltip-format-wifi = "{essid} ({signalStrength}%)";
+        };
+
+        pulseaudio = {
+          format = "{icon}";
+          format-muted = "";
+          format-icons = {
+            headphone = "";
+            default = ["" "" ""];
+          };
+          on-click = "pavucontrol";
+        };
+
+        battery = {
+          format = "{capacity}% {icon}";
+          format-icons = {
+            charging = ["󰢜" "󰂆" "󰂇" "󰂈" "󰢝" "󰂉" "󰢞" "󰂊" "󰂋" "󰂅"];
+            default = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+          };
+        };
+        
+        bluetooth = {
+          format = "";
+          format-disabled = "󰂲";
+          format-connected = "󰂱";
+          on-click = "blueman-manager"; 
+        };
       };
     };
-
     style = ''
       @define-color background ${theme.colors.background};
       @define-color foreground ${theme.colors.foreground};
