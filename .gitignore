@@ -1,0 +1,15 @@
+# Upstream reference (temporary for asset harvesting)
+_upstream/
+
+# Nix build artifacts
+result
+result-*
+
+# direnv
+.direnv/
+
+# Editor cruft
+.idea/
+.vscode/
+*.swp
+*~
