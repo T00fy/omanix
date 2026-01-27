@@ -9,6 +9,7 @@ in
     enable = true;
     
     settings = {
+      monitor = ",highres,auto,auto";
       general = {
         gaps_in = 5;
         gaps_out = 10;

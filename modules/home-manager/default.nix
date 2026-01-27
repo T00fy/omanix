@@ -6,7 +6,10 @@
     ./core/fonts.nix
     ./core/gtk.nix
     ./core/xcompose.nix
+    ./core/shell.nix
+    ./core/git.nix
     ./desktop/hyprland/autostart.nix
+    ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix
     ./desktop/hyprland/bindings.nix
     ./desktop/hyprland/input.nix
