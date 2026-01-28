@@ -1,5 +1,15 @@
 { config, lib, pkgs, ... }:
 {
-  # Omanix NixOS options will be defined here
-  # For now, this is a no-op
+  fonts.fontconfig = {
+    antialias = true;
+    hinting = {
+      enable = true;
+      autohint = false;
+      style = "slight";
+    };
+    subpixel = {
+      rgba = "rgb";
+      lcdfilter = "default";
+    };
+  };
 }
