@@ -15,7 +15,7 @@
     nix-colors.url = "github:misterio77/nix-colors";
 
     # LazyVim for NixOS
-    lazyvim.url = "github:pfassina/lazyvim-nix";
+    lazyvim.url = "github:pfassina/lazyvim-nix/v15.13.0";
   };
 
   outputs = { self, nixpkgs, home-manager, lazyvim, ... }@inputs:
