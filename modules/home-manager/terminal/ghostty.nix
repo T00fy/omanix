@@ -16,7 +16,7 @@ in
       
       cursor-style = "block";
       cursor-style-blink = false;
-      mouse-scroll-multiplier = 6.0;      
+      mouse-scroll-multiplier = 1.0;      
       font-family = config.omarchy.font;
       font-style = "Regular";
       font-size = 9;

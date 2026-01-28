@@ -8,6 +8,7 @@ let
   themeSchema = import ../../../lib/theme-schema.nix { inherit lib; };
 in
 {
+  # 1. DEFINE OPTIONS
   options.omarchy = {
     theme = mkOption {
       type = types.enum [ "tokyo-night" ];
@@ -21,14 +22,23 @@ in
       description = "Override the theme's default wallpaper with a local file.";
     };
 
-    # Internal read-only option that other modules will use
     activeTheme = mkOption {
       type = themeSchema;
       readOnly = true;
       description = "The fully resolved theme data (colors + assets).";
     };
-  };
 
+    # New nested option for monitor scaling
+    monitor = {
+      scale = mkOption {
+        type = types.number;
+        default = 1;
+        description = "Monitor scaling factor (e.g., 1, 1.5, or 2).";
+      };
+    };
+  }; # <--- THIS CLOSING BRACE WAS MISSING
+
+  # 2. IMPLEMENT CONFIGURATION
   config = {
     omarchy.activeTheme = 
       let

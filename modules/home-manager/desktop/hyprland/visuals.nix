@@ -2,6 +2,7 @@
 let
   theme = config.omarchy.activeTheme;
   colors = omarchyLib.colors;
+  cfg = config.omarchy;
 in
 {
   wayland.windowManager.hyprland = {
@@ -9,7 +10,10 @@ in
     enable = true;
     
     settings = {
-      monitor = ",highres,auto,2";
+      env = [
+        "GDK_SCALE,${toString cfg.monitor.scale}"
+      ];
+      monitor = ",highres,auto,${toString cfg.monitor.scale}";
       general = {
         gaps_in = 5;
         gaps_out = 10;
