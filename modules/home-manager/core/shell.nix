@@ -1,9 +1,71 @@
 { config, pkgs, ... }:
 {
-  # 1. Enable Starship (The prompt)
+  # Enable Zsh
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    # Oh My Zsh configuration
+    oh-my-zsh = {
+      enable = true;
+      plugins = [
+        "git"
+        "sudo"
+        "docker"
+        "kubectl"
+        "history"
+        "dirhistory"
+        "extract"
+        "z"
+        "colored-man-pages"
+        "command-not-found"
+        "copypath"
+        "copyfile"
+      ];
+      # We use Starship for the prompt, so no theme needed
+      theme = "";
+    };
+
+    # History settings
+    history = {
+      size = 10000;
+      save = 10000;
+      ignoreDups = true;
+      ignoreAllDups = true;
+      ignoreSpace = true;
+      share = true;
+    };
+
+    # Omarchy-like Aliases
+    shellAliases = {
+      ".." = "cd ..";
+      "..." = "cd ../..";
+      "...." = "cd ../../..";
+      ls = "eza -lh --group-directories-first --icons=auto";
+      lt = "eza --tree --level=2 --long --icons --git";
+      ll = "eza -l --icons=auto";
+      la = "eza -la --icons=auto";
+      
+      # Nix specific shortcuts
+      rebuild = "sudo nixos-rebuild switch --flake .";
+      nix-clean = "sudo nix-collect-garbage -d";
+      nix-search = "nix search nixpkgs";
+    };
+
+    # Environment variables
+    sessionVariables = {
+      EDITOR = "nvim";
+      VISUAL = "nvim";
+      TERMINAL = "ghostty";
+    };
+  };
+
+  # Starship prompt (works great with Zsh)
   programs.starship = {
     enable = true;
-    # Copy Omarchy's config structure
+    enableZshIntegration = true;
     settings = {
       add_newline = true;
       command_timeout = 200;
@@ -24,37 +86,13 @@
     };
   };
 
-  # 2. Configure Bash (Aliases & Env)
-  programs.bash = {
-    enable = true;
-    enableCompletion = true;
-    
-    # Omarchy-like Aliases
-    shellAliases = {
-      ".." = "cd ..";
-      "..." = "cd ../..";
-      ls = "${pkgs.eza}/bin/eza -lh --group-directories-first --icons=auto";
-      lsa = "${pkgs.eza}/bin/eza -lh --group-directories-first --icons=auto -a";
-      lt = "${pkgs.eza}/bin/eza --tree --level=2 --long --icons --git";
-      g = "git";
-      ga = "git add";
-      gcm = "git commit -m";
-      gst = "git status";
-      gp = "git push";
-      n = "nvim";
-      
-      # Nix specific shortcuts
-      rebuild = "sudo nixos-rebuild switch --flake .";
-    };
-
-    # Environment variables
-    sessionVariables = {
-      EDITOR = "nvim";
-      VISUAL = "nvim";
-      TERMINAL = "ghostty";
-    };
-  };
-  
   # Ensure these tools are present for the aliases
-  home.packages = with pkgs; [ eza ripgrep fd fzf bat ];
+  home.packages = with pkgs; [ 
+    eza 
+    ripgrep 
+    fd 
+    fzf 
+    bat
+    zsh-completions
+  ];
 }

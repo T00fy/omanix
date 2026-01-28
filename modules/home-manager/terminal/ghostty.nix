@@ -1,4 +1,4 @@
-{ config, lib, omarchyLib, ... }:
+{ config, lib, pkgs, omarchyLib, ... }:
 let
   theme = config.omarchy.activeTheme;
   colors = theme.colors;
@@ -7,6 +7,9 @@ in
   programs.ghostty = {
     enable = true;
     settings = {
+      # Explicitly use Zsh
+      command = "${pkgs.zsh}/bin/zsh";
+      
       window-padding-x = 14;
       window-padding-y = 14;
       window-decoration = false;
