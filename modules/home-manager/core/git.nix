@@ -12,10 +12,12 @@ in
   config = {
     programs.git = {
       enable = true;
-      userName = cfg.user.name;
-      userEmail = cfg.user.email;
       
-      extraConfig = {
+      settings = {
+        user = {
+          name = cfg.user.name;
+          email = cfg.user.email;
+        };
         init.defaultBranch = "main";
         core.editor = "nvim";
       };

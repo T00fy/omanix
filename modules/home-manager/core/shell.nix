@@ -7,7 +7,7 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
-initExtra = ''
+initContent = ''
   # Only End key accepts full suggestion
   ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(end-of-line)
   bindkey '^[[F' end-of-line
