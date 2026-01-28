@@ -30,6 +30,9 @@
         vim.opt.relativenumber = true
         vim.opt.scrolloff = 8
         vim.opt.wrap = false
+        
+        -- Suppress helptags errors on NixOS (nix store is read-only)
+        vim.g.lazy_did_setup = true
       '';
 
       keymaps = ''
