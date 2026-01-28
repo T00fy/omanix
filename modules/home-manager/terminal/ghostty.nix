@@ -19,7 +19,7 @@ in
       mouse-scroll-multiplier = 1.0;      
       font-family = config.omarchy.font;
       font-style = "Regular";
-      font-size = 9;
+      font-size = 10;
 
       # Theme Injection
       background = colors.background;
