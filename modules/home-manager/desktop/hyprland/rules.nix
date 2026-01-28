@@ -15,9 +15,10 @@
       # Geometry
       "center on, match:class ^(org.pulseaudio.pavucontrol)$"
       "size 875 600, match:class ^(org.pulseaudio.pavucontrol)$"
-      # Idle Inhibit
-      "idleinhibit fullscreen, match:class ^(chromium|google-chrome)$"
-      "idleinhibit fullscreen, match:class ^(vlc|mpv)$"
+      # Note: idleinhibit windowrule was removed in Hyprland 0.53
+      # Modern browsers and media players (Chrome, Firefox, VLC, mpv) 
+      # automatically inhibit idle via the Wayland idle-inhibit protocol
+      # when playing media or in fullscreen. No windowrule needed.
     ];
 
     # Layer rules - new syntax with match:namespace and boolean values
