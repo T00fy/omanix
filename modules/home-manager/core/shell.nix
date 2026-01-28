@@ -7,16 +7,16 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
-    initExtra = ''
-      # Unbind right arrow from autosuggestion
-      ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=("")
-      ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=("")
+initExtra = ''
+  # Only End key accepts full suggestion
+  ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(end-of-line)
+  bindkey '^[[F' end-of-line
   
-      # End key accepts suggestion
-      bindkey '^[[F' autosuggest-accept
-
-    '';
-
+  # Right arrow just moves cursor (forward-char is not in accept list)
+  bindkey '^[[C' forward-char
+  
+  # ... rest of your initExtra
+'';
     # Oh My Zsh configuration
     oh-my-zsh = {
       enable = true;
