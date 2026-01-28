@@ -22,5 +22,4 @@
   
   # Enable the Bluetooth service
   services.blueman.enable = true;
-  services.swayosd.enable = true;
 }
