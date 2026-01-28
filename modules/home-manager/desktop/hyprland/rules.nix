@@ -1,31 +1,33 @@
 { ... }:
 {
   wayland.windowManager.hyprland.settings = {
-    # Use windowrulev2 for everything
-    windowrulev2 = [
-      # Opacity - new syntax: "RULE, PARAMS"
-      "opacity 0.97 0.9, class:(.*)"
-      "opacity 1.0 1.0, class:^(zoom|vlc|mpv|imv|org.gnome.NautilusPreviewer)$"
-      "opacity 1.0 1.0, class:^(chromium|google-chrome), title:(.*YouTube.*)"
+    # New windowrule syntax for Hyprland 0.53+
+    # Format: windowrule = EFFECT VALUE, match:MATCHER PATTERN
+    windowrule = [
+      # Opacity - new syntax with match:class
+      "opacity 0.97 0.9, match:class .*"
+      "opacity 1.0 1.0, match:class ^(zoom|vlc|mpv|imv|org.gnome.NautilusPreviewer)$"
+      "opacity 1.0 1.0, match:class ^(chromium|google-chrome)$, match:title .*YouTube.*"
       # Floating
-      "float, class:^(org.pulseaudio.pavucontrol)$"
-      "float, class:^(org.gnome.Calculator)$"
-      "float, class:^(xdg-desktop-portal-gtk)$"
+      "float on, match:class ^(org.pulseaudio.pavucontrol)$"
+      "float on, match:class ^(org.gnome.Calculator)$"
+      "float on, match:class ^(xdg-desktop-portal-gtk)$"
       # Geometry
-      "center, class:^(org.pulseaudio.pavucontrol)$"
-      "size 875 600, class:^(org.pulseaudio.pavucontrol)$"
+      "center on, match:class ^(org.pulseaudio.pavucontrol)$"
+      "size 875 600, match:class ^(org.pulseaudio.pavucontrol)$"
       # Idle Inhibit
-      "idleinhibit fullscreen, class:^(chromium|google-chrome)$"
-      "idleinhibit fullscreen, class:^(vlc|mpv)$"
+      "idleinhibit fullscreen, match:class ^(chromium|google-chrome)$"
+      "idleinhibit fullscreen, match:class ^(vlc|mpv)$"
     ];
-    # Layer rules - new syntax with namespace
+
+    # Layer rules - new syntax with match:namespace and boolean values
     layerrule = [
-      "blur, waybar"
-      "blur, wofi"
-      "blur, notifications"
-      "ignorealpha 0.5, waybar"
-      "ignorealpha 0.5, wofi"
-      "ignorealpha 0.5, notifications"
+      "blur on, match:namespace waybar"
+      "blur on, match:namespace wofi"
+      "blur on, match:namespace notifications"
+      "ignore_alpha 0.5, match:namespace waybar"
+      "ignore_alpha 0.5, match:namespace wofi"
+      "ignore_alpha 0.5, match:namespace notifications"
     ];
   };
 }
