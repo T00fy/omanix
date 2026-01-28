@@ -6,7 +6,6 @@ in
   programs.waybar = {
     enable = true;
     
-    # FIX 3: Add basic settings so Waybar runs
     settings = {
       mainBar = {
         layer = "top";
@@ -30,8 +29,8 @@ in
         };
 
         clock = {
-          format = "{:%A %H:%M}";
-          format-alt = "{:%d %B %Y}";
+          format = "{:%a %H:%M}";
+          format-alt = "{:%d %b %Y}";
           tooltip-format = "<tt><small>{calendar}</small></tt>";
         };
 
@@ -109,7 +108,11 @@ in
 
       tooltip { padding: 2px; }
       #custom-update { font-size: 10px; }
-      #clock { margin-left: 8.75px; }
+      #clock {
+        font-family: '${config.omarchy.font}';
+        min-width: 150px;
+        margin-left: 8.75px;
+      }
       .hidden { opacity: 0; }
 
       #custom-screenrecording-indicator {
