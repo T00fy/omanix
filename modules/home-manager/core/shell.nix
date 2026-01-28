@@ -25,10 +25,18 @@
   };
 
   # 2. Configure Bash (Aliases & Env)
-  programs.bash = {
+  programs.zsh = {
     enable = true;
     enableCompletion = true;
-    
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    # Enable Oh My Zsh
+    oh-my-zsh = {
+      enable = true;
+      plugins = [ "git" "sudo" "docker" "fzf" ];
+    };
+     
     # Omarchy-like Aliases
     shellAliases = {
       ".." = "cd ..";
@@ -36,12 +44,6 @@
       ls = "${pkgs.eza}/bin/eza -lh --group-directories-first --icons=auto";
       lsa = "${pkgs.eza}/bin/eza -lh --group-directories-first --icons=auto -a";
       lt = "${pkgs.eza}/bin/eza --tree --level=2 --long --icons --git";
-      g = "git";
-      ga = "git add";
-      gcm = "git commit -m";
-      gst = "git status";
-      gp = "git push";
-      n = "nvim";
       
       # Nix specific shortcuts
       rebuild = "sudo nixos-rebuild switch --flake .";
