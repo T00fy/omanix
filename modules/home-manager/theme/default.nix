@@ -31,9 +31,12 @@ in
     # New nested option for monitor scaling
     monitor = {
       scale = mkOption {
-        type = types.number;
-        default = 1;
-        description = "Monitor scaling factor (e.g., 1, 1.5, or 2).";
+        type = types.str;
+        default = "auto";
+        description = ''
+          Monitor scaling factor. Can be a number (e.g., "1", "1.5", "2") 
+          or "auto" for automatic detection.
+        '';
       };
     };
   }; # <--- THIS CLOSING BRACE WAS MISSING

@@ -33,6 +33,18 @@ in
         sansSerif = [ "Liberation Sans" ];
         monospace = [ "JetBrainsMono Nerd Font" ];
       };
+
+      # ADD THESE - Critical for proper rendering!
+      antialias = true;
+      hinting = {
+        enable = true;
+        autohint = false;  # Use font's native hinting
+        style = "slight";  # Good for modern displays; try "medium" if text looks fuzzy
+      };
+      subpixel = {
+        rgba = "rgb";      # Change to "bgr" if colors look wrong
+        lcdfilter = "default";
+      };
     };
   };
 }
