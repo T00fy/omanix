@@ -22,4 +22,8 @@
   
   # Enable the Bluetooth service
   services.blueman.enable = true;
+  programs.zsh.enable = true;
+
+  # 2. Set as default shell for users
+  users.defaultUserShell = pkgs.zsh;
 }
