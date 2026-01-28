@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.url = "github:hyprwm/Hyprland/v0.53.3";
     
     # We keep this for future access to base16 schemes, but we won't use it for math.
     nix-colors.url = "github:misterio77/nix-colors";
