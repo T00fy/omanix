@@ -7,6 +7,16 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    initExtra = ''
+      # Unbind right arrow from autosuggestion
+      ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=("")
+      ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=("")
+  
+      # End key accepts suggestion
+      bindkey '^[[F' autosuggest-accept
+
+    '';
+
     # Oh My Zsh configuration
     oh-my-zsh = {
       enable = true;
