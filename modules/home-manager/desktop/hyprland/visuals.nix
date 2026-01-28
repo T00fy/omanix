@@ -9,7 +9,7 @@ in
     enable = true;
     
     settings = {
-      monitor = ",highres,auto,auto";
+      monitor = ",highres,auto,2";
       general = {
         gaps_in = 5;
         gaps_out = 10;
@@ -24,7 +24,7 @@ in
       };
 
       decoration = {
-          rounding = 8;
+          rounding = 0;
       
           # Shadow config
           shadow = {

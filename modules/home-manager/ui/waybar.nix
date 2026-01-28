@@ -80,8 +80,8 @@ in
         border: none;
         border-radius: 0;
         min-height: 0;
-        font-family: '${config.omarchy.font}';
-        font-size: 12px;
+        font-family: 'omarchy', '${config.omarchy.font}'; 
+        font-size: 13px;
       }
 
       .modules-left { margin-left: 8px; }

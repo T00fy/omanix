@@ -18,6 +18,10 @@ in
       noto-fonts-cjk-sans     # CJK Fallbacks
       noto-fonts-color-emoji  # Emoji
       font-awesome            # Icons
+      (pkgs.runCommand "omarchy-font" {} ''
+        mkdir -p $out/share/fonts/truetype
+        cp ${../../../assets/fonts/omarchy.ttf} $out/share/fonts/truetype/
+      '')
     ];
 
     fonts.fontconfig = {
