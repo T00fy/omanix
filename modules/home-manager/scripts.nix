@@ -42,6 +42,7 @@ in
     launchBrowser
     
     pkgs.slurp
+    pkgs.swayosd
     pkgs.grim
     pkgs.wl-clipboard
     pkgs.libnotify
