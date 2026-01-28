@@ -11,7 +11,7 @@ in
     
     settings = {
       env = [
-        "GDK_SCALE,${toString cfg.monitor.scale}"
+        "GDK_SCALE,1"
       ];
       monitor = ",highres,auto,${toString cfg.monitor.scale}";
       general = {
