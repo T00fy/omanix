@@ -8,7 +8,6 @@
     ./core/xcompose.nix
     ./core/shell.nix
     ./core/git.nix
-    ./apps/firefox.nix
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix
