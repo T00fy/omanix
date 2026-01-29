@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  # The full Omarchy screenshot logic
+  # 1. Screenshot (PRESERVED EXACTLY as provided)
   screenshot = pkgs.writeShellScriptBin "omarchy-cmd-screenshot" ''
     export PATH="${pkgs.coreutils}/bin:${pkgs.jq}/bin:${pkgs.gawk}/bin:${pkgs.procps}/bin:$PATH"
 
@@ -102,7 +102,6 @@ let
     # Processing Logic
     if [[ "$DEST" == "file" ]]; then
       # "File" mode in Omarchy means open in Satty (Editor)
-      # Satty handles the actual saving to file and copying to clipboard after edit
       FILE_NAME="$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
       
       $GRIM -g "$SELECTION" - | \
@@ -110,9 +109,6 @@ let
           --output-filename "$FILE_NAME" \
           --early-exit \
           --copy-command "$WL_COPY"
-          
-      # Note: Satty handles notifications internally usually, 
-      # but we can add one if Satty exits successfully
     else
       # "Clipboard" mode skips the editor and goes straight to clipboard
       $GRIM -g "$SELECTION" - | $WL_COPY
@@ -120,43 +116,53 @@ let
     fi
   '';
 
-  launchBrowser = pkgs.writeShellScriptBin "omarchy-launch-browser" ''
-    BROWSER="firefox"
-    if [[ "$1" == "--private" ]]; then
-      exec $BROWSER --private-window
-    else
-      exec $BROWSER
+  # 2. Lock Screen (New Upstream Parity)
+  lockScreen = pkgs.writeShellScriptBin "omarchy-lock-screen" ''
+    # Lock the screen immediately
+    pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock &
+
+    # Reset keyboard layout to default (security best practice)
+    ${pkgs.hyprland}/bin/hyprctl switchxkblayout all 0 > /dev/null 2>&1
+
+    # Bitwarden CLI Lock (Optional integration)
+    if command -v bw &> /dev/null; then
+      if bw status | grep -q "unlocked"; then
+        bw lock
+        ${pkgs.libnotify}/bin/notify-send "Vault Locked" "Bitwarden CLI vault has been locked."
+      fi
     fi
   '';
 
+  # 3. Shutdown / Reboot (Graceful)
+  shutdown = pkgs.writeShellScriptBin "omarchy-cmd-shutdown" ''
+    # Close all windows first to save state
+    ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r ".[].address" | xargs -r -I{} ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:{}
+    sleep 1
+    systemctl poweroff
+  '';
+
+  reboot = pkgs.writeShellScriptBin "omarchy-cmd-reboot" ''
+    ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r ".[].address" | xargs -r -I{} ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:{}
+    sleep 1
+    systemctl reboot
+  '';
 in
 {
   home.packages = [
     screenshot
-    launchBrowser
-    
-    # Dependencies required for the script
-    pkgs.satty        # The annotation tool
-    pkgs.wayfreeze    # Freezes screen for selections
-    pkgs.grim         # Screenshot tool
-    pkgs.slurp        # Selection tool
-    pkgs.wl-clipboard # Clipboard utils
-    pkgs.jq           # JSON processor
-    
-    # Other existing tools
+    lockScreen
+    shutdown
+    reboot
+
+    # System Dependencies (Moved from scripts.nix)
+    pkgs.satty
+    pkgs.wayfreeze
+    pkgs.grim
+    pkgs.slurp
+    pkgs.wl-clipboard
     pkgs.libnotify
-    pkgs.swayosd
-    pkgs.playerctl
-    pkgs.brightnessctl
-    pkgs.wireplumber 
     pkgs.hyprpicker
-    pkgs.wofi
-    pkgs.pavucontrol
     pkgs.blueman
-    pkgs.nautilus
-    
-    # Browsers
-    pkgs.chromium
-    pkgs.firefox
+    pkgs.bitwarden-cli
   ];
 }

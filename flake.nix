@@ -26,6 +26,8 @@
       nixpkgs,
       home-manager,
       lazyvim,
+      walker,
+      elephant,
       ...
     }@inputs:
     let
@@ -52,9 +54,11 @@
           imports = [
             ./modules/home-manager
             lazyvim.homeManagerModules.default
+            walker.homeManagerModules.default
           ];
           # Pass our custom lib down to modules so we can access themes/utils
           _module.args.omarchyLib = omarchyLib;
+          _module.args.inputs = inputs;
         };
 
       # Development/testing configuration

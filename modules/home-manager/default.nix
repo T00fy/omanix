@@ -2,7 +2,7 @@
 {
   imports = [
     ./theme
-    ./scripts.nix
+    ./scripts
     ./core/fonts.nix
     ./core/gtk.nix
     ./core/xcompose.nix
@@ -22,6 +22,8 @@
     ./desktop/hypridle.nix
     ./desktop/hyprlock.nix
     ./ui/waybar.nix
+    ./ui/elephant.nix
+    ./ui/walker.nix
     ./terminal/ghostty.nix
     ./core/bat.nix
   ];
