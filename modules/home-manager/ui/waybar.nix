@@ -65,6 +65,13 @@ in
               active = "󱓻";
               default = "";
             };
+            persistent-workspaces = {
+              "1" = [ ];
+              "2" = [ ];
+              "3" = [ ];
+              "4" = [ ];
+              "5" = [ ];
+            };
           };
 
           clock = {
