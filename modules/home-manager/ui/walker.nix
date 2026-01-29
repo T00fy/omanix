@@ -66,85 +66,90 @@ let
     }
 
     .current { font-style: italic; }
-  '';
 
-  # Walker config.toml matching Omarchy
-  configToml = ''
-    force_keyboard_focus = true
-    selection_wrap = true
-    theme = "omarchy-default"
-    close_when_open = true
-    click_to_close = true
-
-    [providers]
-    default = ["desktopapplications", "websearch"]
-    max_results = 256
-
-    [[providers.prefixes]]
-    prefix = "/"
-    provider = "providerlist"
-
-    [[providers.prefixes]]
-    prefix = "."
-    provider = "files"
-
-    [[providers.prefixes]]
-    prefix = ":"
-    provider = "symbols"
-
-    [[providers.prefixes]]
-    prefix = "="
-    provider = "calc"
-
-    [[providers.prefixes]]
-    prefix = "@"
-    provider = "websearch"
-
-    [[providers.prefixes]]
-    prefix = "$"
-    provider = "clipboard"
-
-    [[providers.prefixes]]
-    prefix = ">"
-    provider = "runner"
-
-    [placeholders]
-    "default" = { input = "Launch...", list = "No Results" }
-    "desktopapplications" = { input = "Launch...", list = "No Apps Found" }
-    "files" = { input = "Find files...", list = "No files found" }
-    "symbols" = { input = "Find symbol...", list = "No symbols" }
-    "clipboard" = { input = "Clipboard...", list = "Clipboard empty" }
-
-    [[emergencies]]
-    text = "Restart Walker"
-    command = "omarchy-restart-walker"
+    .keybind-hints {
+      background: @background;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    
+    /* Hide the F1-F5 quick activate hints that appear in Omarchy */
+    .keybinds { display: none; }
   '';
 in
 {
-  # Use the walker module but with minimal config
   programs.walker = {
     enable = true;
     runAsService = true;
+
+    config = {
+      force_keyboard_focus = true;
+      selection_wrap = true;
+      theme = "omarchy-default";
+      hide_action_hints = true;
+      close_when_open = true;
+      click_to_close = true;
+      
+      width = 644;
+      maxheight = 300;
+      minheight = 300;
+
+      # Provider configuration
+      providers = {
+        max_results = 256;
+        # Default providers shown when typing
+        default = [ "desktopapplications" "websearch" ];
+        # Show applications when query is empty
+        empty = [ "desktopapplications" ];
+      };
+
+      # Prefix mappings matching Omarchy
+      prefixes = [
+        { prefix = "/"; provider = "providerlist"; }
+        { prefix = "."; provider = "files"; }
+        { prefix = ":"; provider = "symbols"; }
+        { prefix = "="; provider = "calc"; }
+        { prefix = "@"; provider = "websearch"; }
+        { prefix = "$"; provider = "clipboard"; }
+        { prefix = ">"; provider = "runner"; }
+      ];
+
+      # Placeholder text
+      placeholders = {
+        "default" = {
+          input = "Launch...";
+          list = "No Results";
+        };
+        "desktopapplications" = {
+          input = "Launch...";
+          list = "No Apps Found";
+        };
+        "files" = {
+          input = "Find files...";
+          list = "No files found";
+        };
+        "symbols" = {
+          input = "Find symbol...";
+          list = "No symbols";
+        };
+        "clipboard" = {
+          input = "Clipboard...";
+          list = "Clipboard empty";
+        };
+      };
+
+      emergencies = [
+        {
+          text = "Restart Walker";
+          command = "omarchy-restart-walker";
+        }
+      ];
+    };
   };
 
-  # Write our own config files directly - this overrides what the module generates
+  # Theme files
   xdg.configFile = {
-    # Main config
-    "walker/config.toml" = {
-      text = configToml;
-      force = true;
-    };
-    
-    # Theme CSS
-    "walker/themes/omarchy-default/style.css" = {
-      text = styleCss;
-      force = true;
-    };
-    
-    # Theme layout
-    "walker/themes/omarchy-default/layout.xml" = {
-      source = ../../../assets/branding/walker-layout.xml;
-      force = true;
-    };
+    "walker/themes/omarchy-default/style.css".text = styleCss;
+    "walker/themes/omarchy-default/layout.xml".source = ../../../assets/branding/walker-layout.xml;
   };
 }
