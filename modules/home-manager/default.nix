@@ -23,5 +23,6 @@
     ./desktop/hyprlock.nix
     ./ui/waybar.nix
     ./terminal/ghostty.nix
+    ./core/bat.nix
   ];
 }

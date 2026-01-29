@@ -4,10 +4,23 @@ types.submodule {
   options = {
     meta.name = mkOption { type = types.str; };
     meta.slug = mkOption { type = types.str; };
-    # FIX 5: Add missing option
     meta.icon_theme = mkOption { type = types.str; };
 
     assets.wallpaper = mkOption { type = types.path; };
+
+    # Bat theme configuration
+    bat.name = mkOption { 
+      type = types.str; 
+      description = "The bat theme name (as it appears in bat --list-themes)";
+    };
+    bat.url = mkOption { 
+      type = types.str; 
+      description = "URL to the .tmTheme file";
+    };
+    bat.sha256 = mkOption { 
+      type = types.str; 
+      description = "SHA256 hash of the theme file";
+    };
 
     # UI Colors
     colors.background = mkOption { type = types.str; }; 

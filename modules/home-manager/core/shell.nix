@@ -105,7 +105,6 @@
     ripgrep
     fd
     fzf
-    bat
     zsh-completions
   ];
 }

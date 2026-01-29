@@ -10,6 +10,12 @@
       wallpaper = ../assets/wallpapers/2-Pawel-Czerwinski-Abstract-Purple-Blue.jpg;
     };
 
+    bat = {
+      name = "tokyonight_night";
+      url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_night.tmTheme";
+      sha256 = "sha256-lVwUoWsEkXQo/6i1Z+LTdg+HLxBEoa0VeFcAEnTc7s0=";
+    };
+
     colors = {
       background = "#1a1b26";
       foreground = "#a9b1d6";
