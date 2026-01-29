@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  # 1. Screenshot (PRESERVED EXACTLY as provided)
+  # 1. Screenshot
   screenshot = pkgs.writeShellScriptBin "omarchy-cmd-screenshot" ''
     export PATH="${pkgs.coreutils}/bin:${pkgs.jq}/bin:${pkgs.gawk}/bin:${pkgs.procps}/bin:$PATH"
 
@@ -26,8 +26,9 @@ let
       mkdir -p "$OUTPUT_DIR"
     fi
 
-    # Cleanup any stuck slurp instances
+    # Cleanup any stuck instances
     pkill slurp && exit 0
+    pkill wayfreeze
 
     # Arguments: Mode [smart|region|windows|fullscreen] | Dest [file|clipboard]
     MODE="''${1:-smart}"
@@ -38,38 +39,30 @@ let
       local active_workspace
       active_workspace=$($HYPRCTL monitors -j | jq -r '.[] | select(.focused == true) | .activeWorkspace.id')
       
-      # Monitor geometry
       $HYPRCTL monitors -j | jq -r --arg ws "$active_workspace" '.[] | select(.activeWorkspace.id == ($ws | tonumber)) | "\(.x),\(.y) \((.width / .scale) | floor)x\((.height / .scale) | floor)"'
-      
-      # Window geometry
       $HYPRCTL clients -j | jq -r --arg ws "$active_workspace" '.[] | select(.workspace.id == ($ws | tonumber)) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
     }
+
+    # Start Wayfreeze in background to freeze all monitors
+    $WAYFREEZE & PID=$!
+    sleep 0.1
 
     # Selection Logic
     case "$MODE" in
       region)
-        $WAYFREEZE & PID=$!
-        sleep .1
         SELECTION=$($SLURP 2>/dev/null)
-        kill $PID 2>/dev/null
         ;;
       windows)
-        $WAYFREEZE & PID=$!
-        sleep .1
         SELECTION=$(get_rectangles | $SLURP -r 2>/dev/null)
-        kill $PID 2>/dev/null
         ;;
       fullscreen)
         SELECTION=$($HYPRCTL monitors -j | jq -r '.[] | select(.focused == true) | "\(.x),\(.y) \((.width / .scale) | floor)x\((.height / .scale) | floor)"')
         ;;
       smart|*)
         RECTS=$(get_rectangles)
-        $WAYFREEZE & PID=$!
-        sleep .1
         SELECTION=$(echo "$RECTS" | $SLURP 2>/dev/null)
-        kill $PID 2>/dev/null
 
-        # Smart Logic: If selection is tiny (< 20px area), assumes a click on a specific window/output
+        # Smart Logic for tiny clicks
         if [[ "$SELECTION" =~ ^([0-9]+),([0-9]+)[[:space:]]([0-9]+)x([0-9]+)$ ]]; then
           W="''${BASH_REMATCH[3]}"
           H="''${BASH_REMATCH[4]}"
@@ -97,20 +90,40 @@ let
         ;;
     esac
 
+    # CRITICAL: Kill wayfreeze and wait for it to fully exit. 
+    # If grim captures while wayfreeze is still active, it can result in a blurry/dim buffer.
+    kill $PID 2>/dev/null
+    wait $PID 2>/dev/null
+    pkill wayfreeze
+
+    # If no selection made, exit
     [ -z "$SELECTION" ] && exit 0
+
+    # Ensure we are focusing the monitor under the cursor so Satty opens there
+    $HYPRCTL dispatch focusmonitor +0 >/dev/null 2>&1
 
     # Processing Logic
     if [[ "$DEST" == "file" ]]; then
-      # "File" mode in Omarchy means open in Satty (Editor)
+      # USE A TEMP FILE. This is the fix for blurry screenshots.
+      # Piping into Satty often results in incorrect DPI scaling of the buffer.
+      TEMP_FILE="/tmp/omanix-snap-$(date +%s).png"
+      
+      # Capture to physical file
+      $GRIM -g "$SELECTION" "$TEMP_FILE"
+      
+      # Determine final destination
       FILE_NAME="$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
       
-      $GRIM -g "$SELECTION" - | \
-        $SATTY --filename - \
+      # Open in editor using the physical file
+      $SATTY --filename "$TEMP_FILE" \
           --output-filename "$FILE_NAME" \
           --early-exit \
           --copy-command "$WL_COPY"
+          
+      # Cleanup
+      rm -f "$TEMP_FILE"
     else
-      # "Clipboard" mode skips the editor and goes straight to clipboard
+      # Clipboard mode - quality is fine here as clipboard accepts the raw stream
       $GRIM -g "$SELECTION" - | $WL_COPY
       $NOTIFY "Screenshot copied to clipboard"
     fi
@@ -154,7 +167,7 @@ in
     shutdown
     reboot
 
-    # System Dependencies (Moved from scripts.nix)
+    # System Dependencies
     pkgs.satty
     pkgs.wayfreeze
     pkgs.grim
@@ -164,5 +177,6 @@ in
     pkgs.hyprpicker
     pkgs.blueman
     pkgs.bitwarden-cli
+    pkgs.procps # for pkill
   ];
 }

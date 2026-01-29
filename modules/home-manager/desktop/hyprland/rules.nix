@@ -7,7 +7,7 @@
     
     windowrule = [
       # ─────────────────────────────────────────────────────────────────
-      # Global defaults (from windows.conf)
+      # Global defaults
       # ─────────────────────────────────────────────────────────────────
       "suppress_event maximize, match:class .*"
       "opacity 0.97 0.9, match:class .*"
@@ -16,7 +16,7 @@
       "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 
       # ─────────────────────────────────────────────────────────────────
-      # Password Managers (from 1password.conf, bitwarden.conf)
+      # Password Managers
       # ─────────────────────────────────────────────────────────────────
       "no_screen_share on, match:class ^(1[p|P]assword)$"
       "tag +floating-window, match:class ^(1[p|P]assword)$"
@@ -24,23 +24,22 @@
       "tag +floating-window, match:class ^(Bitwarden)$"
 
       # ─────────────────────────────────────────────────────────────────
-      # Browsers (from browser.conf)
+      # Browsers
       # ─────────────────────────────────────────────────────────────────
       "tag +chromium-based-browser, match:class ((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)"
       "tag +firefox-based-browser, match:class ([fF]irefox|zen|librewolf)"
       "tile on, match:tag chromium-based-browser"
       "opacity 1 0.97, match:tag chromium-based-browser"
       "opacity 1 0.97, match:tag firefox-based-browser"
-      # Video sites - full opacity
       "opacity 1.0 1.0, match:initial_title ((?i)(?:[a-z0-9-]+\\.)*youtube\\.com_/|app\\.zoom\\.us_/wc/home)"
 
       # ─────────────────────────────────────────────────────────────────
-      # Terminals (from terminals.conf)
+      # Terminals
       # ─────────────────────────────────────────────────────────────────
       "tag +terminal, match:class (Alacritty|kitty|com.mitchellh.ghostty)"
 
       # ─────────────────────────────────────────────────────────────────
-      # JetBrains IDEs (from jetbrains.conf)
+      # JetBrains IDEs
       # ─────────────────────────────────────────────────────────────────
       "tag +jetbrains-splash, match:class ^(jetbrains-.*)$, match:title ^(splash)$, match:float 1"
       "center on, match:tag jetbrains-splash"
@@ -55,12 +54,12 @@
       "no_follow_mouse on, match:class ^(jetbrains-.*)$"
 
       # ─────────────────────────────────────────────────────────────────
-      # DaVinci Resolve (from davinci-resolve.conf)
+      # DaVinci Resolve
       # ─────────────────────────────────────────────────────────────────
       "stay_focused on, match:class .*[Rr]esolve.*, match:float 1"
 
       # ─────────────────────────────────────────────────────────────────
-      # Picture-in-Picture (from pip.conf)
+      # Picture-in-Picture
       # ─────────────────────────────────────────────────────────────────
       "tag +pip, match:title (Picture.?in.?[Pp]icture)"
       "float on, match:tag pip"
@@ -72,7 +71,7 @@
       "move (monitor_w-window_w-40) (monitor_h*0.04), match:tag pip"
 
       # ─────────────────────────────────────────────────────────────────
-      # Steam (from steam.conf)
+      # Steam
       # ─────────────────────────────────────────────────────────────────
       "float on, match:class steam"
       "center on, match:class steam, match:title Steam"
@@ -82,25 +81,25 @@
       "idle_inhibit fullscreen, match:class steam"
 
       # ─────────────────────────────────────────────────────────────────
-      # RetroArch (from retroarch.conf)
+      # RetroArch
       # ─────────────────────────────────────────────────────────────────
       "fullscreen on, match:class com.libretro.RetroArch"
       "opacity 1 1, match:class com.libretro.RetroArch"
       "idle_inhibit fullscreen, match:class com.libretro.RetroArch"
 
       # ─────────────────────────────────────────────────────────────────
-      # QEMU (from qemu.conf)
+      # QEMU
       # ─────────────────────────────────────────────────────────────────
       "opacity 1 1, match:class qemu"
 
       # ─────────────────────────────────────────────────────────────────
-      # LocalSend (from localsend.conf)
+      # LocalSend
       # ─────────────────────────────────────────────────────────────────
       "float on, match:class (Share|localsend)"
       "center on, match:class (Share|localsend)"
 
       # ─────────────────────────────────────────────────────────────────
-      # Webcam Overlay (from webcam-overlay.conf)
+      # Webcam Overlay
       # ─────────────────────────────────────────────────────────────────
       "float on, match:title WebcamOverlay"
       "pin on, match:title WebcamOverlay"
@@ -109,16 +108,22 @@
       "move (monitor_w-window_w-40) (monitor_h-window_h-40), match:title WebcamOverlay"
 
       # ─────────────────────────────────────────────────────────────────
-      # System Floating Windows (from system.conf)
+      # Screenshot Editor (Satty) - FIXED
+      # ─────────────────────────────────────────────────────────────────
+      "float on, match:class ^(com.gabm.satty)$"
+      "center on, match:class ^(com.gabm.satty)$"
+      "size 80% 80%, match:class ^(com.gabm.satty)$"
+      "stay_focused on, match:class ^(com.gabm.satty)$"
+
+      # ─────────────────────────────────────────────────────────────────
+      # System Floating Windows
       # ─────────────────────────────────────────────────────────────────
       "float on, match:tag floating-window"
       "center on, match:tag floating-window"
       "size 875 600, match:tag floating-window"
       
-      # Tag various apps as floating windows
       "tag +floating-window, match:class (org.omarchy.bluetui|org.omarchy.impala|org.omarchy.wiremix|org.omarchy.btop|org.omarchy.terminal|org.omarchy.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Omarchy|About|TUI.float|imv|mpv)"
       "tag +floating-window, match:class (xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus), match:title ^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)$"
-      
       "float on, match:class org.gnome.Calculator"
 
       # Fullscreen screensaver
@@ -135,15 +140,7 @@
       "idle_inhibit always, match:tag noidle"
 
       # ─────────────────────────────────────────────────────────────────
-      # Screenshot Editor (Satty) - from your original + system.conf
-      # ─────────────────────────────────────────────────────────────────
-      "float on, match:class ^(com.gabm.satty)$"
-      "center on, match:class ^(com.gabm.satty)$"
-      "size 80% 80%, match:class ^(com.gabm.satty)$"
-      "dim_around on, match:class ^(com.gabm.satty)$"
-
-      # ─────────────────────────────────────────────────────────────────
-      # Misc floating utilities (from your original)
+      # Misc floating utilities
       # ─────────────────────────────────────────────────────────────────
       "float on, match:class ^(org.pulseaudio.pavucontrol)$"
       "center on, match:class ^(org.pulseaudio.pavucontrol)$"
@@ -155,15 +152,10 @@
     # LAYER RULES
     # ═══════════════════════════════════════════════════════════════════
     layerrule = [
-      # Screenshot selection (from hyprshot.conf)
       "no_anim on, match:namespace selection"
       "no_anim on, match:namespace ^(selection)$"
       "no_anim on, match:namespace ^(wayfreeze)$"
-      
-      # Walker launcher (from walker.conf)
       "no_anim on, match:namespace walker"
-      
-      # Blur for UI elements
       "blur on, match:namespace waybar"
       "blur on, match:namespace wofi"
       "blur on, match:namespace notifications"
