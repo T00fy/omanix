@@ -6,18 +6,19 @@ let
 in
 {
   wayland.windowManager.hyprland = {
-    # FIX 1: Enable Hyprland so config is generated
     enable = true;
     
     settings = {
       env = [
         "GDK_SCALE,2"
       ];
+
       monitor = ",highres,auto,${toString cfg.monitor.scale}";
+
       general = {
-        gaps_in = 5;
-        gaps_out = 10;
-        border_size = 2;
+        gaps_in = cfg.hyprland.gaps.inner;
+        gaps_out = cfg.hyprland.gaps.outer;
+        border_size = cfg.hyprland.border.size;
         
         "col.active_border" = "rgb(${colors.stripHash theme.colors.accent})";
         "col.inactive_border" = "rgb(${colors.stripHash theme.colors.color8})";
@@ -28,28 +29,27 @@ in
       };
 
       decoration = {
-          rounding = 0;
-      
-          # Shadow config
-          shadow = {
-            enabled = true;
-            range = 2;
-            render_power = 3;
-            color = "rgba(1a1a1aee)";
-          };
+        rounding = cfg.hyprland.rounding;
+    
+        shadow = {
+          enabled = cfg.hyprland.shadow.enabled;
+          range = cfg.hyprland.shadow.range;
+          render_power = 3;
+          color = "rgba(1a1a1aee)";
+        };
 
-          # Blur config
-          blur = {
-            enabled = true;
-            size = 2;
-            passes = 2;
-            special = true;
-            brightness = 0.6; # Number
-            contrast = 0.75; # Number
-          };
+        blur = {
+          enabled = cfg.hyprland.blur.enabled;
+          size = cfg.hyprland.blur.size;
+          passes = cfg.hyprland.blur.passes;
+          special = true;
+          brightness = 0.6;
+          contrast = 0.75;
+        };
       };
+
       animations = {
-        enabled = true;
+        enabled = cfg.hyprland.animations.enabled;
         bezier = [
           "easeOutQuint,0.23,1,0.32,1"
           "easeInOutCubic,0.65,0.05,0.36,1"

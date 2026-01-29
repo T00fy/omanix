@@ -4,12 +4,14 @@ with lib;
 
 let
   cfg = config.omarchy;
-  # Import the schema definition
   themeSchema = import ../../../lib/theme-schema.nix { inherit lib; };
 in
 {
-  # 1. DEFINE OPTIONS
   options.omarchy = {
+    # ═══════════════════════════════════════════════════════════════════
+    # THEME OPTIONS
+    # ═══════════════════════════════════════════════════════════════════
+    
     theme = mkOption {
       type = types.enum [ "tokyo-night" ];
       default = "tokyo-night";
@@ -28,7 +30,10 @@ in
       description = "The fully resolved theme data (colors + assets).";
     };
 
-    # New nested option for monitor scaling
+    # ═══════════════════════════════════════════════════════════════════
+    # MONITOR OPTIONS
+    # ═══════════════════════════════════════════════════════════════════
+
     monitor = {
       scale = mkOption {
         type = types.str;
@@ -39,16 +44,85 @@ in
         '';
       };
     };
-  }; # <--- THIS CLOSING BRACE WAS MISSING
 
-  # 2. IMPLEMENT CONFIGURATION
+    # ═══════════════════════════════════════════════════════════════════
+    # HYPRLAND VISUAL OPTIONS
+    # ═══════════════════════════════════════════════════════════════════
+
+    hyprland = {
+      gaps = {
+        inner = mkOption {
+          type = types.int;
+          default = 5;
+          description = "Gap size between windows.";
+        };
+        outer = mkOption {
+          type = types.int;
+          default = 10;
+          description = "Gap size between windows and screen edges.";
+        };
+      };
+
+      border = {
+        size = mkOption {
+          type = types.int;
+          default = 2;
+          description = "Window border thickness in pixels.";
+        };
+      };
+
+      rounding = mkOption {
+        type = types.int;
+        default = 0;
+        description = "Window corner rounding radius in pixels.";
+      };
+
+      blur = {
+        enabled = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable window blur effects.";
+        };
+        size = mkOption {
+          type = types.int;
+          default = 2;
+          description = "Blur size (intensity).";
+        };
+        passes = mkOption {
+          type = types.int;
+          default = 2;
+          description = "Number of blur passes (higher = smoother but slower).";
+        };
+      };
+
+      shadow = {
+        enabled = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable window shadows.";
+        };
+        range = mkOption {
+          type = types.int;
+          default = 2;
+          description = "Shadow range (size).";
+        };
+      };
+
+      animations = {
+        enabled = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable window animations.";
+        };
+      };
+    };
+  };
+
   config = {
     omarchy.activeTheme = 
       let
-        # Fetch the base theme data
         baseTheme = omarchyLib.themes.${cfg.theme};
       in
-      # Merge in wallpaper override if it exists
       baseTheme // {
         assets = baseTheme.assets // (
           if cfg.wallpaperOverride != null 
