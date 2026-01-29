@@ -13,7 +13,7 @@ Unlike traditional Linux setups, themes are applied at build time.
 2. Set the theme option:
 
 ```nix
-omarchy.theme = "tokyo-night";
+omanix.theme = "tokyo-night";
 ```
 
 3. Rebuild your system:
@@ -27,7 +27,7 @@ sudo nixos-rebuild switch --flake .
 You can override the wallpaper without changing themes:
 
 ```nix
-omarchy.wallpaperOverride = ./path/to/wallpaper.jpg;
+omanix.wallpaperOverride = ./path/to/wallpaper.jpg;
 ```
 
 ## Adding Custom Themes

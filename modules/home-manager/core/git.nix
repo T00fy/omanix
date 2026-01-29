@@ -1,10 +1,10 @@
 { config, lib, ... }:
 let
-  cfg = config.omarchy;
+  cfg = config.omanix;
 in
 {
   # Define options to accept user info
-  options.omarchy.user = {
+  options.omanix.user = {
     name = lib.mkOption { type = lib.types.str; };
     email = lib.mkOption { type = lib.types.str; };
   };

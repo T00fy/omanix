@@ -33,7 +33,7 @@ To disable suspend entirely, omit the suspend listener from your override.
 
 ## Temporarily Disable
 
-Use: `omarchy-toggle-idle` (bound to Super+Ctrl+I)
+Use: `omanix-toggle-idle` (bound to Super+Ctrl+I)
 
 ## Documentation
 

@@ -7,11 +7,11 @@ Waybar is the status bar at the top of your screen.
 Omanix exposes these options for easy customization:
 
 ```nix
-omarchy.waybar.modules-left = [ "hyprland/workspaces" ];
+omanix.waybar.modules-left = [ "hyprland/workspaces" ];
 
-omarchy.waybar.modules-center = [ "clock" ];
+omanix.waybar.modules-center = [ "clock" ];
 
-omarchy.waybar.modules-right = [ 
+omanix.waybar.modules-right = [ 
   "tray" 
   "bluetooth" 
   "network" 
@@ -25,7 +25,7 @@ omarchy.waybar.modules-right = [
 In your flake, you can extend the defaults:
 
 ```nix
-omarchy.waybar.modules-right = [
+omanix.waybar.modules-right = [
   "cpu"
   "memory"  
   "tray"
@@ -47,7 +47,7 @@ programs.waybar.settings.mainBar.clock = lib.mkForce {
 
 ## Toggle Visibility
 
-Use: `omarchy-toggle-waybar` (bound to Super+Shift+Space)
+Use: `omanix-toggle-waybar` (bound to Super+Shift+Space)
 
 ## Documentation
 

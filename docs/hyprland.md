@@ -16,35 +16,35 @@ Omanix splits Hyprland config into logical modules:
 
 ```nix
 # Display
-omarchy.monitor.scale = "1.5";
+omanix.monitor.scale = "1.5";
 
 # Multi-monitor workspace bindings
-omarchy.monitors = [
+omanix.monitors = [
   { name = "DP-2"; workspaces = [ 1 2 3 4 5 ]; }
   { name = "HDMI-A-1"; workspaces = [ 6 7 8 9 10 ]; }
 ];
 
 # Gaps
-omarchy.hyprland.gaps.inner = 5;      # Between windows
-omarchy.hyprland.gaps.outer = 10;     # Screen edges
+omanix.hyprland.gaps.inner = 5;      # Between windows
+omanix.hyprland.gaps.outer = 10;     # Screen edges
 
 # Borders
-omarchy.hyprland.border.size = 2;
+omanix.hyprland.border.size = 2;
 
 # Rounding
-omarchy.hyprland.rounding = 0;        # Corner radius
+omanix.hyprland.rounding = 0;        # Corner radius
 
 # Blur
-omarchy.hyprland.blur.enabled = true;
-omarchy.hyprland.blur.size = 2;
-omarchy.hyprland.blur.passes = 2;
+omanix.hyprland.blur.enabled = true;
+omanix.hyprland.blur.size = 2;
+omanix.hyprland.blur.passes = 2;
 
 # Shadows
-omarchy.hyprland.shadow.enabled = true;
-omarchy.hyprland.shadow.range = 2;
+omanix.hyprland.shadow.enabled = true;
+omanix.hyprland.shadow.range = 2;
 
 # Animations
-omarchy.hyprland.animations.enabled = true;
+omanix.hyprland.animations.enabled = true;
 ```
 
 ## Overriding in Your Flake

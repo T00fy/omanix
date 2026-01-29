@@ -1,6 +1,6 @@
 { config, pkgs, lib, inputs, ... }:
 let
-  theme = config.omarchy.activeTheme;
+  theme = config.omanix.activeTheme;
   elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
   
   # CSS Content matching Omarchy's walker theme
@@ -16,7 +16,7 @@ let
     * { all: unset; }
 
     * {
-      font-family: '${config.omarchy.font}';
+      font-family: '${config.omanix.font}';
       font-size: 18px;
       color: @text;
     }
@@ -91,7 +91,7 @@ in
     config = {
       force_keyboard_focus = true;
       selection_wrap = true;
-      theme = "omarchy-default";
+      theme = "omanix-default";
       hide_action_hints = true;
       close_when_open = true;
       click_to_close = true;
@@ -144,7 +144,7 @@ in
       emergencies = [
         {
           text = "Restart Walker";
-          command = "omarchy-restart-walker";
+          command = "omanix-restart-walker";
         }
       ];
     };
@@ -161,7 +161,7 @@ in
 
   # Theme files
   xdg.configFile = {
-    "walker/themes/omarchy-default/style.css".text = styleCss;
-    "walker/themes/omarchy-default/layout.xml".source = ../../../assets/branding/walker-layout.xml;
+    "walker/themes/omanix-default/style.css".text = styleCss;
+    "walker/themes/omanix-default/layout.xml".source = ../../../assets/branding/walker-layout.xml;
   };
 }

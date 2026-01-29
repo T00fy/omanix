@@ -1,6 +1,6 @@
 { config, pkgs, ... }: 
 let
-  wallpaper = config.omarchy.activeTheme.assets.wallpaper;
+  wallpaper = config.omanix.activeTheme.assets.wallpaper;
 in {
   wayland.windowManager.hyprland.settings = {
     exec-once = [

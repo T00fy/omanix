@@ -3,9 +3,9 @@ let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
   # Launch or Focus
-  launchOrFocus = pkgs.writeShellScriptBin "omarchy-launch-or-focus" ''
+  launchOrFocus = pkgs.writeShellScriptBin "omanix-launch-or-focus" ''
     if (($# == 0)); then
-      echo "Usage: omarchy-launch-or-focus [window-pattern] [launch-command]"
+      echo "Usage: omanix-launch-or-focus [window-pattern] [launch-command]"
       exit 1
     fi
 
@@ -23,34 +23,34 @@ let
 
   # Launch TUI (Terminal User Interface) in a floating window
   # Used for Wifi (Impala), Btop, etc.
-  launchTui = pkgs.writeShellScriptBin "omarchy-launch-tui" ''
+  launchTui = pkgs.writeShellScriptBin "omanix-launch-tui" ''
     if (($# == 0)); then
-      echo "Usage: omarchy-launch-tui [command] [args...]"
+      echo "Usage: omanix-launch-tui [command] [args...]"
       exit 1
     fi
 
     CMD_NAME=$(basename "$1")
     # We use ghostty class to trigger the 'floating-window' rule in Hyprland
-    # Class format: org.omarchy.[command]
-    exec setsid uwsm app -- ghostty --class="org.omarchy.$CMD_NAME" -e "$@"
+    # Class format: org.omanix.[command]
+    exec setsid uwsm app -- ghostty --class="org.omanix.$CMD_NAME" -e "$@"
   '';
 
   # Launch or Focus TUI
-  launchOrFocusTui = pkgs.writeShellScriptBin "omarchy-launch-or-focus-tui" ''
+  launchOrFocusTui = pkgs.writeShellScriptBin "omanix-launch-or-focus-tui" ''
     if (($# == 0)); then
-      echo "Usage: omarchy-launch-or-focus-tui [command]"
+      echo "Usage: omanix-launch-or-focus-tui [command]"
       exit 1
     fi
 
     CMD_NAME=$(basename "$1")
-    APP_ID="org.omarchy.$CMD_NAME"
-    LAUNCH_COMMAND="omarchy-launch-tui $@"
+    APP_ID="org.omanix.$CMD_NAME"
+    LAUNCH_COMMAND="omanix-launch-tui $@"
 
-    exec omarchy-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
+    exec omanix-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
   '';
 
   # Launch Browser
-  launchBrowser = pkgs.writeShellScriptBin "omarchy-launch-browser" ''
+  launchBrowser = pkgs.writeShellScriptBin "omanix-launch-browser" ''
     BROWSER=$(${pkgs.xdg-utils}/bin/xdg-settings get default-web-browser 2>/dev/null || echo "firefox.desktop")
 
     if [[ "$BROWSER" == *"firefox"* ]]; then
@@ -72,7 +72,7 @@ let
   '';
 
   # Terminal CWD
-  terminalCwd = pkgs.writeShellScriptBin "omarchy-cmd-terminal-cwd" ''
+  terminalCwd = pkgs.writeShellScriptBin "omanix-cmd-terminal-cwd" ''
     active_pid=$(${pkgs.hyprland}/bin/hyprctl activewindow -j | ${pkgs.jq}/bin/jq '.pid')
     if [[ -n "$active_pid" && "$active_pid" != "null" ]]; then
       shell_pid=$(${pkgs.procps}/bin/pgrep -P "$active_pid" | head -n1)
@@ -87,7 +87,7 @@ let
   '';
 
   # Launch Walker
-  launchWalker = pkgs.writeShellScriptBin "omarchy-launch-walker" ''
+  launchWalker = pkgs.writeShellScriptBin "omanix-launch-walker" ''
     WALKER="${walkerPkg}/bin/walker"
 
     # Ensure elephant is running

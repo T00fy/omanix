@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # Smart Audio Switcher (New Upstream Parity)
-  audioSwitch = pkgs.writeShellScriptBin "omarchy-cmd-audio-switch" ''
+  audioSwitch = pkgs.writeShellScriptBin "omanix-cmd-audio-switch" ''
     export PATH="${pkgs.jq}/bin:${pkgs.pulseaudio}/bin:${pkgs.swayosd}/bin:${pkgs.hyprland}/bin:$PATH"
     
     # Get current focused monitor for OSD

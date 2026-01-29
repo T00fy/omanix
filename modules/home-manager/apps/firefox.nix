@@ -29,11 +29,11 @@
       # Enhanced tab styling with clear active tab indication
       userChrome = ''
         :root {
-          --toolbar-bgcolor: ${config.omarchy.activeTheme.colors.background} !important;
-          --tab-selected-bgcolor: ${config.omarchy.activeTheme.colors.background} !important;
-          --omanix-accent: ${config.omarchy.activeTheme.colors.accent};
-          --omanix-fg: ${config.omarchy.activeTheme.colors.foreground};
-          --omanix-bg: ${config.omarchy.activeTheme.colors.background};
+          --toolbar-bgcolor: ${config.omanix.activeTheme.colors.background} !important;
+          --tab-selected-bgcolor: ${config.omanix.activeTheme.colors.background} !important;
+          --omanix-accent: ${config.omanix.activeTheme.colors.accent};
+          --omanix-fg: ${config.omanix.activeTheme.colors.foreground};
+          --omanix-bg: ${config.omanix.activeTheme.colors.background};
         }
 
         /* Toolbar/tab bar background */

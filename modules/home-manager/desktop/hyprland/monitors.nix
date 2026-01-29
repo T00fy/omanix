@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  cfg = config.omarchy;
+  cfg = config.omanix;
   
   # Generate workspace binding rules from monitor config
   workspaceBindings = lib.flatten (
@@ -12,7 +12,7 @@ let
   );
 in
 {
-  options.omarchy.monitors = lib.mkOption {
+  options.omanix.monitors = lib.mkOption {
     type = lib.types.listOf (lib.types.submodule {
       options = {
         name = lib.mkOption {
@@ -34,7 +34,7 @@ in
       Use `hyprctl monitors` to find your monitor names.
       
       Example for dual monitors:
-        omarchy.monitors = [
+        omanix.monitors = [
           { name = "DP-2"; workspaces = [ 1 2 3 4 5 ]; }
           { name = "HDMI-A-2"; workspaces = [ 6 7 8 9 10 ]; }
         ];

@@ -41,7 +41,7 @@ programs.hyprlock.settings.label = lib.mkAfter [
 
 ## Lock Screen Manually
 
-Use: `omarchy-lock-screen` (bound to Super+Ctrl+L)
+Use: `omanix-lock-screen` (bound to Super+Ctrl+L)
 
 ## Documentation
 

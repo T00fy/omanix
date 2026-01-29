@@ -3,13 +3,13 @@
   pkgs,
   lib,
   inputs,
-  omarchyLib,
+  omanixLib,
   ...
 }:
 
 let
   elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
-  availableThemes = builtins.attrNames omarchyLib.themes;
+  availableThemes = builtins.attrNames omanixLib.themes;
   
   # NixOS puts .desktop files in these locations
   nixosDataDirs = lib.concatStringsSep ":" [
@@ -83,8 +83,8 @@ in
       prefix = "nix"
     '';
 
-    "elephant/menus/omarchy_themes.lua".text = ''
-      Name = "omarchythemes"
+    "elephant/menus/omanix_themes.lua".text = ''
+      Name = "omanixthemes"
       NamePretty = "Omarchy Themes"
 
       function GetEntries()
@@ -94,7 +94,7 @@ in
         for _, name in ipairs(themes) do
           table.insert(entries, {
             Text = name:gsub("-", " "):gsub("^%l", string.upper),
-            Subtext = "NixOS: Change 'omarchy.theme' in your flake to apply.",
+            Subtext = "NixOS: Change 'omanix.theme' in your flake to apply.",
             Actions = {
               activate = "notify-send 'NixOS Theme' 'Edit your flake.nix to change theme to " .. name .. "'",
             },

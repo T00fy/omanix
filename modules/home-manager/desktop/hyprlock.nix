@@ -1,7 +1,7 @@
-{ config, lib, omarchyLib, ... }:
+{ config, lib, omanixLib, ... }:
 let
-  theme = config.omarchy.activeTheme;
-  colors = omarchyLib.colors;
+  theme = config.omanix.activeTheme;
+  colors = omanixLib.colors;
 in
 {
   programs.hyprlock = {
@@ -48,7 +48,7 @@ in
           text = "$TIME";
           color = "rgb(${colors.stripHash theme.colors.foreground})";
           font_size = 120;
-          font_family = config.omarchy.font;
+          font_family = config.omanix.font;
           position = "0, 150";
           halign = "center";
           valign = "center";
@@ -58,7 +58,7 @@ in
           text = "cmd[update:1000] echo \"$(date +'%A, %d %B')\"";
           color = "rgb(${colors.stripHash theme.colors.foreground})";
           font_size = 30;
-          font_family = config.omarchy.font;
+          font_family = config.omanix.font;
           position = "0, 50";
           halign = "center";
           valign = "center";

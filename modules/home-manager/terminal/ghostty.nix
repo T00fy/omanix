@@ -1,6 +1,6 @@
-{ config, lib, pkgs, omarchyLib, ... }:
+{ config, lib, pkgs, omanixLib, ... }:
 let
-  theme = config.omarchy.activeTheme;
+  theme = config.omanix.activeTheme;
   colors = theme.colors;
 in
 {
@@ -20,7 +20,7 @@ in
       cursor-style = "block";
       cursor-style-blink = false;
       mouse-scroll-multiplier = 1.0;      
-      font-family = config.omarchy.font;
+      font-family = config.omanix.font;
       font-style = "Regular";
       font-size = 10;
 

@@ -17,7 +17,7 @@
       home.stateVersion = "24.11";
       
       # This triggers Phase 1 logic
-      omarchy.theme = "tokyo-night"; 
+      omanix.theme = "tokyo-night"; 
       
       # This triggers Phase 2 & 3 logic via the default imports
       # (Ensure your modules/home-manager/default.nix is updated with all imports)

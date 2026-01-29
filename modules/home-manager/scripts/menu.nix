@@ -1,7 +1,7 @@
 {
   pkgs,
   inputs,
-  omarchyLib,
+  omanixLib,
   ...
 }:
 let
@@ -12,25 +12,25 @@ let
   # ═══════════════════════════════════════════════════════════════════
 
   # Get list of themes for the style doc
-  availableThemes = builtins.attrNames omarchyLib.themes;
+  availableThemes = builtins.attrNames omanixLib.themes;
   themeListFormatted = builtins.concatStringsSep "\n" (map (t: "- ${t}") availableThemes);
 
   # Style help needs theme list injected
-  showStyleHelp = pkgs.writeShellScriptBin "omarchy-show-style-help" ''
+  showStyleHelp = pkgs.writeShellScriptBin "omanix-show-style-help" ''
     HELP_FILE=$(mktemp /tmp/omanix-help-XXXXXX.md)
 
     # Read the doc and substitute the theme list placeholder
     sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${../../../docs/style.md} > "$HELP_FILE"
 
     if command -v glow &> /dev/null; then
-      ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
+      ghostty --class="org.omanix.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
     else
-      ghostty --class="org.omarchy.terminal" -e sh -c "less '$HELP_FILE'; rm '$HELP_FILE'"
+      ghostty --class="org.omanix.terminal" -e sh -c "less '$HELP_FILE'; rm '$HELP_FILE'"
     fi
   '';
 
   # Generic setup help - just displays the markdown file directly
-  showSetupHelp = pkgs.writeShellScriptBin "omarchy-show-setup-help" ''
+  showSetupHelp = pkgs.writeShellScriptBin "omanix-show-setup-help" ''
     TOPIC="$1"
     DOCS_DIR="${../../../docs}"
 
@@ -47,9 +47,9 @@ let
     esac
 
     if command -v glow &> /dev/null; then
-      ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$DOC_FILE'"
+      ghostty --class="org.omanix.terminal" -e sh -c "glow -p '$DOC_FILE'"
     else
-      ghostty --class="org.omarchy.terminal" -e sh -c "less '$DOC_FILE'"
+      ghostty --class="org.omanix.terminal" -e sh -c "less '$DOC_FILE'"
     fi
   '';
 
@@ -57,7 +57,7 @@ let
   # MAIN MENU
   # ═══════════════════════════════════════════════════════════════════
 
-  menu = pkgs.writeShellScriptBin "omarchy-menu" ''
+  menu = pkgs.writeShellScriptBin "omanix-menu" ''
     WALKER="${walkerPkg}/bin/walker"
 
     # Helper to show a walker dmenu with Omarchy styling
@@ -78,11 +78,11 @@ let
 
     go_to_menu() {
       case "''${1,,}" in
-        *apps*) omarchy-launch-walker ;;
+        *apps*) omanix-launch-walker ;;
         *learn*) show_learn_menu ;;
         *trigger*) show_trigger_menu ;;
         *system*) show_system_menu ;;
-        *style*) omarchy-show-style-help ;;
+        *style*) omanix-show-style-help ;;
         *setup*) show_setup_menu ;;
         *) ;;
       esac
@@ -94,7 +94,7 @@ let
     show_learn_menu() {
       CHOICE=$(menu_cmd "Learn" "󰌌  Keybindings\n󰖟  Hyprland\n󱄅  NixOS Wiki\n󰊠  Neovim\n󱆃  Bash")
       case "$CHOICE" in
-        *Keybindings*) omarchy-menu-keybindings ;;
+        *Keybindings*) omanix-menu-keybindings ;;
         *Hyprland*) xdg-open "https://wiki.hyprland.org" ;;
         *NixOS*) xdg-open "https://wiki.nixos.org" ;;
         *Neovim*) xdg-open "https://neovim.io/doc/" ;;
@@ -128,8 +128,8 @@ let
     show_screenshot_menu() {
       CHOICE=$(menu_cmd "Screenshot" "󰏫  Snap with Editing\n󰅍  Straight to Clipboard")
       case "$CHOICE" in
-        *Editing*) omarchy-cmd-screenshot smart ;;
-        *Clipboard*) omarchy-cmd-screenshot smart clipboard ;;
+        *Editing*) omanix-cmd-screenshot smart ;;
+        *Clipboard*) omanix-cmd-screenshot smart clipboard ;;
         *) back_to show_capture_menu ;;
       esac
     }
@@ -158,14 +158,14 @@ let
     show_setup_menu() {
       CHOICE=$(menu_cmd "Setup" "󰕾  Audio\n󰖩  Wifi\n󰂯  Bluetooth\n󰋁  Hyprland\n󰒲  Hypridle\n󰌾  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
       case "$CHOICE" in
-        *Audio*) omarchy-launch-audio ;;
-        *Wifi*) omarchy-launch-wifi ;;
-        *Bluetooth*) omarchy-launch-bluetooth ;;
-        *Hyprland*) omarchy-show-setup-help hyprland ;;
-        *Hypridle*) omarchy-show-setup-help hypridle ;;
-        *Hyprlock*) omarchy-show-setup-help hyprlock ;;
-        *Waybar*) omarchy-show-setup-help waybar ;;
-        *Walker*) omarchy-show-setup-help walker ;;
+        *Audio*) omanix-launch-audio ;;
+        *Wifi*) omanix-launch-wifi ;;
+        *Bluetooth*) omanix-launch-bluetooth ;;
+        *Hyprland*) omanix-show-setup-help hyprland ;;
+        *Hypridle*) omanix-show-setup-help hypridle ;;
+        *Hyprlock*) omanix-show-setup-help hyprlock ;;
+        *Waybar*) omanix-show-setup-help waybar ;;
+        *Walker*) omanix-show-setup-help walker ;;
         *) back_to show_main_menu ;;
       esac
     }
@@ -176,11 +176,11 @@ let
     show_system_menu() {
       CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
       case "$CHOICE" in
-        *Lock*) omarchy-lock-screen ;;
+        *Lock*) omanix-lock-screen ;;
         *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
         *Suspend*) systemctl suspend ;;
-        *Restart*) omarchy-cmd-reboot ;;
-        *Shutdown*) omarchy-cmd-shutdown ;;
+        *Restart*) omanix-cmd-reboot ;;
+        *Shutdown*) omanix-cmd-shutdown ;;
         *) back_to show_main_menu ;;
       esac
     }
@@ -197,7 +197,7 @@ let
   # KEYBINDINGS MENU
   # ═══════════════════════════════════════════════════════════════════
 
-  keybindingsMenu = pkgs.writeShellScriptBin "omarchy-menu-keybindings" ''
+  keybindingsMenu = pkgs.writeShellScriptBin "omanix-menu-keybindings" ''
     export PATH="${pkgs.gawk}/bin:${pkgs.libxkbcommon}/bin:${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
 
     declare -A KEYCODE_SYM_MAP
@@ -324,7 +324,7 @@ let
       monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')
       menu_height=$((monitor_height * 40 / 100))
       
-      output_keybindings | omarchy-launch-walker --dmenu -p 'Keybindings' --width 800 --height "$menu_height"
+      output_keybindings | omanix-launch-walker --dmenu -p 'Keybindings' --width 800 --height "$menu_height"
     fi
   '';
 
@@ -332,26 +332,26 @@ let
   # UTILITY SCRIPTS
   # ═══════════════════════════════════════════════════════════════════
 
-  restartWalker = pkgs.writeShellScriptBin "omarchy-restart-walker" ''
+  restartWalker = pkgs.writeShellScriptBin "omanix-restart-walker" ''
     systemctl --user restart elephant.service
     sleep 0.5
     systemctl --user restart walker.service
     ${pkgs.libnotify}/bin/notify-send "Walker" "Services have been restarted"
   '';
 
-  launchAudio = pkgs.writeShellScriptBin "omarchy-launch-audio" ''
+  launchAudio = pkgs.writeShellScriptBin "omanix-launch-audio" ''
     ${pkgs.pavucontrol}/bin/pavucontrol &
   '';
 
-  launchWifi = pkgs.writeShellScriptBin "omarchy-launch-wifi" ''
-    omarchy-launch-or-focus-tui impala
+  launchWifi = pkgs.writeShellScriptBin "omanix-launch-wifi" ''
+    omanix-launch-or-focus-tui impala
   '';
 
-  launchBluetooth = pkgs.writeShellScriptBin "omarchy-launch-bluetooth" ''
-    omarchy-launch-or-focus-tui bluetui
+  launchBluetooth = pkgs.writeShellScriptBin "omanix-launch-bluetooth" ''
+    omanix-launch-or-focus-tui bluetui
   '';
 
-  toggleWaybar = pkgs.writeShellScriptBin "omarchy-toggle-waybar" ''
+  toggleWaybar = pkgs.writeShellScriptBin "omanix-toggle-waybar" ''
     if pgrep -x waybar > /dev/null; then
       pkill waybar
     else

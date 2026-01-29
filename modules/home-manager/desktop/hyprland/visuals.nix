@@ -1,8 +1,8 @@
-{ config, lib, omarchyLib, ... }:
+{ config, lib, omanixLib, ... }:
 let
-  theme = config.omarchy.activeTheme;
-  colors = omarchyLib.colors;
-  cfg = config.omarchy;
+  theme = config.omanix.activeTheme;
+  colors = omanixLib.colors;
+  cfg = config.omanix;
 in
 {
   wayland.windowManager.hyprland = {

@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  theme = config.omarchy.activeTheme;
+  theme = config.omanix.activeTheme;
   
   # Fetch the theme file from the URL defined in the theme
   batThemeFile = pkgs.fetchurl {

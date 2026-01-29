@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # 1. Screenshot
-  screenshot = pkgs.writeShellScriptBin "omarchy-cmd-screenshot" ''
+  screenshot = pkgs.writeShellScriptBin "omanix-cmd-screenshot" ''
     export PATH="${pkgs.coreutils}/bin:${pkgs.jq}/bin:${pkgs.gawk}/bin:${pkgs.procps}/bin:$PATH"
 
     # Define binaries
@@ -130,7 +130,7 @@ let
   '';
 
   # 2. Lock Screen (New Upstream Parity)
-  lockScreen = pkgs.writeShellScriptBin "omarchy-lock-screen" ''
+  lockScreen = pkgs.writeShellScriptBin "omanix-lock-screen" ''
     # Lock the screen immediately
     pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock &
 
@@ -147,14 +147,14 @@ let
   '';
 
   # 3. Shutdown / Reboot (Graceful)
-  shutdown = pkgs.writeShellScriptBin "omarchy-cmd-shutdown" ''
+  shutdown = pkgs.writeShellScriptBin "omanix-cmd-shutdown" ''
     # Close all windows first to save state
     ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r ".[].address" | xargs -r -I{} ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:{}
     sleep 1
     systemctl poweroff
   '';
 
-  reboot = pkgs.writeShellScriptBin "omarchy-cmd-reboot" ''
+  reboot = pkgs.writeShellScriptBin "omanix-cmd-reboot" ''
     ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r ".[].address" | xargs -r -I{} ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:{}
     sleep 1
     systemctl reboot

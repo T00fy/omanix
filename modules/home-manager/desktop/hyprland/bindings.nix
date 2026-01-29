@@ -12,7 +12,7 @@ in
     # ═══════════════════════════════════════════════════════════════════
     "$terminal" = "ghostty";
     "$fileManager" = "nautilus --new-window";
-    "$browser" = "omarchy-launch-browser";
+    "$browser" = "omanix-launch-browser";
     "$music" = "spotify"; 
     
     # Note: $messenger variable removed as you requested removing the bindings for Signal/Google
@@ -24,7 +24,7 @@ in
       "$mainMod, RETURN, exec, $terminal"
       "$mainMod SHIFT, F, exec, $fileManager"
       "$mainMod SHIFT, B, exec, $browser"
-      "$mainMod SHIFT ALT, B, exec, omarchy-launch-browser --private"
+      "$mainMod SHIFT ALT, B, exec, omanix-launch-browser --private"
       
       # Restored 'SHIFT' to match Omarchy manual
       "$mainMod SHIFT, M, exec, $music"
@@ -40,14 +40,14 @@ in
       "$mainMod, C, sendshortcut, CTRL, Insert,"
       "$mainMod, V, sendshortcut, SHIFT, Insert,"
       "$mainMod, X, sendshortcut, CTRL, X,"
-      "$mainMod CTRL, V, exec, omarchy-launch-walker -m clipboard"
+      "$mainMod CTRL, V, exec, omanix-launch-walker -m clipboard"
       
       # ─────────────────────────────────────────────────────────────────
       # Window Management
       # ─────────────────────────────────────────────────────────────────
       # Close windows
       "$mainMod, W, killactive"
-      "CTRL ALT, DELETE, exec, omarchy-hyprland-window-close-all"
+      "CTRL ALT, DELETE, exec, omanix-hyprland-window-close-all"
       
       # Control tiling - Restored Omarchy defaults
       "$mainMod, J, togglesplit"
@@ -56,7 +56,7 @@ in
       "$mainMod, F, fullscreen, 0"
       "$mainMod CTRL, F, fullscreenstate, 0 2"
       "$mainMod ALT, F, fullscreen, 1"
-      "$mainMod, code:32, exec, omarchy-hyprland-window-pop" # O key - Pop window
+      "$mainMod, code:32, exec, omanix-hyprland-window-pop" # O key - Pop window
       
       # Move focus with arrow keys
       "$mainMod, LEFT, movefocus, l"
@@ -160,19 +160,19 @@ in
       # Utilities
       # ─────────────────────────────────────────────────────────────────
       # Menus
-      "$mainMod, SPACE, exec, omarchy-launch-walker"
-      "$mainMod CTRL, E, exec, omarchy-launch-walker -m symbols"
-      "$mainMod ALT, SPACE, exec, omarchy-menu"
-      "$mainMod, ESCAPE, exec, omarchy-menu system"
-      "$mainMod, K, exec, omarchy-menu-keybindings"
+      "$mainMod, SPACE, exec, omanix-launch-walker"
+      "$mainMod CTRL, E, exec, omanix-launch-walker -m symbols"
+      "$mainMod ALT, SPACE, exec, omanix-menu"
+      "$mainMod, ESCAPE, exec, omanix-menu system"
+      "$mainMod, K, exec, omanix-menu-keybindings"
       ", XF86Calculator, exec, gnome-calculator"
 
       # Aesthetics
-      "$mainMod SHIFT, SPACE, exec, omarchy-toggle-waybar"
-      "$mainMod CTRL, SPACE, exec, omarchy-theme-bg-next"
+      "$mainMod SHIFT, SPACE, exec, omanix-toggle-waybar"
+      "$mainMod CTRL, SPACE, exec, omanix-theme-bg-next"
       # Removed: Theme picker (Super+Ctrl+Shift+Space)
       ''$mainMod, BACKSPACE, exec, hyprctl dispatch setprop "address:$(hyprctl activewindow -j | jq -r '.address')" opaque toggle''
-      "$mainMod SHIFT, BACKSPACE, exec, omarchy-hyprland-workspace-toggle-gaps"
+      "$mainMod SHIFT, BACKSPACE, exec, omanix-hyprland-workspace-toggle-gaps"
 
       # Notifications
       "$mainMod, COMMA, exec, makoctl dismiss"
@@ -182,32 +182,32 @@ in
       "$mainMod SHIFT ALT, COMMA, exec, makoctl restore"
 
       # Toggle idle/nightlight
-      "$mainMod CTRL, I, exec, omarchy-toggle-idle"
-      "$mainMod CTRL, N, exec, omarchy-toggle-nightlight"
+      "$mainMod CTRL, I, exec, omanix-toggle-idle"
+      "$mainMod CTRL, N, exec, omanix-toggle-nightlight"
 
       # Removed: Apple Display brightness controls (Ctrl + F1/F2)
 
       # Captures
-      ", PRINT, exec, omarchy-cmd-screenshot"
-      "SHIFT, PRINT, exec, omarchy-cmd-screenshot smart clipboard"
-      "ALT, PRINT, exec, omarchy-menu screenrecord"
+      ", PRINT, exec, omanix-cmd-screenshot"
+      "SHIFT, PRINT, exec, omanix-cmd-screenshot smart clipboard"
+      "ALT, PRINT, exec, omanix-menu screenrecord"
       "$mainMod, PRINT, exec, pkill hyprpicker || hyprpicker -a"
 
       # File sharing
-      "$mainMod CTRL, S, exec, omarchy-menu share"
+      "$mainMod CTRL, S, exec, omanix-menu share"
 
       # Waybar-less info
       ''$mainMod CTRL ALT, T, exec, notify-send "    $(date +"%A %H:%M  —  %d %B W%V %Y")"''
-      ''$mainMod CTRL ALT, B, exec, notify-send "󰁹    Battery is at $(omarchy-battery-remaining)%"''
+      ''$mainMod CTRL ALT, B, exec, notify-send "󰁹    Battery is at $(omanix-battery-remaining)%"''
 
       # Control panels (btop moved here to match Omarchy)
-      "$mainMod CTRL, A, exec, omarchy-launch-audio"
-      "$mainMod CTRL, B, exec, omarchy-launch-bluetooth"
-      "$mainMod CTRL, W, exec, omarchy-launch-wifi"
-      "$mainMod CTRL, T, exec, omarchy-launch-tui btop"
+      "$mainMod CTRL, A, exec, omanix-launch-audio"
+      "$mainMod CTRL, B, exec, omanix-launch-bluetooth"
+      "$mainMod CTRL, W, exec, omanix-launch-wifi"
+      "$mainMod CTRL, T, exec, omanix-launch-tui btop"
 
       # Lock system
-      "$mainMod CTRL, L, exec, omarchy-lock-screen"
+      "$mainMod CTRL, L, exec, omanix-lock-screen"
     ];
 
     # ═══════════════════════════════════════════════════════════════════
@@ -243,8 +243,8 @@ in
       ", XF86AudioPause, exec, ${osdClient} --playerctl play-pause"
       ", XF86AudioPlay, exec, ${osdClient} --playerctl play-pause"
       ", XF86AudioPrev, exec, ${osdClient} --playerctl previous"
-      "$mainMod, XF86AudioMute, exec, omarchy-cmd-audio-switch"
-      ", XF86PowerOff, exec, omarchy-menu system"
+      "$mainMod, XF86AudioMute, exec, omanix-cmd-audio-switch"
+      ", XF86PowerOff, exec, omanix-menu system"
     ];
 
     # Removed: Dictation bindings (bindd / binddr)

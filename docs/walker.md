@@ -42,7 +42,7 @@ xdg.configFile."elephant/websearch.toml".text = lib.mkForce ''
 
 ## Restart Walker
 
-If Walker misbehaves, run: `omarchy-restart-walker`
+If Walker misbehaves, run: `omanix-restart-walker`
 
 ## Documentation
 

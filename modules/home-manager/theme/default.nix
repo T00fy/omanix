@@ -1,13 +1,13 @@
-{ config, lib, omarchyLib, ... }:
+{ config, lib, omanixLib, ... }:
 
 with lib;
 
 let
-  cfg = config.omarchy;
+  cfg = config.omanix;
   themeSchema = import ../../../lib/theme-schema.nix { inherit lib; };
 in
 {
-  options.omarchy = {
+  options.omanix = {
     # ═══════════════════════════════════════════════════════════════════
     # THEME OPTIONS
     # ═══════════════════════════════════════════════════════════════════
@@ -119,9 +119,9 @@ in
   };
 
   config = {
-    omarchy.activeTheme = 
+    omanix.activeTheme = 
       let
-        baseTheme = omarchyLib.themes.${cfg.theme};
+        baseTheme = omanixLib.themes.${cfg.theme};
       in
       baseTheme // {
         assets = baseTheme.assets // (

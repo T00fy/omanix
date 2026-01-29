@@ -5,9 +5,9 @@
   ...
 }:
 let
-  theme = config.omarchy.activeTheme;
-  cfg = config.omarchy.waybar;
-  monitorCfg = config.omarchy.monitors;
+  theme = config.omanix.activeTheme;
+  cfg = config.omanix.waybar;
+  monitorCfg = config.omanix.monitors;
 
   # Build format-icons dynamically from monitor config
   buildFormatIcons =
@@ -71,7 +71,7 @@ let
     if monitorCfg != [ ] then buildPersistentWorkspaces monitorCfg else defaultPersistentWorkspaces;
 in
 {
-  options.omarchy.waybar = {
+  options.omanix.waybar = {
     modules-left = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ "hyprland/workspaces" ];
@@ -204,7 +204,7 @@ in
           border: none;
           border-radius: 0;
           min-height: 0;
-          font-family: 'omarchy', '${config.omarchy.font}'; 
+          font-family: 'omanix', '${config.omanix.font}'; 
           font-size: 13px;
         }
 
@@ -220,7 +220,7 @@ in
 
         #workspaces button.empty { opacity: 0.5; }
 
-        #cpu, #battery, #pulseaudio, #custom-omarchy, 
+        #cpu, #battery, #pulseaudio, #custom-omanix, 
         #custom-screenrecording-indicator, #custom-update {
           min-width: 12px;
           margin: 0 7.5px;
@@ -234,7 +234,7 @@ in
         tooltip { padding: 2px; }
         #custom-update { font-size: 10px; }
         #clock {
-          font-family: '${config.omarchy.font}';
+          font-family: '${config.omanix.font}';
           min-width: 150px;
           margin-left: 8.75px;
         }

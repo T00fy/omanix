@@ -1,10 +1,10 @@
 { config, pkgs, lib, ... }:
 let
-  cfg = config.omarchy.neovim;
-  lang = config.omarchy.languages;
+  cfg = config.omanix.neovim;
+  lang = config.omanix.languages;
 in
 {
-  options.omarchy.neovim = {
+  options.omanix.neovim = {
     enable = lib.mkEnableOption "Neovim with LazyVim" // { default = true; };
   };
 
@@ -12,7 +12,7 @@ in
     programs.lazyvim = {
       enable = true;
 
-      # We manage dependencies via omarchy.languages, not lazyvim-nix
+      # We manage dependencies via omanix.languages, not lazyvim-nix
       installCoreDependencies = true;  # git, ripgrep, fd, lazygit, fzf, curl
 
       # Wire up LazyVim extras based on enabled languages

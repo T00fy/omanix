@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  cfg = config.omarchy.languages;
+  cfg = config.omanix.languages;
   
   # Wrapper that provides 'terraform' command pointing to opentofu
   terraformAlias = pkgs.writeShellScriptBin "terraform" ''
@@ -8,7 +8,7 @@ let
   '';
 in
 {
-  options.omarchy.languages = {
+  options.omanix.languages = {
     nix.enable = lib.mkEnableOption "Nix development tools" // { default = true; };
     markdown.enable = lib.mkEnableOption "Markdown tools" // { default = true; };
     rust.enable = lib.mkEnableOption "Rust toolchain";

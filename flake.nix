@@ -40,13 +40,13 @@
     let
       system = "x86_64-linux";
       # We instantiate our custom lib here using nixpkgs lib
-      omarchyLib = import ./lib {
+      omanixLib = import ./lib {
         inherit (nixpkgs) lib;
       };
     in
     {
       # Export the library for external use
-      lib = omarchyLib;
+      lib = omanixLib;
       nixosModules.default = import ./modules/nixos;
 
       # Home Manager module (user-level)
@@ -64,7 +64,7 @@
             walker.homeManagerModules.default
           ];
           # Pass our custom lib down to modules so we can access themes/utils
-          _module.args.omarchyLib = omarchyLib;
+          _module.args.omanixLib = omanixLib;
           _module.args.inputs = inputs;
         };
 

@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 let
-  theme = config.omarchy.activeTheme;
+  theme = config.omanix.activeTheme;
 in
 {
   home.packages = with pkgs; [

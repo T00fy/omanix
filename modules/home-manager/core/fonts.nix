@@ -1,9 +1,9 @@
 { pkgs, lib, config, ... }:
 let
-  cfg = config.omarchy;
+  cfg = config.omanix;
 in
 {
-  options.omarchy.font = lib.mkOption {
+  options.omanix.font = lib.mkOption {
     type = lib.types.str;
     default = "JetBrainsMono Nerd Font";
     description = "The primary monospace font used across the system.";
@@ -18,9 +18,9 @@ in
       noto-fonts-cjk-sans     # CJK Fallbacks
       noto-fonts-color-emoji  # Emoji
       font-awesome            # Icons
-      (pkgs.runCommand "omarchy-font" {} ''
+      (pkgs.runCommand "omanix-font" {} ''
         mkdir -p $out/share/fonts/truetype
-        cp ${../../../assets/fonts/omarchy.ttf} $out/share/fonts/truetype/
+        cp ${../../../assets/fonts/omanix.ttf} $out/share/fonts/truetype/
       '')
     ];
 
