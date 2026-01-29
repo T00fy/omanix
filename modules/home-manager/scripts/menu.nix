@@ -1,9 +1,18 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  omarchyLib,
+  ...
+}:
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
+  # Get list of themes available in the library for the Style menu
+  availableThemes = builtins.attrNames omarchyLib.themes;
+  # Format them for Walker (Icon + Name)
+  themeListStr = builtins.concatStringsSep "\\n" (map (t: "󰸌  " + t) availableThemes);
+
   # The Main Omarchy Menu
-  # Includes comprehensive Nerd Font icons to match upstream look
   menu = pkgs.writeShellScriptBin "omarchy-menu" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -72,13 +81,12 @@ let
       esac
     }
 
+    # Fixed Screenshot menu to match upstream (Editing vs Clipboard)
     show_screenshot_menu() {
-      CHOICE=$(menu_cmd "Screenshot" "  Smart Select\n󰍹  Full Screen\n  Region\n󱂬  Window")
+      CHOICE=$(menu_cmd "Screenshot" "  Snap with Editing\n  Straight to Clipboard")
       case "$CHOICE" in
-        *Smart*) omarchy-cmd-screenshot smart file ;;
-        *Full*) omarchy-cmd-screenshot fullscreen file ;;
-        *Region*) omarchy-cmd-screenshot region file ;;
-        *Window*) omarchy-cmd-screenshot windows file ;;
+        *Editing*) omarchy-cmd-screenshot smart ;;
+        *Clipboard*) omarchy-cmd-screenshot smart clipboard ;;
         *) back_to show_capture_menu ;;
       esac
     }
@@ -96,7 +104,7 @@ let
     show_share_menu() {
       CHOICE=$(menu_cmd "Share" "󰷛  LocalSend")
       case "$CHOICE" in
-        *LocalSend*) localsend ;;
+        *LocalSend*) localsend_app ;;
         *) back_to show_trigger_menu ;;
       esac
     }
@@ -105,13 +113,39 @@ let
     # STYLE MENU
     # ═══════════════════════════════════════════════════════════════════
     show_style_menu() {
-      CHOICE=$(menu_cmd "Style" "  Background\n󰸌  Theme\n  Font")
+      CHOICE=$(menu_cmd "Style" "󰸌  Theme\n  Background\n  Font")
       case "$CHOICE" in
-        *Background*) omarchy-theme-bg-next 2>/dev/null || ${pkgs.libnotify}/bin/notify-send "Background" "Cycle wallpaper not yet implemented" ;;
-        *Theme*) ${pkgs.libnotify}/bin/notify-send "NixOS Configuration" "Edit 'omarchy.theme' in your flake.nix and rebuild to change the theme." ;;
-        *Font*) ${pkgs.libnotify}/bin/notify-send "NixOS Configuration" "Edit 'omarchy.font' in your flake.nix and rebuild to change the font." ;;
+        *Theme*) show_theme_list ;;
+        *Background*) ${pkgs.libnotify}/bin/notify-send "Background" "To change background:\n1. Add image to assets/wallpapers\n2. Update omarchy.theme.assets.wallpaper in flake.nix\n3. Rebuild system" ;;
+        *Font*) show_font_info ;;
         *) back_to show_main_menu ;;
       esac
+    }
+
+    # Informational Theme List
+    show_theme_list() {
+      # Show the list of available themes from Nix
+      THEME=$(echo -e "${themeListStr}" | "$WALKER" --dmenu --width 400 --minheight 1 --maxheight 630 --placeholder "Available Themes...")
+      
+      # If they picked one, tell them how to set it
+      if [[ -n "$THEME" ]]; then
+        CLEAN_NAME=$(echo "$THEME" | sed 's/󰸌  //')
+        ${pkgs.libnotify}/bin/notify-send "Set Theme: $CLEAN_NAME" "Edit flake.nix:\nomarchy.theme = \"$CLEAN_NAME\";\n\nThen run: sudo nixos-rebuild switch --flake ." -t 10000
+      else
+        back_to show_style_menu
+      fi
+    }
+
+    show_font_info() {
+      # Just list standard Nerd Fonts available in Omanix
+      CHOICE=$(echo -e "  JetBrainsMono Nerd Font\n  FiraCode Nerd Font\n  Iosevka Nerd Font" | "$WALKER" --dmenu --width 400 --placeholder "Supported Fonts...")
+      
+      if [[ -n "$CHOICE" ]]; then
+        CLEAN_NAME=$(echo "$CHOICE" | sed 's/  //')
+        ${pkgs.libnotify}/bin/notify-send "Set Font: $CLEAN_NAME" "Edit flake.nix:\nomarchy.font = \"$CLEAN_NAME\";\n\nThen run: sudo nixos-rebuild switch --flake ." -t 10000
+      else
+        back_to show_style_menu
+      fi
     }
 
     # ═══════════════════════════════════════════════════════════════════
@@ -123,13 +157,20 @@ let
         *Audio*) omarchy-launch-audio ;;
         *Wifi*) omarchy-launch-wifi ;;
         *Bluetooth*) omarchy-launch-bluetooth ;;
-        *Hyprland*) ''${EDITOR:-nvim} ~/.config/hypr ;;
-        *Hypridle*) ''${EDITOR:-nvim} ~/.config/hypr/hypridle.conf ;;
-        *Hyprlock*) ''${EDITOR:-nvim} ~/.config/hypr/hyprlock.conf ;;
-        *Waybar*) ''${EDITOR:-nvim} ~/.config/waybar ;;
-        *Walker*) ''${EDITOR:-nvim} ~/.config/walker ;;
+        # Configs are declarative in NixOS, show info instead of opening nvim
+        *Hyprland*) show_config_info "Hyprland" "modules/home-manager/desktop/hyprland/" ;;
+        *Hypridle*) show_config_info "Hypridle" "modules/home-manager/desktop/hypridle.nix" ;;
+        *Hyprlock*) show_config_info "Hyprlock" "modules/home-manager/desktop/hyprlock.nix" ;;
+        *Waybar*) show_config_info "Waybar" "modules/home-manager/ui/waybar.nix" ;;
+        *Walker*) show_config_info "Walker" "modules/home-manager/ui/walker.nix" ;;
         *) back_to show_main_menu ;;
       esac
+    }
+
+    show_config_info() {
+      NAME="$1"
+      PATH="$2"
+      ${pkgs.libnotify}/bin/notify-send "Configuring $NAME" "This configuration is managed by Nix.\n\nEdit: $PATH\nin your Omanix repository." -t 8000
     }
 
     # ═══════════════════════════════════════════════════════════════════
@@ -159,7 +200,7 @@ let
   # Keybindings menu parser logic ported from upstream Bash
   keybindingsMenu = pkgs.writeShellScriptBin "omarchy-menu-keybindings" ''
     export PATH="${pkgs.gawk}/bin:${pkgs.libxkbcommon}/bin:${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
-    
+
     declare -A KEYCODE_SYM_MAP
 
     build_keymap_cache() {
@@ -302,14 +343,16 @@ let
     ${pkgs.pavucontrol}/bin/pavucontrol &
   '';
 
-  # Wifi launcher  
+  # Wifi launcher - Uses Impala TUI
   launchWifi = pkgs.writeShellScriptBin "omarchy-launch-wifi" ''
-    ${pkgs.networkmanagerapplet}/bin/nm-connection-editor &
+    # Using the TUI helper created in core.nix
+    omarchy-launch-or-focus-tui impala
   '';
 
-  # Bluetooth launcher
+  # Bluetooth launcher - Uses BlueTUI
   launchBluetooth = pkgs.writeShellScriptBin "omarchy-launch-bluetooth" ''
-    ${pkgs.blueman}/bin/blueman-manager &
+    # Fallback to bluetui if available, similar to impala
+    omarchy-launch-or-focus-tui bluetui
   '';
 
   # Toggle waybar
@@ -333,6 +376,9 @@ in
     toggleWaybar
     pkgs.networkmanagerapplet
     pkgs.libxkbcommon # Required for xkbcli
-    pkgs.gawk         # Required for awk
+    pkgs.gawk # Required for awk
+    pkgs.localsend # Required for Share > LocalSend
+    pkgs.impala # Required for Wifi TUI
+    pkgs.bluetui # Required for Bluetooth TUI
   ];
 }

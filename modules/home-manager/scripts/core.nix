@@ -21,6 +21,34 @@ let
     fi
   '';
 
+  # Launch TUI (Terminal User Interface) in a floating window
+  # Used for Wifi (Impala), Btop, etc.
+  launchTui = pkgs.writeShellScriptBin "omarchy-launch-tui" ''
+    if (($# == 0)); then
+      echo "Usage: omarchy-launch-tui [command] [args...]"
+      exit 1
+    fi
+
+    CMD_NAME=$(basename "$1")
+    # We use ghostty class to trigger the 'floating-window' rule in Hyprland
+    # Class format: org.omarchy.[command]
+    exec setsid uwsm app -- ghostty --class="org.omarchy.$CMD_NAME" -e "$@"
+  '';
+
+  # Launch or Focus TUI
+  launchOrFocusTui = pkgs.writeShellScriptBin "omarchy-launch-or-focus-tui" ''
+    if (($# == 0)); then
+      echo "Usage: omarchy-launch-or-focus-tui [command]"
+      exit 1
+    fi
+
+    CMD_NAME=$(basename "$1")
+    APP_ID="org.omarchy.$CMD_NAME"
+    LAUNCH_COMMAND="omarchy-launch-tui $@"
+
+    exec omarchy-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
+  '';
+
   # Launch Browser
   launchBrowser = pkgs.writeShellScriptBin "omarchy-launch-browser" ''
     BROWSER=$(${pkgs.xdg-utils}/bin/xdg-settings get default-web-browser 2>/dev/null || echo "firefox.desktop")
@@ -59,7 +87,6 @@ let
   '';
 
   # Launch Walker
-  # Enforces specific dimensions to match Omarchy's visual design exactly
   launchWalker = pkgs.writeShellScriptBin "omarchy-launch-walker" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -83,6 +110,8 @@ in
 {
   home.packages = [
     launchOrFocus
+    launchTui
+    launchOrFocusTui
     launchBrowser
     terminalCwd
     launchWalker
