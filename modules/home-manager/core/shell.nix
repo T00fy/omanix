@@ -59,6 +59,7 @@
       la = "eza -la --icons=auto";
       pbcopy = "wl-copy";
       pbpaste = "wl-paste";
+      cat = "bat -pp";
 
       # Nix specific shortcuts
       rebuild = "sudo nixos-rebuild switch --flake .";
