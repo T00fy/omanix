@@ -1,21 +1,40 @@
-{ config, lib, omanixLib, ... }:
+{ config, lib, omanixLib, osConfig ? null, ... }:
 
 with lib;
 
 let
   cfg = config.omanix;
   themeSchema = import ../../../lib/theme-schema.nix { inherit lib; };
+  availableThemes = builtins.attrNames omanixLib.themes;
+
+  # Check if we're running under NixOS with omanix enabled
+  hasOsTheme = osConfig != null 
+    && osConfig ? omanix 
+    && osConfig.omanix ? enable 
+    && osConfig.omanix.enable 
+    && osConfig.omanix ? theme;
 in
 {
   options.omanix = {
     # ═══════════════════════════════════════════════════════════════════
     # THEME OPTIONS
     # ═══════════════════════════════════════════════════════════════════
-    
+
     theme = mkOption {
-      type = types.enum [ "tokyo-night" ];
-      default = "tokyo-night";
-      description = "Select the active Omarchy theme.";
+      type = types.enum availableThemes;
+      default = if hasOsTheme then osConfig.omanix.theme else "tokyo-night";
+      defaultText = literalExpression ''
+        If running under NixOS with omanix.enable = true: osConfig.omanix.theme
+        Otherwise: "tokyo-night"
+      '';
+      description = ''
+        Select the active Omanix theme.
+        
+        When using Home Manager as a NixOS module with omanix.enable = true,
+        this automatically inherits from the system-level omanix.theme setting.
+        
+        Available themes: ${concatStringsSep ", " availableThemes}
+      '';
     };
 
     wallpaperOverride = mkOption {
@@ -119,15 +138,15 @@ in
   };
 
   config = {
-    omanix.activeTheme = 
+    omanix.activeTheme =
       let
         baseTheme = omanixLib.themes.${cfg.theme};
       in
       baseTheme // {
         assets = baseTheme.assets // (
-          if cfg.wallpaperOverride != null 
+          if cfg.wallpaperOverride != null
           then { wallpaper = cfg.wallpaperOverride; }
-          else {}
+          else { }
         );
       };
   };
