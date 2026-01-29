@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  omarchyLib,
-  ...
-}:
+{ config, lib, omarchyLib, ... }:
 
 with lib;
 
@@ -44,50 +39,22 @@ in
         '';
       };
     };
-    monitors = mkOption {
-      type = types.listOf (
-        types.submodule {
-          options = {
-            name = mkOption {
-              type = types.str;
-              description = "Connector name, e.g. DP-2";
-            };
-            workspaces = mkOption {
-              type = types.listOf types.int;
-              description = "Workspaces to pin to this monitor";
-            };
-          };
-        }
-      );
-      default = [
-        {
-          name = "";
-          workspaces = [
-            1
-            2
-            3
-            4
-            5
-          ];
-        }
-      ];
-      description = "Hardware monitor layout and workspace assignments.";
-    };
+  }; # <--- THIS CLOSING BRACE WAS MISSING
 
-  };
-
+  # 2. IMPLEMENT CONFIGURATION
   config = {
-    omarchy.activeTheme =
+    omarchy.activeTheme = 
       let
         # Fetch the base theme data
         baseTheme = omarchyLib.themes.${cfg.theme};
       in
       # Merge in wallpaper override if it exists
-      baseTheme
-      // {
-        assets =
-          baseTheme.assets
-          // (if cfg.wallpaperOverride != null then { wallpaper = cfg.wallpaperOverride; } else { });
+      baseTheme // {
+        assets = baseTheme.assets // (
+          if cfg.wallpaperOverride != null 
+          then { wallpaper = cfg.wallpaperOverride; }
+          else {}
+        );
       };
   };
 }
