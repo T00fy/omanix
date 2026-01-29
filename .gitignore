@@ -13,3 +13,4 @@ result-*
 .vscode/
 *.swp
 *~
+.r2t.yaml

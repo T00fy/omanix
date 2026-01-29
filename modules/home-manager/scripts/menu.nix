@@ -7,58 +7,21 @@
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  # Get list of themes available in the library
+  # ═══════════════════════════════════════════════════════════════════
+  # HELP SYSTEM
+  # ═══════════════════════════════════════════════════════════════════
+  
+  # Get list of themes for the style doc
   availableThemes = builtins.attrNames omarchyLib.themes;
-  
-  # Format themes as a bulleted list for the help text
-  themeListFormatted = builtins.concatStringsSep "\n" (map (t: "  • ${t}") availableThemes);
-  
-  # Build the help text content
-  styleHelpText = ''
-# Omanix Theming Guide
+  themeListFormatted = builtins.concatStringsSep "\n" (map (t: "- ${t}") availableThemes);
 
-Omanix uses declarative theming through your NixOS configuration.
-Unlike traditional Linux setups, themes are applied at build time.
-
-## Available Themes
-
-${themeListFormatted}
-
-## How to Change Theme
-
-1. Edit your flake.nix or home-manager configuration
-2. Set the theme option:
-
-   omarchy.theme = "tokyo-night";
-
-3. Rebuild your system:
-
-   sudo nixos-rebuild switch --flake .
-
-## Customizing Wallpaper
-
-You can override the wallpaper without changing themes:
-
-   omarchy.wallpaperOverride = ./path/to/wallpaper.jpg;
-
-## Adding Custom Themes
-
-To add a new theme, edit lib/themes.nix in your Omanix repo.
-Each theme requires: meta, assets, bat config, and color palette.
-
-See the tokyo-night theme as a reference.
-'';
-
-  # Script to show the style help using a floating terminal with glow (markdown viewer)
+  # Style help needs theme list injected
   showStyleHelp = pkgs.writeShellScriptBin "omarchy-show-style-help" ''
-    # Create a temp file with the help content
-    HELP_FILE=$(mktemp /tmp/omanix-style-help-XXXXXX.md)
-    cat > "$HELP_FILE" << 'HELPEOF'
-${styleHelpText}
-HELPEOF
-
-    # Show it in a floating terminal with glow for nice markdown rendering
-    # Falls back to less if glow isn't available
+    HELP_FILE=$(mktemp /tmp/omanix-help-XXXXXX.md)
+    
+    # Read the doc and substitute the theme list placeholder
+    sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${../../../docs/style.md} > "$HELP_FILE"
+    
     if command -v glow &> /dev/null; then
       ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
     else
@@ -66,7 +29,34 @@ HELPEOF
     fi
   '';
 
-  # The Main Omarchy Menu
+  # Generic setup help - just displays the markdown file directly
+  showSetupHelp = pkgs.writeShellScriptBin "omarchy-show-setup-help" ''
+    TOPIC="$1"
+    DOCS_DIR="${../../../docs}"
+    
+    case "$TOPIC" in
+      hyprland)  DOC_FILE="$DOCS_DIR/hyprland.md" ;;
+      hypridle)  DOC_FILE="$DOCS_DIR/hypridle.md" ;;
+      hyprlock)  DOC_FILE="$DOCS_DIR/hyprlock.md" ;;
+      waybar)    DOC_FILE="$DOCS_DIR/waybar.md" ;;
+      walker)    DOC_FILE="$DOCS_DIR/walker.md" ;;
+      *)
+        echo "Unknown topic: $TOPIC"
+        exit 1
+        ;;
+    esac
+
+    if command -v glow &> /dev/null; then
+      ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$DOC_FILE'"
+    else
+      ghostty --class="org.omarchy.terminal" -e sh -c "less '$DOC_FILE'"
+    fi
+  '';
+
+  # ═══════════════════════════════════════════════════════════════════
+  # MAIN MENU
+  # ═══════════════════════════════════════════════════════════════════
+
   menu = pkgs.writeShellScriptBin "omarchy-menu" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -92,7 +82,7 @@ HELPEOF
         *learn*) show_learn_menu ;;
         *trigger*) show_trigger_menu ;;
         *system*) show_system_menu ;;
-        *style*) omarchy-show-style-help ;;  # Now opens help directly
+        *style*) omarchy-show-style-help ;;
         *setup*) show_setup_menu ;;
         *) ;;
       esac
@@ -145,7 +135,7 @@ HELPEOF
     }
 
     show_screenrecord_menu() {
-      CHOICE=$(menu_cmd "Screenrecord" "󰍹  Full Screen\n  Region\n  Stop Recording")
+      CHOICE=$(menu_cmd "Screenrecord" "󰍹  Full Screen\n󰆞  Region\n󰓛  Stop Recording")
       case "$CHOICE" in
         *Full*) ${pkgs.libnotify}/bin/notify-send "Screen Recording" "Full screen recording not yet implemented" ;;
         *Region*) ${pkgs.libnotify}/bin/notify-send "Screen Recording" "Region recording not yet implemented" ;;
@@ -171,26 +161,20 @@ HELPEOF
         *Audio*) omarchy-launch-audio ;;
         *Wifi*) omarchy-launch-wifi ;;
         *Bluetooth*) omarchy-launch-bluetooth ;;
-        *Hyprland*) show_config_info "Hyprland" "modules/home-manager/desktop/hyprland/" ;;
-        *Hypridle*) show_config_info "Hypridle" "modules/home-manager/desktop/hypridle.nix" ;;
-        *Hyprlock*) show_config_info "Hyprlock" "modules/home-manager/desktop/hyprlock.nix" ;;
-        *Waybar*) show_config_info "Waybar" "modules/home-manager/ui/waybar.nix" ;;
-        *Walker*) show_config_info "Walker" "modules/home-manager/ui/walker.nix" ;;
+        *Hyprland*) omarchy-show-setup-help hyprland ;;
+        *Hypridle*) omarchy-show-setup-help hypridle ;;
+        *Hyprlock*) omarchy-show-setup-help hyprlock ;;
+        *Waybar*) omarchy-show-setup-help waybar ;;
+        *Walker*) omarchy-show-setup-help walker ;;
         *) back_to show_main_menu ;;
       esac
-    }
-
-    show_config_info() {
-      NAME="$1"
-      PATH="$2"
-      ${pkgs.libnotify}/bin/notify-send "Configuring $NAME" "This configuration is managed by Nix.\n\nEdit: $PATH\nin your Omanix repository." -t 8000
     }
 
     # ═══════════════════════════════════════════════════════════════════
     # SYSTEM MENU
     # ═══════════════════════════════════════════════════════════════════
     show_system_menu() {
-      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Relaunch\n󰜉  Restart\n  Shutdown")
+      CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Relaunch\n󰜉  Restart\n󰐥  Shutdown")
       case "$CHOICE" in
         *Lock*) omarchy-lock-screen ;;
         *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
@@ -210,7 +194,10 @@ HELPEOF
     fi
   '';
 
-  # Keybindings menu parser logic ported from upstream Bash
+  # ═══════════════════════════════════════════════════════════════════
+  # KEYBINDINGS MENU
+  # ═══════════════════════════════════════════════════════════════════
+
   keybindingsMenu = pkgs.writeShellScriptBin "omarchy-menu-keybindings" ''
     export PATH="${pkgs.gawk}/bin:${pkgs.libxkbcommon}/bin:${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
 
@@ -342,7 +329,10 @@ HELPEOF
     fi
   '';
 
-  # Walker Restart Script
+  # ═══════════════════════════════════════════════════════════════════
+  # UTILITY SCRIPTS
+  # ═══════════════════════════════════════════════════════════════════
+
   restartWalker = pkgs.writeShellScriptBin "omarchy-restart-walker" ''
     systemctl --user restart elephant.service
     sleep 0.5
@@ -350,22 +340,18 @@ HELPEOF
     ${pkgs.libnotify}/bin/notify-send "Walker" "Services have been restarted"
   '';
 
-  # Audio launcher
   launchAudio = pkgs.writeShellScriptBin "omarchy-launch-audio" ''
     ${pkgs.pavucontrol}/bin/pavucontrol &
   '';
 
-  # Wifi launcher
   launchWifi = pkgs.writeShellScriptBin "omarchy-launch-wifi" ''
     omarchy-launch-or-focus-tui impala
   '';
 
-  # Bluetooth launcher
   launchBluetooth = pkgs.writeShellScriptBin "omarchy-launch-bluetooth" ''
     omarchy-launch-or-focus-tui bluetui
   '';
 
-  # Toggle waybar
   toggleWaybar = pkgs.writeShellScriptBin "omarchy-toggle-waybar" ''
     if pgrep -x waybar > /dev/null; then
       pkill waybar
@@ -379,6 +365,7 @@ in
   home.packages = [
     menu
     showStyleHelp
+    showSetupHelp
     keybindingsMenu
     restartWalker
     launchAudio
@@ -391,6 +378,6 @@ in
     pkgs.localsend
     pkgs.impala
     pkgs.bluetui
-    pkgs.glow  # Markdown renderer for the style help
+    pkgs.glow
   ];
 }
