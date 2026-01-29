@@ -12,7 +12,6 @@ let
   availableThemes = builtins.attrNames omarchyLib.themes;
   
   # NixOS puts .desktop files in these locations
-  # The key is XDG_DATA_DIRS must include all paths where apps are installed
   nixosDataDirs = lib.concatStringsSep ":" [
     "\${HOME}/.nix-profile/share"
     "/etc/profiles/per-user/\${USER}/share"
@@ -28,9 +27,10 @@ in
 
   xdg.configFile = {
     # Desktop applications provider - key settings for NixOS
+    # FIXED: Set only_search_title to true to match upstream behavior
     "elephant/desktopapplications.toml".text = ''
       show_actions = false
-      only_search_title = false
+      only_search_title = true
       history = true
     '';
 
@@ -112,9 +112,7 @@ in
   };
 
   # CRITICAL: Elephant needs XDG_DATA_DIRS to find .desktop files
-  # This is set system-wide for the session
   home.sessionVariables = {
-    # Ensure XDG_DATA_DIRS includes NixOS profile paths
     XDG_DATA_DIRS = lib.mkDefault "${nixosDataDirs}";
   };
 
@@ -128,8 +126,6 @@ in
 
     Service = {
       Type = "simple";
-      # CRITICAL: Pass through the session's XDG_DATA_DIRS
-      # This allows elephant to find .desktop files in NixOS paths
       Environment = [
         "XDG_DATA_DIRS=%h/.nix-profile/share:/etc/profiles/per-user/%u/share:/run/current-system/sw/share:%h/.local/share:/usr/local/share:/usr/share"
         "PATH=/run/current-system/sw/bin:%h/.nix-profile/bin"
