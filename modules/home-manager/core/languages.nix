@@ -24,37 +24,42 @@ in
 
   config = {
     home.packages = with pkgs; lib.flatten [
-      # Nix
+      # Nix - LSP, formatter, linter
       (lib.optionals cfg.nix.enable [
-        nixd
-        nixfmt  # was nixfmt-rfc-style, now just nixfmt
+        nixd              # LSP
+        nixfmt            # formatter
+        statix            # linter (required by LazyVim lang.nix)
+        deadnix           # dead code finder
       ])
 
-      # Markdown
+      # Markdown - LSP, linter
       (lib.optionals cfg.markdown.enable [
-        marksman
-        markdownlint-cli
+        marksman          # LSP
+        markdownlint-cli2 # linter (required by LazyVim lang.markdown)
       ])
 
-      # Rust
+      # Rust - toolchain, LSP, tools
       (lib.optionals cfg.rust.enable [
         rustc
         cargo
-        rust-analyzer
-        rustfmt
-        clippy
+        rust-analyzer     # LSP
+        rustfmt           # formatter
+        clippy            # linter
       ])
 
-      # Go
+      # Go - toolchain, LSP, tools
       (lib.optionals cfg.go.enable [
         go
-        gopls
-        gotools
-        golangci-lint
-        delve
+        gopls             # LSP
+        gotools           # goimports, etc
+        golangci-lint     # linter
+        delve             # debugger
+        gomodifytags      # struct tag tool
+        impl              # interface stub generator
+        gotests           # test generator
       ])
 
-      # Java
+      # Java - JDK, LSP, build tools
       (lib.optionals cfg.java.enable [
         jdk
         jdt-language-server
@@ -62,45 +67,44 @@ in
         gradle
       ])
 
-      # Docker
+      # Docker - LSPs, linter
       (lib.optionals cfg.docker.enable [
-        dockerfile-language-server  # was dockerfile-language-server-nodejs
+        dockerfile-language-server
         docker-compose-language-service
-        hadolint
+        hadolint          # Dockerfile linter
       ])
 
-      # OpenTofu (Terraform-compatible, aliased as 'terraform')
+      # OpenTofu (Terraform-compatible) - CLI, LSP, linter
       (lib.optionals cfg.terraform.enable [
         opentofu
-        terraformAlias  # provides 'terraform' command
-        terraform-ls    # LSP works with OpenTofu
-        tflint
+        terraformAlias    # provides 'terraform' command
+        terraform-ls      # LSP
+        tflint            # linter
       ])
 
-      # TypeScript/JavaScript
+      # TypeScript/JavaScript - runtime, LSPs, tools
       (lib.optionals cfg.typescript.enable [
         nodejs
         nodePackages.typescript
         nodePackages.typescript-language-server
         nodePackages.prettier
-        nodePackages.eslint
-        vscode-langservers-extracted
+        vscode-langservers-extracted  # html, css, json, eslint LSPs
         emmet-language-server
       ])
 
-      # Tailwind
+      # Tailwind - LSP
       (lib.optionals cfg.tailwind.enable [
         tailwindcss-language-server
       ])
 
-      # JSON (if not already from typescript)
+      # JSON - LSP (if not already from typescript)
       (lib.optionals (cfg.json.enable && !cfg.typescript.enable) [
         vscode-langservers-extracted
       ])
 
-      # Dart/Flutter - flutter includes dart, so only install flutter
+      # Dart/Flutter - SDK (includes dart language-server)
       (lib.optionals cfg.dart.enable [
-        flutter  # includes dart SDK
+        flutter
       ])
     ];
   };

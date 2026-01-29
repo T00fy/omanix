@@ -12,13 +12,32 @@ in
     programs.lazyvim = {
       enable = true;
 
-      # Wire up LazyVim extras based on enabled languages
-      extras = {
-        lang.nix.enable = lang.nix.enable;
-        lang.markdown.enable = lang.markdown.enable;
-        lang.json.enable = lang.json.enable;
-        lang.docker.enable = lang.docker.enable;
+      # We manage dependencies via omarchy.languages, not lazyvim-nix
+      installCoreDependencies = true;  # git, ripgrep, fd, lazygit, fzf, curl
 
+      # Wire up LazyVim extras based on enabled languages
+      # installDependencies = false means we handle LSPs/tools in languages.nix
+      extras = {
+        lang.nix = lib.mkIf lang.nix.enable {
+          enable = true;
+          installDependencies = false;
+          installRuntimeDependencies = false;
+        };
+        lang.markdown = lib.mkIf lang.markdown.enable {
+          enable = true;
+          installDependencies = false;
+          installRuntimeDependencies = false;
+        };
+        lang.json = lib.mkIf lang.json.enable {
+          enable = true;
+          installDependencies = false;
+          installRuntimeDependencies = false;
+        };
+        lang.docker = lib.mkIf lang.docker.enable {
+          enable = true;
+          installDependencies = false;
+          installRuntimeDependencies = false;
+        };
         lang.rust = lib.mkIf lang.rust.enable {
           enable = true;
           installDependencies = false;
@@ -51,11 +70,13 @@ in
         };
       };
 
+      # Tools needed for treesitter compilation
       extraPackages = with pkgs; [
         gcc
         tree-sitter
       ];
 
+      # Custom vim configuration
       config = {
         options = ''
           vim.opt.relativenumber = true
@@ -67,7 +88,7 @@ in
           vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
         '';
 
-        autocmds = lib.mkIf lang.dart.enable ''
+        autocmds = lib.optionalString lang.dart.enable ''
           vim.api.nvim_create_autocmd("FileType", {
             pattern = { "dart" },
             callback = function()
@@ -92,7 +113,6 @@ in
 
     # Create empty plugins directory to silence LazyVim warning
     xdg.configFile."nvim/lua/plugins/init.lua".text = ''
-      -- Empty plugins file to satisfy LazyVim
       return {}
     '';
   };
