@@ -10,7 +10,7 @@ let
   # ═══════════════════════════════════════════════════════════════════
   # HELP SYSTEM
   # ═══════════════════════════════════════════════════════════════════
-  
+
   # Get list of themes for the style doc
   availableThemes = builtins.attrNames omarchyLib.themes;
   themeListFormatted = builtins.concatStringsSep "\n" (map (t: "- ${t}") availableThemes);
@@ -18,10 +18,10 @@ let
   # Style help needs theme list injected
   showStyleHelp = pkgs.writeShellScriptBin "omarchy-show-style-help" ''
     HELP_FILE=$(mktemp /tmp/omanix-help-XXXXXX.md)
-    
+
     # Read the doc and substitute the theme list placeholder
     sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${../../../docs/style.md} > "$HELP_FILE"
-    
+
     if command -v glow &> /dev/null; then
       ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
     else
@@ -33,7 +33,7 @@ let
   showSetupHelp = pkgs.writeShellScriptBin "omarchy-show-setup-help" ''
     TOPIC="$1"
     DOCS_DIR="${../../../docs}"
-    
+
     case "$TOPIC" in
       hyprland)  DOC_FILE="$DOCS_DIR/hyprland.md" ;;
       hypridle)  DOC_FILE="$DOCS_DIR/hypridle.md" ;;
@@ -174,12 +174,11 @@ let
     # SYSTEM MENU
     # ═══════════════════════════════════════════════════════════════════
     show_system_menu() {
-      CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Relaunch\n󰜉  Restart\n󰐥  Shutdown")
+      CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
       case "$CHOICE" in
         *Lock*) omarchy-lock-screen ;;
         *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
         *Suspend*) systemctl suspend ;;
-        *Relaunch*) hyprctl dispatch exit ;;
         *Restart*) omarchy-cmd-reboot ;;
         *Shutdown*) omarchy-cmd-shutdown ;;
         *) back_to show_main_menu ;;
