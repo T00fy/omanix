@@ -1,28 +1,31 @@
 { ... }:
 {
   wayland.windowManager.hyprland.settings = {
-    # New windowrule syntax for Hyprland 0.53+
-    # Format: windowrule = EFFECT VALUE, match:MATCHER PATTERN
+    # Window Rules
     windowrule = [
-      # Opacity - new syntax with match:class
+      # Screenshot Editor (Satty) - Float and Center
+      "float on, match:class ^(com.gabm.satty)$"
+      "center on, match:class ^(com.gabm.satty)$"
+      "size 80% 80%, match:class ^(com.gabm.satty)$"
+      "dim_around on, match:class ^(com.gabm.satty)$" # Fixed: dimaround -> dim_around
+      
+      # Existing rules...
       "opacity 0.97 0.9, match:class .*"
-      "opacity 1.0 1.0, match:class ^(zoom|vlc|mpv|imv|org.gnome.NautilusPreviewer)$"
+      "opacity 1.0 1.0, match:class ^(zoom|vlc|mpv|imv|org.gnome.NautilusPreviewer|com.gabm.satty)$"
       "opacity 1.0 1.0, match:class ^(chromium|google-chrome)$, match:title .*YouTube.*"
-      # Floating
       "float on, match:class ^(org.pulseaudio.pavucontrol)$"
       "float on, match:class ^(org.gnome.Calculator)$"
       "float on, match:class ^(xdg-desktop-portal-gtk)$"
-      # Geometry
       "center on, match:class ^(org.pulseaudio.pavucontrol)$"
       "size 875 600, match:class ^(org.pulseaudio.pavucontrol)$"
-      # Note: idleinhibit windowrule was removed in Hyprland 0.53
-      # Modern browsers and media players (Chrome, Firefox, VLC, mpv) 
-      # automatically inhibit idle via the Wayland idle-inhibit protocol
-      # when playing media or in fullscreen. No windowrule needed.
     ];
 
-    # Layer rules - new syntax with match:namespace and boolean values
+    # Layer Rules
     layerrule = [
+      # Fixed: noanim -> no_anim and added explicit 'on' value
+      "no_anim on, match:namespace ^(selection)$" 
+      "no_anim on, match:namespace ^(wayfreeze)$"
+      
       "blur on, match:namespace waybar"
       "blur on, match:namespace wofi"
       "blur on, match:namespace notifications"
