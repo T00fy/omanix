@@ -22,6 +22,10 @@
     extraPackages = with pkgs; [
       nixd        # Nix LSP (better than nil)
       nixfmt      # Nix formatter (nixfmt-rfc-style is now just nixfmt)
+      
+      # For treesitter (silences health check warnings)
+      gcc
+      tree-sitter
     ];
 
     # Custom options
