@@ -1,8 +1,10 @@
 { config, pkgs, lib, inputs, ... }:
 let
   theme = config.omarchy.activeTheme;
+  elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
   
   # CSS Content matching Omarchy's walker theme
+  # FIXED: Removed the invalid "display: none" CSS property
   styleCss = ''
     @define-color selected-text ${theme.colors.accent};
     @define-color text ${theme.colors.foreground};
@@ -73,7 +75,12 @@ let
       margin-top: 10px;
     }
     
-    .keybinds { display: none; }
+    /* FIXED: GTK4 doesn't support "display: none", use opacity/visibility instead */
+    .keybinds { 
+      opacity: 0;
+      min-height: 0;
+      min-width: 0;
+    }
   '';
 in
 {
@@ -93,19 +100,14 @@ in
       maxheight = 300;
       minheight = 300;
 
-      # Disable the F1-F5 quick activation keys
       keybinds.quick_activate = [];
 
-      # Provider configuration
       providers = {
         max_results = 256;
-        # Default providers shown when typing
         default = [ "desktopapplications" "websearch" ];
-        # Show applications when query is empty
         empty = [ "desktopapplications" ];
       };
 
-      # Prefix mappings matching Omarchy
       prefixes = [
         { prefix = "/"; provider = "providerlist"; }
         { prefix = "."; provider = "files"; }
@@ -116,7 +118,6 @@ in
         { prefix = ">"; provider = "runner"; }
       ];
 
-      # Placeholder text
       placeholders = {
         "default" = {
           input = "Launch...";
@@ -147,6 +148,15 @@ in
         }
       ];
     };
+  };
+
+  # CRITICAL FIX: Walker service needs elephant in its PATH
+  systemd.user.services.walker = lib.mkIf config.programs.walker.runAsService {
+    Service.Environment = lib.mkForce [
+      # Add elephant to Walker's PATH so it can find and communicate with it
+      "PATH=${elephantPkg}/bin:/etc/profiles/per-user/${config.home.username}/bin:/run/current-system/sw/bin:${config.home.homeDirectory}/.nix-profile/bin"
+      "XDG_DATA_DIRS=${config.home.homeDirectory}/.nix-profile/share:/etc/profiles/per-user/${config.home.username}/share:/run/current-system/sw/share:${config.home.homeDirectory}/.local/share:/usr/local/share:/usr/share"
+    ];
   };
 
   # Theme files

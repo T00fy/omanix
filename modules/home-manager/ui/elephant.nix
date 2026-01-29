@@ -26,15 +26,12 @@ in
   home.packages = [ elephantPkg ];
 
   xdg.configFile = {
-    # Desktop applications provider - key settings for NixOS
-    # FIXED: Set only_search_title to true to match upstream behavior
     "elephant/desktopapplications.toml".text = ''
       show_actions = false
       only_search_title = true
       history = true
     '';
 
-    # Main elephant configuration with all providers
     "elephant/elephant.toml".text = ''
       [providers]
       desktopapplications = "desktopapplications"
@@ -53,12 +50,10 @@ in
     '';
 
     "elephant/runner.toml".text = ''
-      # Runner provider - executes commands from PATH
     '';
 
     "elephant/files.toml".text = ''
       min_score = 50
-      # Limit file watching to reasonable dirs on NixOS
       dirs = [
         "~/Documents",
         "~/Downloads",
@@ -88,7 +83,6 @@ in
       prefix = "nix"
     '';
 
-    # Omarchy themes menu
     "elephant/menus/omarchy_themes.lua".text = ''
       Name = "omarchythemes"
       NamePretty = "Omarchy Themes"
@@ -111,12 +105,11 @@ in
     '';
   };
 
-  # CRITICAL: Elephant needs XDG_DATA_DIRS to find .desktop files
   home.sessionVariables = {
     XDG_DATA_DIRS = lib.mkDefault "${nixosDataDirs}";
   };
 
-  # Systemd service with proper environment
+  # CRITICAL FIX: Elephant needs a proper PATH to launch applications
   systemd.user.services.elephant = lib.mkForce {
     Unit = {
       Description = "Elephant Data Provider for Walker";
@@ -126,9 +119,11 @@ in
 
     Service = {
       Type = "simple";
+      # CRITICAL: Include all NixOS binary paths so Elephant can launch apps
       Environment = [
         "XDG_DATA_DIRS=%h/.nix-profile/share:/etc/profiles/per-user/%u/share:/run/current-system/sw/share:%h/.local/share:/usr/local/share:/usr/share"
-        "PATH=/run/current-system/sw/bin:%h/.nix-profile/bin"
+        # This PATH is essential - it's where Firefox, Chromium, etc. actually live
+        "PATH=/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin:%h/.nix-profile/bin:/usr/local/bin:/usr/bin:/bin"
       ];
       ExecStart = "${elephantPkg}/bin/elephant --config %h/.config/elephant";
       Restart = "always";
