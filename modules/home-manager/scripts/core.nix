@@ -58,8 +58,8 @@ let
     fi
   '';
 
-  # Launch Walker - NO dimension overrides, let config handle it
-  # This makes Super+Space look identical to omarchy-menu -> Apps
+  # Launch Walker
+  # Enforces specific dimensions to match Omarchy's visual design exactly
   launchWalker = pkgs.writeShellScriptBin "omarchy-launch-walker" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -75,10 +75,8 @@ let
       sleep 0.3
     fi
 
-    # Launch walker with NO dimension overrides
-    # Let the config.toml handle width/height for consistent appearance
-    # Pass through any arguments (like -m clipboard for clipboard mode)
-    exec "$WALKER" "$@"
+    # Launch walker with specific Omarchy dimensions
+    exec "$WALKER" --width 644 --maxheight 300 --minheight 300 "$@"
   '';
 
 in

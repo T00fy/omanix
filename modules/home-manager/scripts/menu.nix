@@ -2,7 +2,8 @@
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  # The Main Omarchy Menu - matching upstream structure
+  # The Main Omarchy Menu
+  # Includes comprehensive Nerd Font icons to match upstream look
   menu = pkgs.writeShellScriptBin "omarchy-menu" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -18,13 +19,13 @@ let
     }
 
     show_main_menu() {
-      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n  Learn\n󱓞  Trigger\n  Style\n  Setup\n  System")
+      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n  Style\n  Setup\n  System")
       go_to_menu "$CHOICE"
     }
 
     go_to_menu() {
       case "''${1,,}" in
-        *apps*) "$WALKER" ;;
+        *apps*) omarchy-launch-walker ;;
         *learn*) show_learn_menu ;;
         *trigger*) show_trigger_menu ;;
         *system*) show_system_menu ;;
@@ -38,12 +39,11 @@ let
     # LEARN MENU
     # ═══════════════════════════════════════════════════════════════════
     show_learn_menu() {
-      CHOICE=$(menu_cmd "Learn" "  Keybindings\n  Omarchy\n  Hyprland\n󰣇  Arch\n  Neovim\n󱆃  Bash")
+      CHOICE=$(menu_cmd "Learn" "  Keybindings\n  Hyprland\n  NixOS Wiki\n  Neovim\n󱆃  Bash")
       case "$CHOICE" in
         *Keybindings*) omarchy-menu-keybindings ;;
-        *Omarchy*) xdg-open "https://omarchy.org" ;;
         *Hyprland*) xdg-open "https://wiki.hyprland.org" ;;
-        *Arch*) xdg-open "https://wiki.archlinux.org" ;;
+        *NixOS*) xdg-open "https://wiki.nixos.org" ;;
         *Neovim*) xdg-open "https://neovim.io/doc/" ;;
         *Bash*) xdg-open "https://www.gnu.org/software/bash/manual/" ;;
         *) back_to show_main_menu ;;
@@ -54,7 +54,7 @@ let
     # TRIGGER MENU
     # ═══════════════════════════════════════════════════════════════════
     show_trigger_menu() {
-      CHOICE=$(menu_cmd "Trigger" "  Capture\n  Share\n󰃉  Color Picker")
+      CHOICE=$(menu_cmd "Trigger" "  Capture\n  Share\n󰃉  Color Picker")
       case "$CHOICE" in
         *Capture*) show_capture_menu ;;
         *Share*) show_share_menu ;;
@@ -64,7 +64,7 @@ let
     }
 
     show_capture_menu() {
-      CHOICE=$(menu_cmd "Capture" "  Screenshot\n  Screenrecord")
+      CHOICE=$(menu_cmd "Capture" "  Screenshot\n  Screenrecord")
       case "$CHOICE" in
         *Screenshot*) show_screenshot_menu ;;
         *Screenrecord*) show_screenrecord_menu ;;
@@ -105,11 +105,11 @@ let
     # STYLE MENU
     # ═══════════════════════════════════════════════════════════════════
     show_style_menu() {
-      CHOICE=$(menu_cmd "Style" "  Background\n󰸌  Theme\n  Font")
+      CHOICE=$(menu_cmd "Style" "  Background\n󰸌  Theme\n  Font")
       case "$CHOICE" in
         *Background*) omarchy-theme-bg-next 2>/dev/null || ${pkgs.libnotify}/bin/notify-send "Background" "Cycle wallpaper not yet implemented" ;;
-        *Theme*) ${pkgs.libnotify}/bin/notify-send "NixOS Theme" "Edit omarchy.theme in your flake.nix to change theme" ;;
-        *Font*) ${pkgs.libnotify}/bin/notify-send "NixOS Font" "Edit omarchy.font in your flake.nix to change font" ;;
+        *Theme*) ${pkgs.libnotify}/bin/notify-send "NixOS Configuration" "Edit 'omarchy.theme' in your flake.nix and rebuild to change the theme." ;;
+        *Font*) ${pkgs.libnotify}/bin/notify-send "NixOS Configuration" "Edit 'omarchy.font' in your flake.nix and rebuild to change the font." ;;
         *) back_to show_main_menu ;;
       esac
     }
@@ -118,7 +118,7 @@ let
     # SETUP MENU
     # ═══════════════════════════════════════════════════════════════════
     show_setup_menu() {
-      CHOICE=$(menu_cmd "Setup" "  Audio\n  Wifi\n󰂯  Bluetooth\n  Hyprland\n  Hypridle\n  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
+      CHOICE=$(menu_cmd "Setup" "  Audio\n  Wifi\n󰂯  Bluetooth\n  Hyprland\n󰒲  Hypridle\n  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
       case "$CHOICE" in
         *Audio*) omarchy-launch-audio ;;
         *Wifi*) omarchy-launch-wifi ;;
@@ -136,7 +136,7 @@ let
     # SYSTEM MENU
     # ═══════════════════════════════════════════════════════════════════
     show_system_menu() {
-      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰤄  Suspend\n  Relaunch\n󰜉  Restart\n󰐥  Shutdown")
+      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Relaunch\n󰜉  Restart\n  Shutdown")
       case "$CHOICE" in
         *Lock*) omarchy-lock-screen ;;
         *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
@@ -156,22 +156,137 @@ let
     fi
   '';
 
-  # Keybindings menu helper
+  # Keybindings menu parser logic ported from upstream Bash
   keybindingsMenu = pkgs.writeShellScriptBin "omarchy-menu-keybindings" ''
-    ${pkgs.libnotify}/bin/notify-send "Keybindings" "
-    Super+Space: App Launcher
-    Super+Alt+Space: Omarchy Menu
-    Super+Return: Terminal
-    Super+Shift+B: Browser
-    Super+Shift+F: File Manager
-    Super+Shift+N: Neovim
-    Super+W: Close Window
-    Super+F: Fullscreen
-    Super+T: Toggle Floating
-    Super+1-0: Switch Workspace
-    Super+Shift+1-0: Move to Workspace
-    Print: Screenshot
-    "
+    export PATH="${pkgs.gawk}/bin:${pkgs.libxkbcommon}/bin:${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
+    
+    declare -A KEYCODE_SYM_MAP
+
+    build_keymap_cache() {
+      local keymap
+      keymap="$(xkbcli compile-keymap)" || {
+        echo "Failed to compile keymap" >&2
+        return 1
+      }
+
+      while IFS=, read -r code sym; do
+        [[ -z "$code" || -z "$sym" ]] && continue
+        KEYCODE_SYM_MAP["$code"]="$sym"
+      done < <(
+        awk '
+          BEGIN { sec = "" }
+          /xkb_keycodes/ { sec = "codes"; next }
+          /xkb_symbols/  { sec = "syms";  next }
+          sec == "codes" {
+            if (match($0, /<([A-Za-z0-9_]+)>\s*=\s*([0-9]+)\s*;/, m)) code_by_name[m[1]] = m[2]
+          }
+          sec == "syms" {
+            if (match($0, /key\s*<([A-Za-z0-9_]+)>\s*\{\s*\[\s*([^, \]]+)/, m)) sym_by_name[m[1]] = m[2]
+          }
+          END {
+            for (k in code_by_name) {
+              c = code_by_name[k]
+              s = sym_by_name[k]
+              if (c != "" && s != "" && s != "NoSymbol") print c "," s
+            }
+          }
+        ' <<<"$keymap"
+      )
+    }
+
+    lookup_keycode_cached() {
+      printf '%s\n' "''${KEYCODE_SYM_MAP[$1]}"
+    }
+
+    parse_keycodes() {
+      while IFS= read -r line; do
+        if [[ "$line" =~ code:([0-9]+) ]]; then
+          code="''${BASH_REMATCH[1]}"
+          symbol=$(lookup_keycode_cached "$code")
+          echo "''${line/code:''${code}/$symbol}"
+        elif [[ "$line" =~ mouse:([0-9]+) ]]; then
+          code="''${BASH_REMATCH[1]}"
+          case "$code" in
+            272) symbol="LEFT MOUSE BUTTON" ;;
+            273) symbol="RIGHT MOUSE BUTTON" ;;
+            274) symbol="MIDDLE MOUSE BUTTON" ;;
+            *)   symbol="mouse:''${code}" ;;
+          esac
+          echo "''${line/mouse:''${code}/$symbol}"
+        else
+          echo "$line"
+        fi
+      done
+    }
+
+    dynamic_bindings() {
+      hyprctl -j binds |
+        jq -r '.[] | {modmask, key, keycode, description, dispatcher, arg} | "\(.modmask),\(.key)@\(.keycode),\(.description),\(.dispatcher),\(.arg)"' |
+        sed -r \
+          -e 's/null//' \
+          -e 's/@0//' \
+          -e 's/,@/,code:/' \
+          -e 's/^0,/,/' \
+          -e 's/^1,/SHIFT,/' \
+          -e 's/^4,/CTRL,/' \
+          -e 's/^5,/SHIFT CTRL,/' \
+          -e 's/^8,/ALT,/' \
+          -e 's/^9,/SHIFT ALT,/' \
+          -e 's/^12,/CTRL ALT,/' \
+          -e 's/^13,/SHIFT CTRL ALT,/' \
+          -e 's/^64,/SUPER,/' \
+          -e 's/^65,/SUPER SHIFT,/' \
+          -e 's/^68,/SUPER CTRL,/' \
+          -e 's/^69,/SUPER SHIFT CTRL,/' \
+          -e 's/^72,/SUPER ALT,/' \
+          -e 's/^73,/SUPER SHIFT ALT,/' \
+          -e 's/^76,/SUPER CTRL ALT,/' \
+          -e 's/^77,/SUPER SHIFT CTRL ALT,/'
+    }
+
+    parse_bindings() {
+      awk -F, '
+    {
+        key_combo = $1 " + " $2;
+        gsub(/^[ \t]*\+?[ \t]*/, "", key_combo);
+        gsub(/[ \t]+$/, "", key_combo);
+        action = $3;
+
+        if (action == "") {
+            for (i = 4; i <= NF; i++) {
+                action = action $i (i < NF ? "," : "");
+            }
+            sub(/,$/, "", action);
+            gsub(/(^|,)[[:space:]]*exec[[:space:]]*,?/, "", action);
+            gsub(/^[ \t]+|[ \t]+$/, "", action);
+            gsub(/[ \t]+/, " ", key_combo);
+            gsub(/&/, "\\&amp;", action);
+            gsub(/</, "\\&lt;", action);
+            gsub(/>/, "\\&gt;", action);
+            gsub(/"/, "\\&quot;", action);
+            gsub(/'"'"'/, "\\&apos;", action);
+        }
+
+        if (action != "") {
+            printf "%-35s → %s\n", key_combo, action;
+        }
+    }'
+    }
+
+    output_keybindings() {
+      build_keymap_cache
+      dynamic_bindings | sort -u | parse_keycodes | parse_bindings
+    }
+
+    if [[ "$1" == "--print" || "$1" == "-p" ]]; then
+      output_keybindings
+    else
+      monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')
+      menu_height=$((monitor_height * 40 / 100))
+      
+      # Use omarchy-launch-walker to ensure consistent styling
+      output_keybindings | omarchy-launch-walker --dmenu -p 'Keybindings' --width 800 --height "$menu_height"
+    fi
   '';
 
   # Walker Restart Script
@@ -217,5 +332,7 @@ in
     launchBluetooth
     toggleWaybar
     pkgs.networkmanagerapplet
+    pkgs.libxkbcommon # Required for xkbcli
+    pkgs.gawk         # Required for awk
   ];
 }

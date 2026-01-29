@@ -73,7 +73,6 @@ let
       margin-top: 10px;
     }
     
-    /* Hide the F1-F5 quick activate hints that appear in Omarchy */
     .keybinds { display: none; }
   '';
 in
@@ -93,6 +92,9 @@ in
       width = 644;
       maxheight = 300;
       minheight = 300;
+
+      # Disable the F1-F5 quick activation keys
+      keybinds.quick_activate = [];
 
       # Provider configuration
       providers = {
