@@ -26,14 +26,56 @@
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
 
-      # Optional: Copy Omarchy's visual style into Firefox
-      # This colors the tab bar to match your Tokyo Night theme background
+      # Enhanced tab styling with clear active tab indication
       userChrome = ''
         :root {
           --toolbar-bgcolor: ${config.omarchy.activeTheme.colors.background} !important;
           --tab-selected-bgcolor: ${config.omarchy.activeTheme.colors.background} !important;
+          --omanix-accent: ${config.omarchy.activeTheme.colors.accent};
+          --omanix-fg: ${config.omarchy.activeTheme.colors.foreground};
+          --omanix-bg: ${config.omarchy.activeTheme.colors.background};
         }
-        #navigator-toolbox { background-color: var(--toolbar-bgcolor) !important; }
+
+        /* Toolbar/tab bar background */
+        #navigator-toolbox {
+          background-color: var(--omanix-bg) !important;
+        }
+
+        /* All tabs - slightly dimmed */
+        .tabbrowser-tab {
+          opacity: 0.6 !important;
+        }
+
+        /* Selected/active tab - full opacity + accent underline */
+        .tabbrowser-tab[selected="true"] {
+          opacity: 1 !important;
+        }
+
+        /* Add accent color indicator to selected tab */
+        .tabbrowser-tab[selected="true"] .tab-background {
+          border-bottom: 2px solid var(--omanix-accent) !important;
+        }
+
+        /* Alternative: Add a subtle background tint to selected tab */
+        .tabbrowser-tab[selected="true"] .tab-background {
+          background: linear-gradient(
+            to top,
+            color-mix(in srgb, var(--omanix-accent) 15%, transparent),
+            transparent 50%
+          ) !important;
+          border-bottom: 2px solid var(--omanix-accent) !important;
+        }
+
+        /* Make tab text brighter on selected tab */
+        .tabbrowser-tab[selected="true"] .tab-label {
+          color: var(--omanix-fg) !important;
+          font-weight: 500 !important;
+        }
+
+        /* Hover state for non-selected tabs */
+        .tabbrowser-tab:not([selected="true"]):hover {
+          opacity: 0.85 !important;
+        }
       '';
     };
   };
