@@ -1,6 +1,11 @@
 { config, pkgs, lib, ... }:
 let
   cfg = config.omarchy.languages;
+  
+  # Wrapper that provides 'terraform' command pointing to opentofu
+  terraformAlias = pkgs.writeShellScriptBin "terraform" ''
+    exec ${pkgs.opentofu}/bin/tofu "$@"
+  '';
 in
 {
   options.omarchy.languages = {
@@ -64,10 +69,11 @@ in
         hadolint
       ])
 
-      # Terraform
+      # OpenTofu (Terraform-compatible, aliased as 'terraform')
       (lib.optionals cfg.terraform.enable [
-        terraform
-        terraform-ls
+        opentofu
+        terraformAlias  # provides 'terraform' command
+        terraform-ls    # LSP works with OpenTofu
         tflint
       ])
 
