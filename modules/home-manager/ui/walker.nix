@@ -3,6 +3,8 @@ let
   theme = config.omarchy.activeTheme;
   elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
   
+  # CSS Content matching Omarchy's walker theme
+  # FIXED: Removed the invalid "display: none" CSS property
   styleCss = ''
     @define-color selected-text ${theme.colors.accent};
     @define-color text ${theme.colors.foreground};
@@ -64,13 +66,6 @@ let
       margin-right: 14px;
       -gtk-icon-transform: scale(0.9);
     }
-    
-    /* Support for nerd font icons in menus */
-    .item-image-text {
-      font-family: '${config.omarchy.font}';
-      font-size: 18px;
-      margin-right: 14px;
-    }
 
     .current { font-style: italic; }
 
@@ -80,6 +75,7 @@ let
       margin-top: 10px;
     }
     
+    /* FIXED: GTK4 doesn't support "display: none", use opacity/visibility instead */
     .keybinds { 
       opacity: 0;
       min-height: 0;
@@ -110,22 +106,6 @@ in
         max_results = 256;
         default = [ "desktopapplications" "websearch" ];
         empty = [ "desktopapplications" ];
-        
-        # Sets allow launching Walker with different provider configurations
-        # The "omarchy" set includes ALL menu files for universal search
-        sets.omarchy = {
-          default = [
-            "menus:omarchy"
-            "menus:omarchylearn"
-            "menus:omarchytrigger"
-            "menus:omarchyscreenshot"
-            "menus:omarchyscreenrecord"
-            "menus:omarchyshare"
-            "menus:omarchysetup"
-            "menus:omarchysystem"
-          ];
-          empty = [ "menus:omarchy" ];
-        };
       };
 
       prefixes = [
@@ -159,10 +139,6 @@ in
           input = "Clipboard...";
           list = "Clipboard empty";
         };
-        "menus:omarchy" = {
-          input = "Menu...";
-          list = "No Results";
-        };
       };
 
       emergencies = [
@@ -174,13 +150,16 @@ in
     };
   };
 
+  # CRITICAL FIX: Walker service needs elephant in its PATH
   systemd.user.services.walker = lib.mkIf config.programs.walker.runAsService {
     Service.Environment = lib.mkForce [
+      # Add elephant to Walker's PATH so it can find and communicate with it
       "PATH=${elephantPkg}/bin:/etc/profiles/per-user/${config.home.username}/bin:/run/current-system/sw/bin:${config.home.homeDirectory}/.nix-profile/bin"
       "XDG_DATA_DIRS=${config.home.homeDirectory}/.nix-profile/share:/etc/profiles/per-user/${config.home.username}/share:/run/current-system/sw/share:${config.home.homeDirectory}/.local/share:/usr/local/share:/usr/share"
     ];
   };
 
+  # Theme files
   xdg.configFile = {
     "walker/themes/omarchy-default/style.css".text = styleCss;
     "walker/themes/omarchy-default/layout.xml".source = ../../../assets/branding/walker-layout.xml;
