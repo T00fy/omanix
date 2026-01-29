@@ -8,7 +8,7 @@ let
     # Helper to show a walker dmenu with Omarchy styling
     # Match the dimensions used in upstream (width 295)
     menu_cmd() {
-      echo -e "$2" | walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "$1…"
+      echo -e "$2" | walker --dmenu --width=295 --minheight=1 --maxheight=630 --placeholder="$1…"
     }
 
     show_main_menu() {

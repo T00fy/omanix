@@ -9,7 +9,7 @@ let
 
     WINDOW_PATTERN="$1"
     LAUNCH_COMMAND="''${2:-"uwsm app -- $WINDOW_PATTERN"}"
-    
+
     # Check if window exists via Hyprland clients
     # We use 'grep -i' for case-insensitive matching on class or title
     WINDOW_ADDRESS=$(${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r --arg p "$WINDOW_PATTERN" '.[] | select((.class | test($p; "i")) or (.title | test($p; "i"))) | .address' | head -n1)
@@ -27,7 +27,7 @@ let
   launchBrowser = pkgs.writeShellScriptBin "omarchy-launch-browser" ''
     # Detect default browser (fallback to firefox if not set)
     BROWSER=$(${pkgs.xdg-utils}/bin/xdg-settings get default-web-browser 2>/dev/null || echo "firefox.desktop")
-    
+
     # Extract binary name logic
     if [[ "$BROWSER" == *"firefox"* ]]; then
       EXEC="firefox"
@@ -62,17 +62,34 @@ let
       echo "$HOME"
     fi
   '';
+
+  launchWalker = pkgs.writeShellScriptBin "omarchy-launch-walker" ''
+    # Ensure elephant (the data provider) is running
+    if ! pgrep -x elephant > /dev/null; then
+      systemctl --user start elephant.service
+    fi
+
+    # Ensure walker service is running
+    if ! pgrep -f "walker --gapplication-service" > /dev/null; then
+      systemctl --user start walker.service
+    fi
+
+    # Launch with Omarchy dimensions
+    exec walker --width 644 --maxheight 300 --minheight 300 "$@"
+  '';
+
 in
 {
   home.packages = [
     launchOrFocus
     launchBrowser
     terminalCwd
-    
+    launchWalker
+
     # Core Dependencies
     pkgs.jq
     pkgs.procps # for pgrep
-    
+
     # Core Apps (Moved from scripts.nix)
     pkgs.nautilus
     pkgs.chromium

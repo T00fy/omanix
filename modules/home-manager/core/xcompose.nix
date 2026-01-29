@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   i18n.inputMethod = {
     enable = true;
@@ -26,6 +26,7 @@
   # Port the XCompose file from upstream
   xdg.configFile."XCompose".text = ''
     include "%L"
+    include "${../../..}/assets/branding/xcompose-omarchy"
 
     # Emoji
     <Multi_key> <m> <s> : "😄" # smile
@@ -54,5 +55,7 @@
 
     # Typography
     <Multi_key> <space> <space> : "—"
+    <Multi_key> <space> <n> : "${config.omarchy.user.name}"
+    <Multi_key> <space> <e> : "${config.omarchy.user.email}"
   '';
 }
