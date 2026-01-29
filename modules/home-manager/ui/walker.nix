@@ -149,6 +149,18 @@ in
     };
   };
 
+  # CRITICAL FIX: Ensure Walker service has the correct PATH to launch apps.
+  # Without this, it cannot find binaries located in ~/.nix-profile/bin
+  systemd.user.services.walker = {
+    Service = {
+      Environment = [
+        "PATH=/run/current-system/sw/bin:%h/.nix-profile/bin:/usr/local/bin:/usr/bin:/bin"
+        # Also ensure it sees .desktop files for its internal activation logic if needed
+        "XDG_DATA_DIRS=%h/.nix-profile/share:/etc/profiles/per-user/%u/share:/run/current-system/sw/share:%h/.local/share:/usr/local/share:/usr/share"
+      ];
+    };
+  };
+
   # Theme files
   xdg.configFile = {
     "walker/themes/omarchy-default/style.css".text = styleCss;
