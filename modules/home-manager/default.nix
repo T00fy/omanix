@@ -8,6 +8,7 @@
     ./core/xcompose.nix
     ./core/shell.nix
     ./core/git.nix
+    ./core/languages.nix  # <-- new
     ./apps/firefox.nix
     ./apps/neovim.nix
     ./desktop/hyprland/autostart.nix
