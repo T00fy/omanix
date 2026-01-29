@@ -7,16 +7,16 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
-initContent = ''
-  # Only End key accepts full suggestion
-  ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(end-of-line)
-  bindkey '^[[F' end-of-line
-  
-  # Right arrow just moves cursor (forward-char is not in accept list)
-  bindkey '^[[C' forward-char
-  
-  # ... rest of your initExtra
-'';
+    initContent = ''
+      # Only End key accepts full suggestion
+      ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(end-of-line)
+      bindkey '^[[F' end-of-line
+
+      # Right arrow just moves cursor (forward-char is not in accept list)
+      bindkey '^[[C' forward-char
+
+      # ... rest of your initExtra
+    '';
     # Oh My Zsh configuration
     oh-my-zsh = {
       enable = true;
@@ -57,7 +57,9 @@ initContent = ''
       lt = "eza --tree --level=2 --long --icons --git";
       ll = "eza -l --icons=auto";
       la = "eza -la --icons=auto";
-      
+      pbcopy = "wl-copy";
+      pbpaste = "wl-paste";
+
       # Nix specific shortcuts
       rebuild = "sudo nixos-rebuild switch --flake .";
       nix-clean = "sudo nix-collect-garbage -d";
@@ -97,11 +99,11 @@ initContent = ''
   };
 
   # Ensure these tools are present for the aliases
-  home.packages = with pkgs; [ 
-    eza 
-    ripgrep 
-    fd 
-    fzf 
+  home.packages = with pkgs; [
+    eza
+    ripgrep
+    fd
+    fzf
     bat
     zsh-completions
   ];
