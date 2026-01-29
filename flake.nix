@@ -16,8 +16,15 @@
 
     # LazyVim for NixOS
     lazyvim.url = "github:pfassina/lazyvim-nix/v15.13.0";
-    walker.url = "github:abenz1267/walker";
+    
+    # CRITICAL FIX: Add elephant as a separate input
     elephant.url = "github:abenz1267/elephant";
+    
+    # Walker should follow elephant to ensure version compatibility
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
+    };
   };
 
   outputs =

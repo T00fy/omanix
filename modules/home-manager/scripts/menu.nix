@@ -1,24 +1,28 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 let
+  # Get the walker package from the flake input
+  walkerPkg = inputs.walker.packages.${pkgs.system}.default;
+
   # 1. The Main Omarchy Menu Router
-  # This uses Walker in dmenu mode to provide the signature Omarchy experience.
   menu = pkgs.writeShellScriptBin "omarchy-menu" ''
-    export PATH="${pkgs.walker}/bin:$PATH"
+    # Use explicit path to walker from Nix store
+    WALKER="${walkerPkg}/bin/walker"
 
     # Helper to show a walker dmenu with Omarchy styling
-    # Match the dimensions used in upstream (width 295)
     menu_cmd() {
-      echo -e "$2" | walker --dmenu --width=295 --minheight=1 --maxheight=630 --placeholder="$1…"
+      local placeholder="$1"
+      local options="$2"
+      echo -e "$options" | "$WALKER" --dmenu --width 295 --minheight 1 --maxheight 630 --placeholder "$placeholder…"
     }
 
     show_main_menu() {
-      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󱓞  Trigger\n  Style\n  Setup\n  System")
+      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󱓞  Trigger\n  Style\n  Setup\n  System")
       go_to_menu "$CHOICE"
     }
 
     go_to_menu() {
       case "''${1,,}" in
-        *apps*) walker -p "Launch…" ;;
+        *apps*) "$WALKER" -p "Launch…" ;;
         *trigger*) show_trigger_menu ;;
         *system*) show_system_menu ;;
         *style*) show_style_menu ;;
@@ -28,10 +32,10 @@ let
     }
 
     show_system_menu() {
-      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰐥  Shutdown\n󰜉  Restart\n󰒲  Suspend")
+      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰐥  Shutdown\n󰜉  Restart\n󰒲  Suspend")
       case "$CHOICE" in
         *Lock*) omarchy-lock-screen ;;
-        *Screensaver*) omarchy-launch-screensaver force ;; # Placeholder for Phase 5
+        *Screensaver*) omarchy-launch-screensaver force ;;
         *Shutdown*) omarchy-cmd-shutdown ;;
         *Restart*) omarchy-cmd-reboot ;;
         *Suspend*) systemctl suspend ;;
@@ -40,7 +44,7 @@ let
     }
 
     show_trigger_menu() {
-      CHOICE=$(menu_cmd "Trigger" "  Capture\n  Share\n󰃉  Color Picker")
+      CHOICE=$(menu_cmd "Trigger" "  Capture\n  Share\n󰃉  Color Picker")
       case "$CHOICE" in
         *Capture*) show_capture_menu ;;
         *Share*) omarchy-menu share ;;
@@ -50,7 +54,7 @@ let
     }
 
     show_capture_menu() {
-      CHOICE=$(menu_cmd "Capture" "  Screenshot\n  Screenrecord")
+      CHOICE=$(menu_cmd "Capture" "  Screenshot\n  Screenrecord")
       case "$CHOICE" in
         *Screenshot*) omarchy-cmd-screenshot smart file ;;
         *Screenrecord*) omarchy-menu screenrecord ;;
@@ -58,9 +62,8 @@ let
       esac
     }
 
-    # Dummy submenus for logic completeness (to be expanded in later phases)
     show_style_menu() {
-       CHOICE=$(menu_cmd "Style" "  Background\n  Font")
+       CHOICE=$(menu_cmd "Style" "  Background\n  Font")
        case "$CHOICE" in
          *Background*) omarchy-theme-bg-next ;;
          *) show_main_menu ;;
@@ -68,7 +71,7 @@ let
     }
 
     show_setup_menu() {
-       CHOICE=$(menu_cmd "Setup" "  Audio\n  Wifi\n󰂯  Bluetooth")
+       CHOICE=$(menu_cmd "Setup" "  Audio\n  Wifi\n󰂯  Bluetooth")
        case "$CHOICE" in
          *Audio*) omarchy-launch-audio ;;
          *Wifi*) omarchy-launch-wifi ;;
@@ -86,7 +89,6 @@ let
   '';
 
   # 2. Walker Restart Script
-  # Required by the 'emergencies' block in Walker config
   restartWalker = pkgs.writeShellScriptBin "omarchy-restart-walker" ''
     # Restart the data provider
     systemctl --user restart elephant.service
