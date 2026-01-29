@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  # 1. Screenshot
+  # 1. Screenshot (PRESERVED EXACTLY as provided)
   screenshot = pkgs.writeShellScriptBin "omarchy-cmd-screenshot" ''
     export PATH="${pkgs.coreutils}/bin:${pkgs.jq}/bin:${pkgs.gawk}/bin:${pkgs.procps}/bin:$PATH"
 
@@ -26,9 +26,8 @@ let
       mkdir -p "$OUTPUT_DIR"
     fi
 
-    # Cleanup any stuck instances
+    # Cleanup any stuck slurp instances
     pkill slurp && exit 0
-    pkill wayfreeze
 
     # Arguments: Mode [smart|region|windows|fullscreen] | Dest [file|clipboard]
     MODE="''${1:-smart}"
@@ -39,7 +38,7 @@ let
       local active_workspace
       active_workspace=$($HYPRCTL monitors -j | jq -r '.[] | select(.focused == true) | .activeWorkspace.id')
       
-      # Monitor geometry (divide by scale to get logical coords for slurp)
+      # Monitor geometry
       $HYPRCTL monitors -j | jq -r --arg ws "$active_workspace" '.[] | select(.activeWorkspace.id == ($ws | tonumber)) | "\(.x),\(.y) \((.width / .scale) | floor)x\((.height / .scale) | floor)"'
       
       # Window geometry
@@ -52,13 +51,13 @@ let
         $WAYFREEZE & PID=$!
         sleep .1
         SELECTION=$($SLURP 2>/dev/null)
-        kill $PID 2>/dev/null || pkill wayfreeze
+        kill $PID 2>/dev/null
         ;;
       windows)
         $WAYFREEZE & PID=$!
         sleep .1
         SELECTION=$(get_rectangles | $SLURP -r 2>/dev/null)
-        kill $PID 2>/dev/null || pkill wayfreeze
+        kill $PID 2>/dev/null
         ;;
       fullscreen)
         SELECTION=$($HYPRCTL monitors -j | jq -r '.[] | select(.focused == true) | "\(.x),\(.y) \((.width / .scale) | floor)x\((.height / .scale) | floor)"')
@@ -68,7 +67,7 @@ let
         $WAYFREEZE & PID=$!
         sleep .1
         SELECTION=$(echo "$RECTS" | $SLURP 2>/dev/null)
-        kill $PID 2>/dev/null || pkill wayfreeze
+        kill $PID 2>/dev/null
 
         # Smart Logic: If selection is tiny (< 20px area), assumes a click on a specific window/output
         if [[ "$SELECTION" =~ ^([0-9]+),([0-9]+)[[:space:]]([0-9]+)x([0-9]+)$ ]]; then
@@ -98,14 +97,7 @@ let
         ;;
     esac
 
-    # Ensure wayfreeze is dead before continuing
-    pkill wayfreeze
-    
-    # If no selection made (cancelled), exit
     [ -z "$SELECTION" ] && exit 0
-
-    # Small delay to ensure the screen updates/unfreezes before Satty captures
-    sleep 0.1
 
     # Processing Logic
     if [[ "$DEST" == "file" ]]; then
@@ -162,7 +154,7 @@ in
     shutdown
     reboot
 
-    # System Dependencies
+    # System Dependencies (Moved from scripts.nix)
     pkgs.satty
     pkgs.wayfreeze
     pkgs.grim
@@ -172,6 +164,5 @@ in
     pkgs.hyprpicker
     pkgs.blueman
     pkgs.bitwarden-cli
-    pkgs.procps # for pkill
   ];
 }

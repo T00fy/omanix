@@ -4,14 +4,14 @@
     # ═══════════════════════════════════════════════════════════════════
     # WINDOW RULES - Omarchy Parity
     # ═══════════════════════════════════════════════════════════════════
-
+    
     windowrule = [
       # ─────────────────────────────────────────────────────────────────
       # Global defaults (from windows.conf)
       # ─────────────────────────────────────────────────────────────────
       "suppress_event maximize, match:class .*"
       "opacity 0.97 0.9, match:class .*"
-
+      
       # Fix XWayland dragging issues
       "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 
@@ -109,19 +109,16 @@
       "move (monitor_w-window_w-40) (monitor_h-window_h-40), match:title WebcamOverlay"
 
       # ─────────────────────────────────────────────────────────────────
-      # System Floating Windows (Wifi, Bluetooth, etc)
+      # System Floating Windows (from system.conf)
       # ─────────────────────────────────────────────────────────────────
-      # Match standard floating tags
       "float on, match:tag floating-window"
       "center on, match:tag floating-window"
       "size 875 600, match:tag floating-window"
-
-      # Explicitly float Omarchy TUI wrappers (Impala/Wifi, Bluetui/Bluetooth)
-      "tag +floating-window, match:class (org.omarchy.bluetui|org.omarchy.impala|org.omarchy.wiremix|org.omarchy.btop|org.omarchy.terminal|org.omarchy.bash)"
-
-      # Other floating apps
-      "tag +floating-window, match:class (org.gnome.NautilusPreviewer|org.gnome.Evince|Omarchy|About|TUI.float|imv|mpv)"
+      
+      # Tag various apps as floating windows
+      "tag +floating-window, match:class (org.omarchy.bluetui|org.omarchy.impala|org.omarchy.wiremix|org.omarchy.btop|org.omarchy.terminal|org.omarchy.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Omarchy|About|TUI.float|imv|mpv)"
       "tag +floating-window, match:class (xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus), match:title ^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)$"
+      
       "float on, match:class org.gnome.Calculator"
 
       # Fullscreen screensaver
@@ -144,7 +141,6 @@
       "center on, match:class ^(com.gabm.satty)$"
       "size 80% 80%, match:class ^(com.gabm.satty)$"
       "dim_around on, match:class ^(com.gabm.satty)$"
-      "stay_focused on, match:class ^(com.gabm.satty)$"
 
       # ─────────────────────────────────────────────────────────────────
       # Misc floating utilities (from your original)
@@ -163,10 +159,10 @@
       "no_anim on, match:namespace selection"
       "no_anim on, match:namespace ^(selection)$"
       "no_anim on, match:namespace ^(wayfreeze)$"
-
+      
       # Walker launcher (from walker.conf)
       "no_anim on, match:namespace walker"
-
+      
       # Blur for UI elements
       "blur on, match:namespace waybar"
       "blur on, match:namespace wofi"
