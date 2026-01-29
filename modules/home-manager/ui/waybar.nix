@@ -10,12 +10,9 @@ let
   monitorCfg = config.omarchy.monitors;
 
   # Build format-icons dynamically from monitor config
-  # This maps actual workspace numbers to display labels
-  # e.g., workspace 6 -> "1", workspace 7 -> "2", etc.
   buildFormatIcons =
     monitors:
     let
-      # For each monitor, create mappings from actual WS number to display number
       monitorMappings = lib.flatten (
         map (
           mon:
@@ -120,7 +117,6 @@ in
             on-click = "activate";
             format-icons = formatIcons;
             persistent-workspaces = persistentWorkspaces;
-            # Only show workspaces on their bound monitor
             show-special = false;
           };
 
@@ -146,13 +142,13 @@ in
 
           pulseaudio = {
             format = "{icon}";
-            format-muted = "";
+            format-muted = "󰝟";
             format-icons = {
-              headphone = "";
+              headphone = "󰋋";
               default = [
-                ""
-                ""
-                ""
+                "󰕿"
+                "󰖀"
+                "󰕾"
               ];
             };
             on-click = "pavucontrol";
@@ -189,7 +185,7 @@ in
           };
 
           bluetooth = {
-            format = "";
+            format = "󰂯";
             format-disabled = "󰂲";
             format-connected = "󰂱";
             on-click = "blueman-manager";
