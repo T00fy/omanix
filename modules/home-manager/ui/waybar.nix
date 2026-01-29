@@ -7,6 +7,71 @@
 let
   theme = config.omarchy.activeTheme;
   cfg = config.omarchy.waybar;
+  monitorCfg = config.omarchy.monitors;
+
+  # Build format-icons dynamically from monitor config
+  # This maps actual workspace numbers to display labels
+  # e.g., workspace 6 -> "1", workspace 7 -> "2", etc.
+  buildFormatIcons =
+    monitors:
+    let
+      # For each monitor, create mappings from actual WS number to display number
+      monitorMappings = lib.flatten (
+        map (
+          mon:
+          lib.imap0 (idx: ws: {
+            name = toString ws;
+            value = toString (idx + 1);
+          }) mon.workspaces
+        ) monitors
+      );
+    in
+    (builtins.listToAttrs monitorMappings)
+    // {
+      active = "󱓻";
+      default = "";
+    };
+
+  # Build persistent-workspaces from monitor config
+  buildPersistentWorkspaces =
+    monitors:
+    lib.listToAttrs (
+      map (mon: {
+        name = mon.name;
+        value = mon.workspaces;
+      }) monitors
+    );
+
+  # Fallback icons if no monitors configured (single monitor setup)
+  defaultFormatIcons = {
+    "1" = "1";
+    "2" = "2";
+    "3" = "3";
+    "4" = "4";
+    "5" = "5";
+    "6" = "6";
+    "7" = "7";
+    "8" = "8";
+    "9" = "9";
+    "10" = "0";
+    active = "󱓻";
+    default = "";
+  };
+
+  # Fallback persistent workspaces
+  defaultPersistentWorkspaces = {
+    "1" = [ ];
+    "2" = [ ];
+    "3" = [ ];
+    "4" = [ ];
+    "5" = [ ];
+  };
+
+  # Use monitor config if available, otherwise defaults
+  formatIcons = if monitorCfg != [ ] then buildFormatIcons monitorCfg else defaultFormatIcons;
+
+  persistentWorkspaces =
+    if monitorCfg != [ ] then buildPersistentWorkspaces monitorCfg else defaultPersistentWorkspaces;
 in
 {
   options.omarchy.waybar = {
@@ -34,6 +99,7 @@ in
       description = "Modules to display on the right side of waybar";
     };
   };
+
   config = {
     programs.waybar = {
       enable = true;
@@ -48,30 +114,14 @@ in
           modules-left = cfg.modules-left;
           modules-center = cfg.modules-center;
           modules-right = cfg.modules-right;
+
           "hyprland/workspaces" = {
             format = "{icon}";
             on-click = "activate";
-            format-icons = {
-              "1" = "1";
-              "2" = "2";
-              "3" = "3";
-              "4" = "4";
-              "5" = "5";
-              "6" = "6";
-              "7" = "7";
-              "8" = "8";
-              "9" = "9";
-              "10" = "0";
-              active = "󱓻";
-              default = "";
-            };
-            persistent-workspaces = {
-              "1" = [ ];
-              "2" = [ ];
-              "3" = [ ];
-              "4" = [ ];
-              "5" = [ ];
-            };
+            format-icons = formatIcons;
+            persistent-workspaces = persistentWorkspaces;
+            # Only show workspaces on their bound monitor
+            show-special = false;
           };
 
           clock = {
@@ -96,13 +146,13 @@ in
 
           pulseaudio = {
             format = "{icon}";
-            format-muted = "";
+            format-muted = "";
             format-icons = {
-              headphone = "";
+              headphone = "";
               default = [
-                ""
-                ""
-                ""
+                ""
+                ""
+                ""
               ];
             };
             on-click = "pavucontrol";
@@ -139,13 +189,14 @@ in
           };
 
           bluetooth = {
-            format = "";
+            format = "";
             format-disabled = "󰂲";
             format-connected = "󰂱";
             on-click = "blueman-manager";
           };
         };
       };
+
       style = ''
         @define-color background ${theme.colors.background};
         @define-color foreground ${theme.colors.foreground};
@@ -208,6 +259,5 @@ in
         #custom-voxtype.recording { color: #a55555; }
       '';
     };
-
   };
 }

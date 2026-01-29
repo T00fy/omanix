@@ -8,7 +8,7 @@
     ./core/xcompose.nix
     ./core/shell.nix
     ./core/git.nix
-    ./core/languages.nix  # <-- new
+    ./core/languages.nix
     ./apps/firefox.nix
     ./apps/neovim.nix
     ./desktop/hyprland/autostart.nix
@@ -17,6 +17,7 @@
     ./desktop/hyprland/bindings.nix
     ./desktop/hyprland/input.nix
     ./desktop/hyprland/rules.nix
+    ./desktop/hyprland/monitors.nix
     ./desktop/hyprpaper.nix
     ./desktop/hypridle.nix
     ./desktop/hyprlock.nix
