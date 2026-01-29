@@ -6,22 +6,19 @@
 }:
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
+  elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
 
   # ═══════════════════════════════════════════════════════════════════
   # HELP SYSTEM
   # ═══════════════════════════════════════════════════════════════════
-
-  # Get list of themes for the style doc
+  
   availableThemes = builtins.attrNames omarchyLib.themes;
   themeListFormatted = builtins.concatStringsSep "\n" (map (t: "- ${t}") availableThemes);
 
-  # Style help needs theme list injected
   showStyleHelp = pkgs.writeShellScriptBin "omarchy-show-style-help" ''
     HELP_FILE=$(mktemp /tmp/omanix-help-XXXXXX.md)
-
-    # Read the doc and substitute the theme list placeholder
     sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${../../../docs/style.md} > "$HELP_FILE"
-
+    
     if command -v glow &> /dev/null; then
       ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
     else
@@ -29,11 +26,10 @@ let
     fi
   '';
 
-  # Generic setup help - just displays the markdown file directly
   showSetupHelp = pkgs.writeShellScriptBin "omarchy-show-setup-help" ''
     TOPIC="$1"
     DOCS_DIR="${../../../docs}"
-
+    
     case "$TOPIC" in
       hyprland)  DOC_FILE="$DOCS_DIR/hyprland.md" ;;
       hypridle)  DOC_FILE="$DOCS_DIR/hypridle.md" ;;
@@ -54,143 +50,14 @@ let
   '';
 
   # ═══════════════════════════════════════════════════════════════════
-  # MAIN MENU
+  # MENU LAUNCHER
+  # Uses Elephant's native menu system for hierarchical + searchable menus
   # ═══════════════════════════════════════════════════════════════════
 
   menu = pkgs.writeShellScriptBin "omarchy-menu" ''
-    WALKER="${walkerPkg}/bin/walker"
-
-    # Helper to show a walker dmenu with Omarchy styling
-    menu_cmd() {
-      local placeholder="$1"
-      local options="$2"
-      echo -e "$options" | "$WALKER" --dmenu --width 295 --minheight 1 --maxheight 630 --placeholder "$placeholder…"
-    }
-
-    back_to() {
-      "$1"
-    }
-
-    show_main_menu() {
-      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n󰏘  Style\n󰒓  Setup\n󰍛  System")
-      go_to_menu "$CHOICE"
-    }
-
-    go_to_menu() {
-      case "''${1,,}" in
-        *apps*) omarchy-launch-walker ;;
-        *learn*) show_learn_menu ;;
-        *trigger*) show_trigger_menu ;;
-        *system*) show_system_menu ;;
-        *style*) omarchy-show-style-help ;;
-        *setup*) show_setup_menu ;;
-        *) ;;
-      esac
-    }
-
-    # ═══════════════════════════════════════════════════════════════════
-    # LEARN MENU
-    # ═══════════════════════════════════════════════════════════════════
-    show_learn_menu() {
-      CHOICE=$(menu_cmd "Learn" "󰌌  Keybindings\n󰖟  Hyprland\n󱄅  NixOS Wiki\n󰊠  Neovim\n󱆃  Bash")
-      case "$CHOICE" in
-        *Keybindings*) omarchy-menu-keybindings ;;
-        *Hyprland*) xdg-open "https://wiki.hyprland.org" ;;
-        *NixOS*) xdg-open "https://wiki.nixos.org" ;;
-        *Neovim*) xdg-open "https://neovim.io/doc/" ;;
-        *Bash*) xdg-open "https://www.gnu.org/software/bash/manual/" ;;
-        *) back_to show_main_menu ;;
-      esac
-    }
-
-    # ═══════════════════════════════════════════════════════════════════
-    # TRIGGER MENU
-    # ═══════════════════════════════════════════════════════════════════
-    show_trigger_menu() {
-      CHOICE=$(menu_cmd "Trigger" "󰄀  Capture\n󰤲  Share\n󰃉  Color Picker")
-      case "$CHOICE" in
-        *Capture*) show_capture_menu ;;
-        *Share*) show_share_menu ;;
-        *Color*) ${pkgs.hyprpicker}/bin/hyprpicker -a ;;
-        *) back_to show_main_menu ;;
-      esac
-    }
-
-    show_capture_menu() {
-      CHOICE=$(menu_cmd "Capture" "󰹑  Screenshot\n󰻃  Screenrecord")
-      case "$CHOICE" in
-        *Screenshot*) show_screenshot_menu ;;
-        *Screenrecord*) show_screenrecord_menu ;;
-        *) back_to show_trigger_menu ;;
-      esac
-    }
-
-    show_screenshot_menu() {
-      CHOICE=$(menu_cmd "Screenshot" "󰏫  Snap with Editing\n󰅍  Straight to Clipboard")
-      case "$CHOICE" in
-        *Editing*) omarchy-cmd-screenshot smart ;;
-        *Clipboard*) omarchy-cmd-screenshot smart clipboard ;;
-        *) back_to show_capture_menu ;;
-      esac
-    }
-
-    show_screenrecord_menu() {
-      CHOICE=$(menu_cmd "Screenrecord" "󰍹  Full Screen\n󰆞  Region\n󰓛  Stop Recording")
-      case "$CHOICE" in
-        *Full*) ${pkgs.libnotify}/bin/notify-send "Screen Recording" "Full screen recording not yet implemented" ;;
-        *Region*) ${pkgs.libnotify}/bin/notify-send "Screen Recording" "Region recording not yet implemented" ;;
-        *Stop*) pkill -SIGINT wf-recorder || pkill -SIGINT wl-screenrec ;;
-        *) back_to show_capture_menu ;;
-      esac
-    }
-
-    show_share_menu() {
-      CHOICE=$(menu_cmd "Share" "󰷛  LocalSend")
-      case "$CHOICE" in
-        *LocalSend*) localsend_app ;;
-        *) back_to show_trigger_menu ;;
-      esac
-    }
-
-    # ═══════════════════════════════════════════════════════════════════
-    # SETUP MENU
-    # ═══════════════════════════════════════════════════════════════════
-    show_setup_menu() {
-      CHOICE=$(menu_cmd "Setup" "󰕾  Audio\n󰖩  Wifi\n󰂯  Bluetooth\n󰋁  Hyprland\n󰒲  Hypridle\n󰌾  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
-      case "$CHOICE" in
-        *Audio*) omarchy-launch-audio ;;
-        *Wifi*) omarchy-launch-wifi ;;
-        *Bluetooth*) omarchy-launch-bluetooth ;;
-        *Hyprland*) omarchy-show-setup-help hyprland ;;
-        *Hypridle*) omarchy-show-setup-help hypridle ;;
-        *Hyprlock*) omarchy-show-setup-help hyprlock ;;
-        *Waybar*) omarchy-show-setup-help waybar ;;
-        *Walker*) omarchy-show-setup-help walker ;;
-        *) back_to show_main_menu ;;
-      esac
-    }
-
-    # ═══════════════════════════════════════════════════════════════════
-    # SYSTEM MENU
-    # ═══════════════════════════════════════════════════════════════════
-    show_system_menu() {
-      CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
-      case "$CHOICE" in
-        *Lock*) omarchy-lock-screen ;;
-        *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
-        *Suspend*) systemctl suspend ;;
-        *Restart*) omarchy-cmd-reboot ;;
-        *Shutdown*) omarchy-cmd-shutdown ;;
-        *) back_to show_main_menu ;;
-      esac
-    }
-
-    # Entry point
-    if [[ -n "$1" ]]; then
-      go_to_menu "$1"
-    else
-      show_main_menu
-    fi
+    # Open the Omarchy menu via Walker with the "omarchy" set
+    # This enables universal search across ALL menu items while maintaining hierarchy
+    ${walkerPkg}/bin/walker -s omarchy
   '';
 
   # ═══════════════════════════════════════════════════════════════════
