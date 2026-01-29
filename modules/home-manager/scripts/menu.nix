@@ -7,10 +7,64 @@
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  # Get list of themes available in the library for the Style menu
+  # Get list of themes available in the library
   availableThemes = builtins.attrNames omarchyLib.themes;
-  # Format them for Walker (Icon + Name)
-  themeListStr = builtins.concatStringsSep "\\n" (map (t: "󰸌  " + t) availableThemes);
+  
+  # Format themes as a bulleted list for the help text
+  themeListFormatted = builtins.concatStringsSep "\n" (map (t: "  • ${t}") availableThemes);
+  
+  # Build the help text content
+  styleHelpText = ''
+# Omanix Theming Guide
+
+Omanix uses declarative theming through your NixOS configuration.
+Unlike traditional Linux setups, themes are applied at build time.
+
+## Available Themes
+
+${themeListFormatted}
+
+## How to Change Theme
+
+1. Edit your flake.nix or home-manager configuration
+2. Set the theme option:
+
+   omarchy.theme = "tokyo-night";
+
+3. Rebuild your system:
+
+   sudo nixos-rebuild switch --flake .
+
+## Customizing Wallpaper
+
+You can override the wallpaper without changing themes:
+
+   omarchy.wallpaperOverride = ./path/to/wallpaper.jpg;
+
+## Adding Custom Themes
+
+To add a new theme, edit lib/themes.nix in your Omanix repo.
+Each theme requires: meta, assets, bat config, and color palette.
+
+See the tokyo-night theme as a reference.
+'';
+
+  # Script to show the style help using a floating terminal with glow (markdown viewer)
+  showStyleHelp = pkgs.writeShellScriptBin "omarchy-show-style-help" ''
+    # Create a temp file with the help content
+    HELP_FILE=$(mktemp /tmp/omanix-style-help-XXXXXX.md)
+    cat > "$HELP_FILE" << 'HELPEOF'
+${styleHelpText}
+HELPEOF
+
+    # Show it in a floating terminal with glow for nice markdown rendering
+    # Falls back to less if glow isn't available
+    if command -v glow &> /dev/null; then
+      ghostty --class="org.omarchy.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
+    else
+      ghostty --class="org.omarchy.terminal" -e sh -c "less '$HELP_FILE'; rm '$HELP_FILE'"
+    fi
+  '';
 
   # The Main Omarchy Menu
   menu = pkgs.writeShellScriptBin "omarchy-menu" ''
@@ -28,7 +82,7 @@ let
     }
 
     show_main_menu() {
-      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n  Style\n  Setup\n  System")
+      CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n󰏘  Style\n󰒓  Setup\n󰍛  System")
       go_to_menu "$CHOICE"
     }
 
@@ -38,7 +92,7 @@ let
         *learn*) show_learn_menu ;;
         *trigger*) show_trigger_menu ;;
         *system*) show_system_menu ;;
-        *style*) show_style_menu ;;
+        *style*) omarchy-show-style-help ;;  # Now opens help directly
         *setup*) show_setup_menu ;;
         *) ;;
       esac
@@ -48,7 +102,7 @@ let
     # LEARN MENU
     # ═══════════════════════════════════════════════════════════════════
     show_learn_menu() {
-      CHOICE=$(menu_cmd "Learn" "  Keybindings\n  Hyprland\n  NixOS Wiki\n  Neovim\n󱆃  Bash")
+      CHOICE=$(menu_cmd "Learn" "󰌌  Keybindings\n󰖟  Hyprland\n󱄅  NixOS Wiki\n󰊠  Neovim\n󱆃  Bash")
       case "$CHOICE" in
         *Keybindings*) omarchy-menu-keybindings ;;
         *Hyprland*) xdg-open "https://wiki.hyprland.org" ;;
@@ -63,7 +117,7 @@ let
     # TRIGGER MENU
     # ═══════════════════════════════════════════════════════════════════
     show_trigger_menu() {
-      CHOICE=$(menu_cmd "Trigger" "  Capture\n  Share\n󰃉  Color Picker")
+      CHOICE=$(menu_cmd "Trigger" "󰄀  Capture\n󰤲  Share\n󰃉  Color Picker")
       case "$CHOICE" in
         *Capture*) show_capture_menu ;;
         *Share*) show_share_menu ;;
@@ -73,7 +127,7 @@ let
     }
 
     show_capture_menu() {
-      CHOICE=$(menu_cmd "Capture" "  Screenshot\n  Screenrecord")
+      CHOICE=$(menu_cmd "Capture" "󰹑  Screenshot\n󰻃  Screenrecord")
       case "$CHOICE" in
         *Screenshot*) show_screenshot_menu ;;
         *Screenrecord*) show_screenrecord_menu ;;
@@ -81,9 +135,8 @@ let
       esac
     }
 
-    # Fixed Screenshot menu to match upstream (Editing vs Clipboard)
     show_screenshot_menu() {
-      CHOICE=$(menu_cmd "Screenshot" "  Snap with Editing\n  Straight to Clipboard")
+      CHOICE=$(menu_cmd "Screenshot" "󰏫  Snap with Editing\n󰅍  Straight to Clipboard")
       case "$CHOICE" in
         *Editing*) omarchy-cmd-screenshot smart ;;
         *Clipboard*) omarchy-cmd-screenshot smart clipboard ;;
@@ -110,54 +163,14 @@ let
     }
 
     # ═══════════════════════════════════════════════════════════════════
-    # STYLE MENU
-    # ═══════════════════════════════════════════════════════════════════
-    show_style_menu() {
-      CHOICE=$(menu_cmd "Style" "󰸌  Theme\n  Background\n  Font")
-      case "$CHOICE" in
-        *Theme*) show_theme_list ;;
-        *Background*) ${pkgs.libnotify}/bin/notify-send "Background" "To change background:\n1. Add image to assets/wallpapers\n2. Update omarchy.theme.assets.wallpaper in flake.nix\n3. Rebuild system" ;;
-        *Font*) show_font_info ;;
-        *) back_to show_main_menu ;;
-      esac
-    }
-
-    # Informational Theme List
-    show_theme_list() {
-      # Show the list of available themes from Nix
-      THEME=$(echo -e "${themeListStr}" | "$WALKER" --dmenu --width 400 --minheight 1 --maxheight 630 --placeholder "Available Themes...")
-      
-      # If they picked one, tell them how to set it
-      if [[ -n "$THEME" ]]; then
-        CLEAN_NAME=$(echo "$THEME" | sed 's/󰸌  //')
-        ${pkgs.libnotify}/bin/notify-send "Set Theme: $CLEAN_NAME" "Edit flake.nix:\nomarchy.theme = \"$CLEAN_NAME\";\n\nThen run: sudo nixos-rebuild switch --flake ." -t 10000
-      else
-        back_to show_style_menu
-      fi
-    }
-
-    show_font_info() {
-      # Just list standard Nerd Fonts available in Omanix
-      CHOICE=$(echo -e "  JetBrainsMono Nerd Font\n  FiraCode Nerd Font\n  Iosevka Nerd Font" | "$WALKER" --dmenu --width 400 --placeholder "Supported Fonts...")
-      
-      if [[ -n "$CHOICE" ]]; then
-        CLEAN_NAME=$(echo "$CHOICE" | sed 's/  //')
-        ${pkgs.libnotify}/bin/notify-send "Set Font: $CLEAN_NAME" "Edit flake.nix:\nomarchy.font = \"$CLEAN_NAME\";\n\nThen run: sudo nixos-rebuild switch --flake ." -t 10000
-      else
-        back_to show_style_menu
-      fi
-    }
-
-    # ═══════════════════════════════════════════════════════════════════
     # SETUP MENU
     # ═══════════════════════════════════════════════════════════════════
     show_setup_menu() {
-      CHOICE=$(menu_cmd "Setup" "  Audio\n  Wifi\n󰂯  Bluetooth\n  Hyprland\n󰒲  Hypridle\n  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
+      CHOICE=$(menu_cmd "Setup" "󰕾  Audio\n󰖩  Wifi\n󰂯  Bluetooth\n󰋁  Hyprland\n󰒲  Hypridle\n󰌾  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
       case "$CHOICE" in
         *Audio*) omarchy-launch-audio ;;
         *Wifi*) omarchy-launch-wifi ;;
         *Bluetooth*) omarchy-launch-bluetooth ;;
-        # Configs are declarative in NixOS, show info instead of opening nvim
         *Hyprland*) show_config_info "Hyprland" "modules/home-manager/desktop/hyprland/" ;;
         *Hypridle*) show_config_info "Hypridle" "modules/home-manager/desktop/hypridle.nix" ;;
         *Hyprlock*) show_config_info "Hyprlock" "modules/home-manager/desktop/hyprlock.nix" ;;
@@ -177,7 +190,7 @@ let
     # SYSTEM MENU
     # ═══════════════════════════════════════════════════════════════════
     show_system_menu() {
-      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Relaunch\n󰜉  Restart\n  Shutdown")
+      CHOICE=$(menu_cmd "System" "  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Relaunch\n󰜉  Restart\n  Shutdown")
       case "$CHOICE" in
         *Lock*) omarchy-lock-screen ;;
         *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
@@ -325,7 +338,6 @@ let
       monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')
       menu_height=$((monitor_height * 40 / 100))
       
-      # Use omarchy-launch-walker to ensure consistent styling
       output_keybindings | omarchy-launch-walker --dmenu -p 'Keybindings' --width 800 --height "$menu_height"
     fi
   '';
@@ -343,15 +355,13 @@ let
     ${pkgs.pavucontrol}/bin/pavucontrol &
   '';
 
-  # Wifi launcher - Uses Impala TUI
+  # Wifi launcher
   launchWifi = pkgs.writeShellScriptBin "omarchy-launch-wifi" ''
-    # Using the TUI helper created in core.nix
     omarchy-launch-or-focus-tui impala
   '';
 
-  # Bluetooth launcher - Uses BlueTUI
+  # Bluetooth launcher
   launchBluetooth = pkgs.writeShellScriptBin "omarchy-launch-bluetooth" ''
-    # Fallback to bluetui if available, similar to impala
     omarchy-launch-or-focus-tui bluetui
   '';
 
@@ -368,6 +378,7 @@ in
 {
   home.packages = [
     menu
+    showStyleHelp
     keybindingsMenu
     restartWalker
     launchAudio
@@ -375,10 +386,11 @@ in
     launchBluetooth
     toggleWaybar
     pkgs.networkmanagerapplet
-    pkgs.libxkbcommon # Required for xkbcli
-    pkgs.gawk # Required for awk
-    pkgs.localsend # Required for Share > LocalSend
-    pkgs.impala # Required for Wifi TUI
-    pkgs.bluetui # Required for Bluetooth TUI
+    pkgs.libxkbcommon
+    pkgs.gawk
+    pkgs.localsend
+    pkgs.impala
+    pkgs.bluetui
+    pkgs.glow  # Markdown renderer for the style help
   ];
 }
