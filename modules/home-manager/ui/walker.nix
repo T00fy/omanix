@@ -1,8 +1,8 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 let
   theme = config.omarchy.activeTheme;
   
-  # CSS Content
+  # CSS Content matching Omarchy's walker theme
   styleCss = ''
     @define-color selected-text ${theme.colors.accent};
     @define-color text ${theme.colors.foreground};
@@ -66,56 +66,85 @@ let
     }
 
     .current { font-style: italic; }
+  '';
 
-    .keybind-hints {
-      background: @background;
-      padding: 10px;
-      margin-top: 10px;
-    }
+  # Walker config.toml matching Omarchy
+  configToml = ''
+    force_keyboard_focus = true
+    selection_wrap = true
+    theme = "omarchy-default"
+    close_when_open = true
+    click_to_close = true
+
+    [providers]
+    default = ["desktopapplications", "websearch"]
+    max_results = 256
+
+    [[providers.prefixes]]
+    prefix = "/"
+    provider = "providerlist"
+
+    [[providers.prefixes]]
+    prefix = "."
+    provider = "files"
+
+    [[providers.prefixes]]
+    prefix = ":"
+    provider = "symbols"
+
+    [[providers.prefixes]]
+    prefix = "="
+    provider = "calc"
+
+    [[providers.prefixes]]
+    prefix = "@"
+    provider = "websearch"
+
+    [[providers.prefixes]]
+    prefix = "$"
+    provider = "clipboard"
+
+    [[providers.prefixes]]
+    prefix = ">"
+    provider = "runner"
+
+    [placeholders]
+    "default" = { input = "Launch...", list = "No Results" }
+    "desktopapplications" = { input = "Launch...", list = "No Apps Found" }
+    "files" = { input = "Find files...", list = "No files found" }
+    "symbols" = { input = "Find symbol...", list = "No symbols" }
+    "clipboard" = { input = "Clipboard...", list = "Clipboard empty" }
+
+    [[emergencies]]
+    text = "Restart Walker"
+    command = "omarchy-restart-walker"
   '';
 in
 {
+  # Use the walker module but with minimal config
   programs.walker = {
     enable = true;
     runAsService = true;
-
-    config = {
-      force_keyboard_focus = true;
-      selection_wrap = true;
-      theme = "omarchy-default"; # This tells Walker to look in themes/omarchy-default
-      hide_action_hints = true;
-      
-      width = 644;
-      maxheight = 300;
-      minheight = 300;
-
-      providers = {
-        max_results = 256;
-        default = [ "desktopapplications" "websearch" ];
-      };
-
-      prefixes = [
-        { prefix = "/"; provider = "providerlist"; }
-        { prefix = "."; provider = "files"; }
-        { prefix = ":"; provider = "symbols"; }
-        { prefix = "="; provider = "calc"; }
-        { prefix = "@"; provider = "websearch"; }
-        { prefix = "$"; provider = "clipboard"; }
-      ];
-
-      emergencies = [
-        {
-          text = "Restart Walker";
-          command = "omarchy-restart-walker";
-        }
-      ];
-    };
   };
 
-  # Manually write the theme files
+  # Write our own config files directly - this overrides what the module generates
   xdg.configFile = {
-    "walker/themes/omarchy-default/style.css".text = styleCss;
-    # Ensure layout.xml matches asset
-    "walker/themes/omarchy-default/layout.xml".source = ../../../assets/branding/walker-layout.xml;
+    # Main config
+    "walker/config.toml" = {
+      text = configToml;
+      force = true;
+    };
+    
+    # Theme CSS
+    "walker/themes/omarchy-default/style.css" = {
+      text = styleCss;
+      force = true;
+    };
+    
+    # Theme layout
+    "walker/themes/omarchy-default/layout.xml" = {
+      source = ../../../assets/branding/walker-layout.xml;
+      force = true;
+    };
   };
 }

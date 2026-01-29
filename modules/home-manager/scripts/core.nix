@@ -1,9 +1,8 @@
 { pkgs, inputs, ... }:
 let
-  # Get walker from flake input for consistent versioning
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  # 1. Launch or Focus (New Upstream Parity)
+  # Launch or Focus
   launchOrFocus = pkgs.writeShellScriptBin "omarchy-launch-or-focus" ''
     if (($# == 0)); then
       echo "Usage: omarchy-launch-or-focus [window-pattern] [launch-command]"
@@ -22,7 +21,7 @@ let
     fi
   '';
 
-  # 2. Launch Browser
+  # Launch Browser
   launchBrowser = pkgs.writeShellScriptBin "omarchy-launch-browser" ''
     BROWSER=$(${pkgs.xdg-utils}/bin/xdg-settings get default-web-browser 2>/dev/null || echo "firefox.desktop")
 
@@ -44,7 +43,7 @@ let
     fi
   '';
 
-  # 3. Terminal CWD
+  # Terminal CWD
   terminalCwd = pkgs.writeShellScriptBin "omarchy-cmd-terminal-cwd" ''
     active_pid=$(${pkgs.hyprland}/bin/hyprctl activewindow -j | ${pkgs.jq}/bin/jq '.pid')
     if [[ -n "$active_pid" && "$active_pid" != "null" ]]; then
@@ -59,14 +58,14 @@ let
     fi
   '';
 
-  # 4. Launch Walker - use explicit path
+  # Launch Walker - NO dimension overrides, let config handle it
+  # This makes Super+Space look identical to omarchy-menu -> Apps
   launchWalker = pkgs.writeShellScriptBin "omarchy-launch-walker" ''
     WALKER="${walkerPkg}/bin/walker"
 
-    # Ensure elephant (the data provider) is running
+    # Ensure elephant is running
     if ! pgrep -x elephant > /dev/null; then
       systemctl --user start elephant.service
-      # Give it a moment to start
       sleep 0.5
     fi
 
@@ -76,8 +75,10 @@ let
       sleep 0.3
     fi
 
-    # Launch with Omarchy dimensions
-    exec "$WALKER" --width 644 --maxheight 300 --minheight 300 "$@"
+    # Launch walker with NO dimension overrides
+    # Let the config.toml handle width/height for consistent appearance
+    # Pass through any arguments (like -m clipboard for clipboard mode)
+    exec "$WALKER" "$@"
   '';
 
 in

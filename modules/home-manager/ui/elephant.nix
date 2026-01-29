@@ -11,28 +11,30 @@ let
   elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
   availableThemes = builtins.attrNames omarchyLib.themes;
   
-  # NixOS-specific paths for desktop files
+  # NixOS puts .desktop files in these locations
+  # The key is XDG_DATA_DIRS must include all paths where apps are installed
   nixosDataDirs = lib.concatStringsSep ":" [
-    "/run/current-system/sw/share"
     "\${HOME}/.nix-profile/share"
-    "\${HOME}/.local/share"
     "/etc/profiles/per-user/\${USER}/share"
+    "/run/current-system/sw/share"
+    "\${HOME}/.local/share"
+    "/usr/local/share"
+    "/usr/share"
   ];
 in
 {
-  # Install the elephant package
+  # Install elephant package
   home.packages = [ elephantPkg ];
 
   xdg.configFile = {
-    # Desktop applications provider config
-    # Note: On NixOS, XDG_DATA_DIRS is the key - the provider uses that to find .desktop files
+    # Desktop applications provider - key settings for NixOS
     "elephant/desktopapplications.toml".text = ''
       show_actions = false
       only_search_title = false
       history = true
     '';
 
-    # Main elephant configuration
+    # Main elephant configuration with all providers
     "elephant/elephant.toml".text = ''
       [providers]
       desktopapplications = "desktopapplications"
@@ -51,11 +53,22 @@ in
     '';
 
     "elephant/runner.toml".text = ''
-      # Runner provider config
+      # Runner provider - executes commands from PATH
     '';
 
     "elephant/files.toml".text = ''
       min_score = 50
+      # Limit file watching to reasonable dirs on NixOS
+      dirs = [
+        "~/Documents",
+        "~/Downloads",
+        "~/projects",
+        "~/.config"
+      ]
+    '';
+
+    "elephant/clipboard.toml".text = ''
+      max_items = 100
     '';
 
     "elephant/websearch.toml".text = ''
@@ -68,6 +81,11 @@ in
       name = "DuckDuckGo"
       url = "https://duckduckgo.com/?q=%s"
       prefix = "d"
+      
+      [[engines]]
+      name = "NixOS Packages"
+      url = "https://search.nixos.org/packages?query=%s"
+      prefix = "nix"
     '';
 
     # Omarchy themes menu
@@ -93,8 +111,14 @@ in
     '';
   };
 
-  # The critical fix: elephant needs proper XDG_DATA_DIRS to find .desktop files
-  # This systemd service inherits the user session environment which should have XDG_DATA_DIRS set
+  # CRITICAL: Elephant needs XDG_DATA_DIRS to find .desktop files
+  # This is set system-wide for the session
+  home.sessionVariables = {
+    # Ensure XDG_DATA_DIRS includes NixOS profile paths
+    XDG_DATA_DIRS = lib.mkDefault "${nixosDataDirs}";
+  };
+
+  # Systemd service with proper environment
   systemd.user.services.elephant = lib.mkForce {
     Unit = {
       Description = "Elephant Data Provider for Walker";
@@ -104,11 +128,11 @@ in
 
     Service = {
       Type = "simple";
-      # CRITICAL: Set XDG_DATA_DIRS so elephant can find .desktop files on NixOS
-      # Also inherit the user's environment to get other important vars
+      # CRITICAL: Pass through the session's XDG_DATA_DIRS
+      # This allows elephant to find .desktop files in NixOS paths
       Environment = [
-        "XDG_DATA_DIRS=${nixosDataDirs}:/usr/local/share:/usr/share"
-        "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.bash ]}:/run/current-system/sw/bin"
+        "XDG_DATA_DIRS=%h/.nix-profile/share:/etc/profiles/per-user/%u/share:/run/current-system/sw/share:%h/.local/share:/usr/local/share:/usr/share"
+        "PATH=/run/current-system/sw/bin:%h/.nix-profile/bin"
       ];
       ExecStart = "${elephantPkg}/bin/elephant --config %h/.config/elephant";
       Restart = "always";
