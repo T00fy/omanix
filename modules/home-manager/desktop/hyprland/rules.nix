@@ -16,6 +16,18 @@
       "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 
       # ─────────────────────────────────────────────────────────────────
+      # Screensaver (TTE in fullscreen terminal)
+      # ─────────────────────────────────────────────────────────────────
+      "fullscreen on, match:class ^(org\\.omanix\\.screensaver)$"
+      "float on, match:class ^(org\\.omanix\\.screensaver)$"
+      "opacity 1 1, match:class ^(org\\.omanix\\.screensaver)$"
+      "no_blur on, match:class ^(org\\.omanix\\.screensaver)$"
+      "no_shadow on, match:class ^(org\\.omanix\\.screensaver)$"
+      "border_size 0, match:class ^(org\\.omanix\\.screensaver)$"
+      "no_focus on, match:class ^(org\\.omanix\\.screensaver)$"
+      "suppress_event activate, match:class ^(org\\.omanix\\.screensaver)$"
+
+      # ─────────────────────────────────────────────────────────────────
       # Password Managers
       # ─────────────────────────────────────────────────────────────────
       "no_screen_share on, match:class ^(1[p|P]assword)$"
@@ -108,7 +120,7 @@
       "move (monitor_w-window_w-40) (monitor_h-window_h-40), match:title WebcamOverlay"
 
       # ─────────────────────────────────────────────────────────────────
-      # Screenshot Editor (Satty) - FIXED
+      # Screenshot Editor (Satty)
       # ─────────────────────────────────────────────────────────────────
       "float on, match:class ^(com.gabm.satty)$"
       "center on, match:class ^(com.gabm.satty)$"
@@ -125,10 +137,6 @@
       "tag +floating-window, match:class (org.omanix.bluetui|org.omanix.impala|org.omanix.wiremix|org.omanix.btop|org.omanix.terminal|org.omanix.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Omarchy|About|TUI.float|imv|mpv)"
       "tag +floating-window, match:class (xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus), match:title ^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)$"
       "float on, match:class org.gnome.Calculator"
-
-      # Fullscreen screensaver
-      "fullscreen on, match:class org.omanix.screensaver"
-      "float on, match:class org.omanix.screensaver"
 
       # No transparency on media windows
       "opacity 1 1, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$"

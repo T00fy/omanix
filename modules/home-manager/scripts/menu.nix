@@ -177,7 +177,7 @@ let
       CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
       case "$CHOICE" in
         *Lock*) omanix-lock-screen ;;
-        *Screensaver*) ${pkgs.libnotify}/bin/notify-send "Screensaver" "Not yet implemented" ;;
+        *Screensaver*) omanix-screensaver ;;
         *Suspend*) systemctl suspend ;;
         *Restart*) omanix-cmd-reboot ;;
         *Shutdown*) omanix-cmd-shutdown ;;

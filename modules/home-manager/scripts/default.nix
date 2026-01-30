@@ -5,5 +5,6 @@
     ./system.nix
     ./media.nix
     ./menu.nix
+    ./screensaver.nix
   ];
 }

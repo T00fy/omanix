@@ -1,4 +1,9 @@
-{ config, lib, omanixLib, ... }:
+{
+  config,
+  lib,
+  omanixLib,
+  ...
+}:
 let
   theme = config.omanix.activeTheme;
   colors = omanixLib.colors;
@@ -7,7 +12,7 @@ in
 {
   wayland.windowManager.hyprland = {
     enable = true;
-    
+
     settings = {
       env = [
         "GDK_SCALE,2"
@@ -19,10 +24,10 @@ in
         gaps_in = cfg.hyprland.gaps.inner;
         gaps_out = cfg.hyprland.gaps.outer;
         border_size = cfg.hyprland.border.size;
-        
+
         "col.active_border" = "rgb(${colors.stripHash theme.colors.accent})";
         "col.inactive_border" = "rgb(${colors.stripHash theme.colors.color8})";
-        
+
         layout = "dwindle";
         resize_on_border = false;
         allow_tearing = false;
@@ -30,7 +35,7 @@ in
 
       decoration = {
         rounding = cfg.hyprland.rounding;
-    
+
         shadow = {
           enabled = cfg.hyprland.shadow.enabled;
           range = cfg.hyprland.shadow.range;
@@ -83,6 +88,10 @@ in
 
       master = {
         new_status = "master";
+      };
+
+      cursor = {
+        hide_on_key_press = true;
       };
 
       misc = {
