@@ -1,4 +1,43 @@
-{ ... }:
+{ config, lib, ... }:
+let
+  cfg = config.omanix.idle;
+  
+  # Build listener list conditionally based on enabled options
+  listeners = lib.flatten [
+    # Screensaver
+    (lib.optional cfg.screensaver.enable {
+      timeout = cfg.screensaver.timeout;
+      on-timeout = "omanix-screensaver";
+      on-resume = "omanix-screensaver-kill";
+    })
+
+    # Dim screen
+    (lib.optional cfg.dimScreen.enable {
+      timeout = cfg.dimScreen.timeout;
+      on-timeout = "brightnessctl -s set ${toString cfg.dimScreen.brightness}";
+      on-resume = "brightnessctl -r";
+    })
+
+    # Lock screen
+    (lib.optional cfg.lock.enable {
+      timeout = cfg.lock.timeout;
+      on-timeout = "omanix-screensaver-kill; loginctl lock-session";
+    })
+
+    # DPMS (screen off)
+    (lib.optional cfg.dpms.enable {
+      timeout = cfg.dpms.timeout;
+      on-timeout = "hyprctl dispatch dpms off";
+      on-resume = "hyprctl dispatch dpms on";
+    })
+
+    # Suspend
+    (lib.optional cfg.suspend.enable {
+      timeout = cfg.suspend.timeout;
+      on-timeout = "systemctl suspend";
+    })
+  ];
+in
 {
   services.hypridle = {
     enable = true;
@@ -11,41 +50,7 @@
         unlock_cmd = "omanix-screensaver-kill";
       };
 
-      listener = [
-        # ─────────────────────────────────────────────────────────────────
-        # 2.5min (150s) -> Screensaver starts
-        # ─────────────────────────────────────────────────────────────────
-        {
-          timeout = 150;
-          on-timeout = "omanix-screensaver";
-          on-resume = "omanix-screensaver-kill";
-        }
-
-        # ─────────────────────────────────────────────────────────────────
-        # 5min (300s) -> Lock (screensaver gets killed by hyprlock taking over)
-        # ─────────────────────────────────────────────────────────────────
-        {
-          timeout = 300;
-          on-timeout = "omanix-screensaver-kill; loginctl lock-session";
-        }
-
-        # ─────────────────────────────────────────────────────────────────
-        # 5.5min (330s) -> Screen Off (DPMS)
-        # ─────────────────────────────────────────────────────────────────
-        {
-          timeout = 360;
-          on-timeout = "hyprctl dispatch dpms off";
-          on-resume = "hyprctl dispatch dpms on";
-        }
-
-        # ─────────────────────────────────────────────────────────────────
-        # 15min (900s) -> Suspend
-        # ─────────────────────────────────────────────────────────────────
-        {
-          timeout = 900;
-          on-timeout = "systemctl suspend";
-        }
-      ];
+      listener = listeners;
     };
   };
 }

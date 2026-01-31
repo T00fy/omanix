@@ -50,6 +50,82 @@ in
     };
 
     # ═══════════════════════════════════════════════════════════════════
+    # IDLE / POWER MANAGEMENT OPTIONS
+    # ═══════════════════════════════════════════════════════════════════
+
+    idle = {
+      screensaver = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable the screensaver on idle.";
+        };
+        timeout = mkOption {
+          type = types.int;
+          default = 150;
+          description = "Seconds of inactivity before screensaver starts (default: 150 = 2.5 minutes).";
+        };
+      };
+
+      dimScreen = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable screen dimming on idle.";
+        };
+        timeout = mkOption {
+          type = types.int;
+          default = 150;
+          description = "Seconds of inactivity before screen dims (default: 150 = 2.5 minutes).";
+        };
+        brightness = mkOption {
+          type = types.int;
+          default = 10;
+          description = "Brightness percentage when dimmed (default: 10).";
+        };
+      };
+
+      lock = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable automatic screen locking on idle.";
+        };
+        timeout = mkOption {
+          type = types.int;
+          default = 300;
+          description = "Seconds of inactivity before screen locks (default: 300 = 5 minutes).";
+        };
+      };
+
+      dpms = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable DPMS (turn off screen) on idle.";
+        };
+        timeout = mkOption {
+          type = types.int;
+          default = 330;
+          description = "Seconds of inactivity before screen turns off (default: 330 = 5.5 minutes).";
+        };
+      };
+
+      suspend = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable automatic suspend on idle.";
+        };
+        timeout = mkOption {
+          type = types.int;
+          default = 900;
+          description = "Seconds of inactivity before system suspends (default: 900 = 15 minutes).";
+        };
+      };
+    };
+
+    # ═══════════════════════════════════════════════════════════════════
     # MONITOR OPTIONS
     # ═══════════════════════════════════════════════════════════════════
 
