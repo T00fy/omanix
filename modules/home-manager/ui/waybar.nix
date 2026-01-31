@@ -10,65 +10,61 @@ let
   monitorCfg = config.omanix.monitors;
 
   # Build format-icons dynamically from monitor config
-  buildFormatIcons =
-    monitors:
+  # Each monitor shows workspaces 1-5 (displayed as 1-5 regardless of internal numbering)
+  buildFormatIcons = monitors:
     let
+      # For each monitor, create mappings from internal workspace number to display number
+      # Monitor 0: ws 1-5 → display 1-5
+      # Monitor 1: ws 11-15 → display 1-5
+      # etc.
       monitorMappings = lib.flatten (
-        map (
-          mon:
-          lib.imap0 (idx: ws: {
-            name = toString ws;
-            value = toString (idx + 1);
-          }) mon.workspaces
+        lib.imap0 (idx: mon:
+          let
+            base = idx * 10;
+            count = mon.workspaceCount or 5;
+          in
+          lib.imap1 (wsIdx: _: {
+            name = toString (base + wsIdx);
+            value = toString wsIdx;
+          }) (lib.range 1 count)
         ) monitors
       );
     in
-    (builtins.listToAttrs monitorMappings)
-    // {
+    (builtins.listToAttrs monitorMappings) // {
       active = "󱓻";
       default = "";
     };
 
   # Build persistent-workspaces from monitor config
-  buildPersistentWorkspaces =
-    monitors:
+  buildPersistentWorkspaces = monitors:
     lib.listToAttrs (
-      map (mon: {
-        name = mon.name;
-        value = mon.workspaces;
-      }) monitors
+      lib.imap0 (idx: mon:
+        let
+          base = idx * 10;
+          count = mon.workspaceCount or 5;
+        in {
+          name = mon.name;
+          value = map (n: base + n) (lib.range 1 count);
+        }
+      ) monitors
     );
 
   # Fallback icons if no monitors configured (single monitor setup)
   defaultFormatIcons = {
-    "1" = "1";
-    "2" = "2";
-    "3" = "3";
-    "4" = "4";
-    "5" = "5";
-    "6" = "6";
-    "7" = "7";
-    "8" = "8";
-    "9" = "9";
-    "10" = "0";
+    "1" = "1"; "2" = "2"; "3" = "3"; "4" = "4"; "5" = "5";
+    "6" = "6"; "7" = "7"; "8" = "8"; "9" = "9"; "10" = "0";
     active = "󱓻";
     default = "";
   };
 
   # Fallback persistent workspaces
   defaultPersistentWorkspaces = {
-    "1" = [ ];
-    "2" = [ ];
-    "3" = [ ];
-    "4" = [ ];
-    "5" = [ ];
+    "1" = []; "2" = []; "3" = []; "4" = []; "5" = [];
   };
 
   # Use monitor config if available, otherwise defaults
-  formatIcons = if monitorCfg != [ ] then buildFormatIcons monitorCfg else defaultFormatIcons;
-
-  persistentWorkspaces =
-    if monitorCfg != [ ] then buildPersistentWorkspaces monitorCfg else defaultPersistentWorkspaces;
+  formatIcons = if monitorCfg != [] then buildFormatIcons monitorCfg else defaultFormatIcons;
+  persistentWorkspaces = if monitorCfg != [] then buildPersistentWorkspaces monitorCfg else defaultPersistentWorkspaces;
 in
 {
   options.omanix.waybar = {
@@ -86,13 +82,7 @@ in
 
     modules-right = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [
-        "tray"
-        "bluetooth"
-        "network"
-        "pulseaudio"
-        "battery"
-      ];
+      default = [ "tray" "bluetooth" "network" "pulseaudio" "battery" ];
       description = "Modules to display on the right side of waybar";
     };
   };
@@ -130,13 +120,7 @@ in
             format-wifi = "{icon}";
             format-ethernet = "󰀂";
             format-disconnected = "󰤮";
-            format-icons = [
-              "󰤯"
-              "󰤟"
-              "󰤢"
-              "󰤥"
-              "󰤨"
-            ];
+            format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
             tooltip-format-wifi = "{essid} ({signalStrength}%)";
           };
 
@@ -145,11 +129,7 @@ in
             format-muted = "󰝟";
             format-icons = {
               headphone = "󰋋";
-              default = [
-                "󰕿"
-                "󰖀"
-                "󰕾"
-              ];
+              default = [ "󰕿" "󰖀" "󰕾" ];
             };
             on-click = "pavucontrol";
           };
@@ -157,30 +137,8 @@ in
           battery = {
             format = "{capacity}% {icon}";
             format-icons = {
-              charging = [
-                "󰢜"
-                "󰂆"
-                "󰂇"
-                "󰂈"
-                "󰢝"
-                "󰂉"
-                "󰢞"
-                "󰂊"
-                "󰂋"
-                "󰂅"
-              ];
-              default = [
-                "󰁺"
-                "󰁻"
-                "󰁼"
-                "󰁽"
-                "󰁾"
-                "󰁿"
-                "󰂀"
-                "󰂁"
-                "󰂂"
-                "󰁹"
-              ];
+              charging = [ "󰢜" "󰂆" "󰂇" "󰂈" "󰢝" "󰂉" "󰢞" "󰂊" "󰂋" "󰂅" ];
+              default = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
             };
           };
 
