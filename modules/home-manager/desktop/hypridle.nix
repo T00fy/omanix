@@ -12,22 +12,13 @@
       };
 
       listener = [
-        # # ─────────────────────────────────────────────────────────────────
-        # # 2.5min (150s) -> Screensaver starts
-        # # ─────────────────────────────────────────────────────────────────
-        # {
-        #   timeout = 150;
-        #   on-timeout = "omanix-screensaver";
-        #   on-resume = "omanix-screensaver-kill";
-        # }
-
         # ─────────────────────────────────────────────────────────────────
-        # 2.5min (150s) -> Brightness 10% (runs in parallel with screensaver)
+        # 2.5min (150s) -> Screensaver starts
         # ─────────────────────────────────────────────────────────────────
         {
           timeout = 150;
-          on-timeout = "brightnessctl -s set 10";
-          on-resume = "brightnessctl -r";
+          on-timeout = "omanix-screensaver";
+          on-resume = "omanix-screensaver-kill";
         }
 
         # ─────────────────────────────────────────────────────────────────
@@ -42,7 +33,7 @@
         # 5.5min (330s) -> Screen Off (DPMS)
         # ─────────────────────────────────────────────────────────────────
         {
-          timeout = 330;
+          timeout = 360;
           on-timeout = "hyprctl dispatch dpms off";
           on-resume = "hyprctl dispatch dpms on";
         }
