@@ -3,7 +3,7 @@ let
   # Smart Audio Switcher (New Upstream Parity)
   audioSwitch = pkgs.writeShellScriptBin "omanix-cmd-audio-switch" ''
     export PATH="${pkgs.jq}/bin:${pkgs.pulseaudio}/bin:${pkgs.swayosd}/bin:${pkgs.hyprland}/bin:$PATH"
-    
+
     # Get current focused monitor for OSD
     MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
 
@@ -18,7 +18,7 @@ let
 
     CURRENT=$(pactl get-default-sink)
     NAMES=$(echo "$SINKS" | jq -r '.[].name')
-    
+
     # Cycle logic
     NEXT_SINK=""
     FOUND_CURRENT=false
@@ -37,7 +37,7 @@ let
     if [ -z "$NEXT_SINK" ]; then NEXT_SINK="$FIRST_SINK"; fi
 
     pactl set-default-sink "$NEXT_SINK"
-    
+
     DESC=$(echo "$SINKS" | jq -r --arg name "$NEXT_SINK" '.[] | select(.name == $name) | .description')
     swayosd-client --monitor "$MONITOR" --custom-message "$DESC" --custom-icon "audio-volume-high"
   '';
@@ -45,9 +45,8 @@ in
 {
   home.packages = [
     audioSwitch
-    
+
     # Media Dependencies (Moved from scripts.nix)
-    pkgs.swayosd
     pkgs.playerctl
     pkgs.brightnessctl
     pkgs.wireplumber

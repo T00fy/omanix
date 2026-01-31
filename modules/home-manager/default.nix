@@ -24,7 +24,8 @@
     ./ui/waybar.nix
     ./ui/elephant.nix
     ./ui/walker.nix
-    ./ui/hidden-apps.nix  # <--- Added this line
+    ./ui/hidden-apps.nix
+    ./ui/swayosd.nix
     ./terminal/ghostty.nix
     ./core/bat.nix
   ];
