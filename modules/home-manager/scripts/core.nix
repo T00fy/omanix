@@ -106,6 +106,82 @@ let
     exec "$WALKER" --width 644 --maxheight 300 --minheight 300 "$@"
   '';
 
+  workspaceSwitch = pkgs.writeShellScriptBin "omanix-workspace" ''
+    export PATH="${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
+
+    LOCAL_WS="$1"  # 1-5 (the workspace number user wants)
+
+    # Get current monitor
+    CURRENT_MON=$(hyprctl activeworkspace -j | jq -r '.monitor')
+
+    # Find which workspace ID corresponds to "workspace N" on this monitor
+    # by looking at workspaces bound to this monitor
+    TARGET_WS=$(hyprctl workspaces -j | jq -r --arg mon "$CURRENT_MON" --argjson local "$LOCAL_WS" '
+      [.[] | select(.monitor == $mon)] | 
+      sort_by(.id) | 
+      .[$local - 1].id // empty
+    ')
+
+    # If workspace doesn't exist yet, calculate it from monitor config
+    if [ -z "$TARGET_WS" ]; then
+      # Get monitor index and calculate offset
+      MON_INDEX=$(hyprctl monitors -j | jq -r --arg mon "$CURRENT_MON" '
+        to_entries | map(select(.value.name == $mon)) | .[0].key
+      ')
+      
+      # This assumes 5 workspaces per monitor - adjust if needed
+      TARGET_WS=$((MON_INDEX * 5 + LOCAL_WS))
+    fi
+
+    hyprctl dispatch workspace "$TARGET_WS"
+  '';
+
+  # Move window to workspace N on the CURRENT monitor
+  moveToWorkspace = pkgs.writeShellScriptBin "omanix-move-to-workspace" ''
+    export PATH="${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
+
+    LOCAL_WS="$1"
+    CURRENT_MON=$(hyprctl activeworkspace -j | jq -r '.monitor')
+
+    TARGET_WS=$(hyprctl workspaces -j | jq -r --arg mon "$CURRENT_MON" --argjson local "$LOCAL_WS" '
+      [.[] | select(.monitor == $mon)] | 
+      sort_by(.id) | 
+      .[$local - 1].id // empty
+    ')
+
+    if [ -z "$TARGET_WS" ]; then
+      MON_INDEX=$(hyprctl monitors -j | jq -r --arg mon "$CURRENT_MON" '
+        to_entries | map(select(.value.name == $mon)) | .[0].key
+      ')
+      TARGET_WS=$((MON_INDEX * 5 + LOCAL_WS))
+    fi
+
+    hyprctl dispatch movetoworkspace "$TARGET_WS"
+  '';
+
+  # Move window silently (don't follow it)
+  moveToWorkspaceSilent = pkgs.writeShellScriptBin "omanix-move-to-workspace-silent" ''
+    export PATH="${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
+
+    LOCAL_WS="$1"
+    CURRENT_MON=$(hyprctl activeworkspace -j | jq -r '.monitor')
+
+    TARGET_WS=$(hyprctl workspaces -j | jq -r --arg mon "$CURRENT_MON" --argjson local "$LOCAL_WS" '
+      [.[] | select(.monitor == $mon)] | 
+      sort_by(.id) | 
+      .[$local - 1].id // empty
+    ')
+
+    if [ -z "$TARGET_WS" ]; then
+      MON_INDEX=$(hyprctl monitors -j | jq -r --arg mon "$CURRENT_MON" '
+        to_entries | map(select(.value.name == $mon)) | .[0].key
+      ')
+      TARGET_WS=$((MON_INDEX * 5 + LOCAL_WS))
+    fi
+
+    hyprctl dispatch movetoworkspacesilent "$TARGET_WS"
+  '';
+
 in
 {
   home.packages = [
@@ -115,6 +191,9 @@ in
     launchBrowser
     terminalCwd
     launchWalker
+    workspaceSwitch
+    moveToWorkspace
+    moveToWorkspaceSilent
 
     # Core Dependencies
     pkgs.jq
