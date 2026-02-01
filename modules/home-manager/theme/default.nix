@@ -1,4 +1,10 @@
-{ config, lib, omanixLib, osConfig ? null, ... }:
+{
+  config,
+  lib,
+  omanixLib,
+  osConfig ? null,
+  ...
+}:
 
 with lib;
 
@@ -8,10 +14,11 @@ let
   availableThemes = builtins.attrNames omanixLib.themes;
 
   # Check if we're running under NixOS with omanix enabled
-  hasOsTheme = osConfig != null 
-    && osConfig ? omanix 
-    && osConfig.omanix ? enable 
-    && osConfig.omanix.enable 
+  hasOsTheme =
+    osConfig != null
+    && osConfig ? omanix
+    && osConfig.omanix ? enable
+    && osConfig.omanix.enable
     && osConfig.omanix ? theme;
 in
 {
@@ -29,10 +36,10 @@ in
       '';
       description = ''
         Select the active Omanix theme.
-        
+
         When using Home Manager as a NixOS module with omanix.enable = true,
         this automatically inherits from the system-level omanix.theme setting.
-        
+
         Available themes: ${concatStringsSep ", " availableThemes}
       '';
     };
@@ -75,8 +82,8 @@ in
         };
         timeout = mkOption {
           type = types.int;
-          default = 150;
-          description = "Seconds of inactivity before screen dims (default: 150 = 2.5 minutes).";
+          default = 840;
+          description = "Seconds of inactivity before screen dims (default: 840 = 14 minutes).";
         };
         brightness = mkOption {
           type = types.int;
@@ -93,8 +100,8 @@ in
         };
         timeout = mkOption {
           type = types.int;
-          default = 300;
-          description = "Seconds of inactivity before screen locks (default: 300 = 5 minutes).";
+          default = 900;
+          description = "Seconds of inactivity before screen locks (default: 900 = 15 minutes).";
         };
       };
 
@@ -106,8 +113,8 @@ in
         };
         timeout = mkOption {
           type = types.int;
-          default = 330;
-          description = "Seconds of inactivity before screen turns off (default: 330 = 5.5 minutes).";
+          default = 960;
+          description = "Seconds of inactivity before screen turns off (default: 960 = 16 minutes).";
         };
       };
 
@@ -119,8 +126,8 @@ in
         };
         timeout = mkOption {
           type = types.int;
-          default = 900;
-          description = "Seconds of inactivity before system suspends (default: 900 = 15 minutes).";
+          default = 1800;
+          description = "Seconds of inactivity before system suspends (default: 1800 = 30 minutes).";
         };
       };
     };
@@ -218,12 +225,11 @@ in
       let
         baseTheme = omanixLib.themes.${cfg.theme};
       in
-      baseTheme // {
-        assets = baseTheme.assets // (
-          if cfg.wallpaperOverride != null
-          then { wallpaper = cfg.wallpaperOverride; }
-          else { }
-        );
+      baseTheme
+      // {
+        assets =
+          baseTheme.assets
+          // (if cfg.wallpaperOverride != null then { wallpaper = cfg.wallpaperOverride; } else { });
       };
   };
 }
