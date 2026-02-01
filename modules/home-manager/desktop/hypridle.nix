@@ -2,13 +2,18 @@
 let
   cfg = config.omanix.idle;
   
-  # Build listener list conditionally based on enabled options
   listeners = lib.flatten [
-    # Screensaver
+    # Activity monitor - always active, kills screensaver on any resume
+    [{
+      timeout = 1;
+      on-timeout = "true";
+      on-resume = "pgrep -f org.omanix.screensaver && omanix-screensaver-kill || true";
+    }]
+
+    # Screensaver launcher
     (lib.optional cfg.screensaver.enable {
       timeout = cfg.screensaver.timeout;
       on-timeout = "omanix-screensaver";
-      on-resume = "omanix-screensaver-kill";
     })
 
     # Dim screen
@@ -46,7 +51,6 @@ in
         lock_cmd = "pidof hyprlock || hyprlock";
         before_sleep_cmd = "loginctl lock-session";
         after_sleep_cmd = "hyprctl dispatch dpms on";
-        # Kill screensaver when lock activates
         unlock_cmd = "omanix-screensaver-kill";
       };
 

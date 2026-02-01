@@ -24,8 +24,8 @@
       "no_blur on, match:class ^(org\\.omanix\\.screensaver)$"
       "no_shadow on, match:class ^(org\\.omanix\\.screensaver)$"
       "border_size 0, match:class ^(org\\.omanix\\.screensaver)$"
-      "no_focus on, match:class ^(org\\.omanix\\.screensaver)$"
       "suppress_event activate, match:class ^(org\\.omanix\\.screensaver)$"
+      "no_focus on, match:class ^(org\\.omanix\\.screensaver)$"
 
       # ─────────────────────────────────────────────────────────────────
       # Password Managers
