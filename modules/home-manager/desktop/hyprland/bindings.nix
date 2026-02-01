@@ -1,19 +1,21 @@
 { config, pkgs, ... }:
 let
+  cfg = config.omanix;
   # OSD client command that targets the focused monitor
   osdClient = ''swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"'';
+  musicCommand = if cfg.spotatui.enable then "omanix-launch-tui-spotatui" else "spotify";
 in
 {
   wayland.windowManager.hyprland.settings = {
     "$mainMod" = "SUPER";
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # APP LAUNCHERS
     # ═══════════════════════════════════════════════════════════════════
     "$terminal" = "ghostty";
     "$fileManager" = "nautilus --new-window";
     "$browser" = "omanix-launch-browser";
-    "$music" = "spotify"; 
+    "$music" = musicCommand;
 
     # ═══════════════════════════════════════════════════════════════════
     # BINDINGS WITH DESCRIPTIONS (bindd)
@@ -31,7 +33,7 @@ in
       "$mainMod SHIFT, N, Open Neovim, exec, $terminal -e nvim"
       "$mainMod SHIFT, D, Open Lazydocker, exec, $terminal -e lazydocker"
       "$mainMod SHIFT, O, Open Obsidian, exec, obsidian -disable-gpu"
-      
+
       # ─────────────────────────────────────────────────────────────────
       # Clipboard
       # ─────────────────────────────────────────────────────────────────
@@ -39,13 +41,13 @@ in
       "$mainMod, V, Paste, sendshortcut, SHIFT, Insert,"
       "$mainMod, X, Cut, sendshortcut, CTRL, X,"
       "$mainMod CTRL, V, Clipboard History, exec, omanix-launch-walker -m clipboard"
-      
+
       # ─────────────────────────────────────────────────────────────────
       # Window Management
       # ─────────────────────────────────────────────────────────────────
       "$mainMod, W, Close Window, killactive"
       "CTRL ALT, DELETE, Close All Windows, exec, omanix-hyprland-window-close-all"
-      
+
       "$mainMod, J, Toggle Split Direction, togglesplit"
       "$mainMod, P, Toggle Pseudo-tile, pseudo"
       "$mainMod, T, Toggle Floating, togglefloating"
@@ -53,7 +55,7 @@ in
       "$mainMod CTRL, F, Fullscreen (Keep Bar), fullscreenstate, 0 2"
       "$mainMod ALT, F, Maximize Window, fullscreen, 1"
       "$mainMod, code:32, Pop Window Out, exec, omanix-hyprland-window-pop"
-      
+
       # Move focus
       "$mainMod, LEFT, Focus Left, movefocus, l"
       "$mainMod, RIGHT, Focus Right, movefocus, r"

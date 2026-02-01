@@ -4,14 +4,14 @@
     # ═══════════════════════════════════════════════════════════════════
     # WINDOW RULES - Omarchy Parity
     # ═══════════════════════════════════════════════════════════════════
-    
+
     windowrule = [
       # ─────────────────────────────────────────────────────────────────
       # Global defaults
       # ─────────────────────────────────────────────────────────────────
       "suppress_event maximize, match:class .*"
       "opacity 0.97 0.9, match:class .*"
-      
+
       # Fix XWayland dragging issues
       "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 
@@ -49,6 +49,10 @@
       # Terminals
       # ─────────────────────────────────────────────────────────────────
       "tag +terminal, match:class (Alacritty|kitty|com.mitchellh.ghostty)"
+
+      # Spotatui - Spotify TUI (larger window for better experience)
+      "tag +floating-window, match:class ^(org\\.omanix\\.spotatui)$"
+      "size 1000 700, match:class ^(org\\.omanix\\.spotatui)$"
 
       # ─────────────────────────────────────────────────────────────────
       # JetBrains IDEs
@@ -133,7 +137,7 @@
       "float on, match:tag floating-window"
       "center on, match:tag floating-window"
       "size 875 600, match:tag floating-window"
-      
+
       "tag +floating-window, match:class (org.omanix.bluetui|org.omanix.impala|org.omanix.wiremix|org.omanix.btop|org.omanix.terminal|org.omanix.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Omarchy|About|TUI.float|imv|mpv)"
       "tag +floating-window, match:class (xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus), match:title ^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)$"
       "float on, match:class org.gnome.Calculator"

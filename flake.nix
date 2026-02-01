@@ -21,6 +21,11 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
+
+    spotatui = {
+      url = "github:LargeModGames/spotatui";
+      flake = false;
+    };
   };
 
   outputs =
@@ -44,7 +49,23 @@
       # ═══════════════════════════════════════════════════════════════════
       # NixOS Module (system-level configuration)
       # ═══════════════════════════════════════════════════════════════════
-      nixosModules.default = import ./modules/nixos;
+
+      overlays.default = final: prev: {
+        spotatui = prev.callPackage inputs.spotatui { };
+      };
+
+      nixosModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        {
+          imports = [ ./modules/nixos ];
+
+          nixpkgs.overlays = [ self.overlays.default ];
+        };
 
       # ═══════════════════════════════════════════════════════════════════
       # Home Manager Module (user-level configuration)

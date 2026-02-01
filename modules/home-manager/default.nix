@@ -11,6 +11,7 @@
     ./core/languages.nix
     ./apps/firefox.nix
     ./apps/neovim.nix
+    ./apps/spotatui.nix  # NEW: Spotify TUI client
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix
