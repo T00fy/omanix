@@ -6,27 +6,32 @@ types.submodule {
     meta.slug = mkOption { type = types.str; };
     meta.icon_theme = mkOption { type = types.str; };
 
+    assets.wallpapers = mkOption {
+      type = types.listOf types.path;
+      description = "List of available wallpapers for this theme";
+    };
+
     assets.wallpaper = mkOption { type = types.path; };
 
     # Bat theme configuration
-    bat.name = mkOption { 
-      type = types.str; 
+    bat.name = mkOption {
+      type = types.str;
       description = "The bat theme name (as it appears in bat --list-themes)";
     };
-    bat.url = mkOption { 
-      type = types.str; 
+    bat.url = mkOption {
+      type = types.str;
       description = "URL to the .tmTheme file";
     };
-    bat.sha256 = mkOption { 
-      type = types.str; 
+    bat.sha256 = mkOption {
+      type = types.str;
       description = "SHA256 hash of the theme file";
     };
 
     # UI Colors
-    colors.background = mkOption { type = types.str; }; 
-    colors.foreground = mkOption { type = types.str; }; 
+    colors.background = mkOption { type = types.str; };
+    colors.foreground = mkOption { type = types.str; };
     colors.cursor = mkOption { type = types.str; };
-    colors.accent = mkOption { type = types.str; };     
+    colors.accent = mkOption { type = types.str; };
     colors.selection_background = mkOption { type = types.str; };
     colors.selection_foreground = mkOption { type = types.str; };
 

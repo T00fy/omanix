@@ -7,7 +7,11 @@
     };
 
     assets = {
-      wallpaper = ../assets/wallpapers/2-Pawel-Czerwinski-Abstract-Purple-Blue.jpg;
+      wallpapers = [
+        ../assets/wallpapers/tokyo-night/1-scenery-pink-lakeside-sunset-lake-landscape-scenic-panorama-7680x3215-144.png
+        ../assets/wallpapers/tokyo-night/2-Pawel-Czerwinski-Abstract-Purple-Blue.jpg
+        ../assets/wallpapers/tokyo-night/3-Milad-Fakurian-Abstract-Purple-Blue.jpg
+      ];
     };
 
     bat = {

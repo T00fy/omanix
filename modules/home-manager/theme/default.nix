@@ -44,10 +44,10 @@ in
       '';
     };
 
-    wallpaperOverride = mkOption {
-      type = types.nullOr types.path;
-      default = null;
-      description = "Override the theme's default wallpaper with a local file.";
+    wallPaperIndex = mkOption {
+      type = types.int;
+      default = 0;
+      description = "Index of the wallpaper to use from the theme's wallpaper list.";
     };
 
     activeTheme = mkOption {
@@ -229,12 +229,18 @@ in
     omanix.activeTheme =
       let
         baseTheme = omanixLib.themes.${cfg.theme};
+        selectedWallpaper =
+          if builtins.length baseTheme.assets.wallpapers > cfg.wallPaperIndex then
+            builtins.elemAt baseTheme.assets.wallpapers cfg.wallPaperIndex
+          else
+            builtsin.elemAt baseTheme.assets.wallpapers 0;
       in
       baseTheme
       // {
-        assets =
-          baseTheme.assets
-          // (if cfg.wallpaperOverride != null then { wallpaper = cfg.wallpaperOverride; } else { });
+        assets = baseTheme.assets // {
+          wallpaper = selectedWallpaper;
+
+        };
       };
   };
 }
