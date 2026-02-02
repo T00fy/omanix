@@ -26,6 +26,12 @@
       url = "github:LargeModGames/spotatui";
       flake = false;
     };
+
+    # SilentSDDM - Qt6-native SDDM theme with extensive customization
+    silentSDDM = {
+      url = "github:uiriansan/SilentSDDM";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -36,6 +42,7 @@
       lazyvim,
       walker,
       elephant,
+      silentSDDM,
       ...
     }@inputs:
     let
@@ -63,7 +70,11 @@
           ...
         }:
         {
-          imports = [ ./modules/nixos ];
+          imports = [
+            ./modules/nixos
+            # Import SilentSDDM's NixOS module for SDDM theming
+            silentSDDM.nixosModules.default
+          ];
 
           nixpkgs.overlays = [ self.overlays.default ];
         };

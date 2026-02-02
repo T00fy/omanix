@@ -8,36 +8,28 @@
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
   availableThemes = builtins.attrNames omanixLib.themes;
-  # Generate the list for the static style guide
   themeListFormatted = builtins.concatStringsSep "\n" (map (t: "- ${t}") availableThemes);
 
   # ═══════════════════════════════════════════════════════════════════
   # DATA FILES
   # ═══════════════════════════════════════════════════════════════════
-
-  # 1. Theme Data (JSON)
   themesJson = pkgs.writeText "omanix-themes.json" (
     builtins.toJSON (builtins.mapAttrs (name: val: val.assets.wallpapers) omanixLib.themes)
   );
 
-  # 2. Markdown Templates (Read from docs dir)
-  # We read these files at build time so they are available in the nix store
   docStylePreview = pkgs.writeText "style-preview.md" (
     builtins.readFile ../../../docs/style-preview.md
   );
   docStyleOverride = pkgs.writeText "style-override.md" (
     builtins.readFile ../../../docs/style-override.md
   );
-  docStyleGeneral = ../../../docs/style.md; # We need the raw path for sed manipulation
+  docStyleGeneral = ../../../docs/style.md;
 
   # ═══════════════════════════════════════════════════════════════════
   # HELP SCRIPTS
   # ═══════════════════════════════════════════════════════════════════
-
-  # Displays the main Style Guide with the theme list injected
   showStyleHelp = pkgs.writeShellScriptBin "omanix-show-style-help" ''
     HELP_FILE=$(mktemp /tmp/omanix-help-XXXXXX.md)
-    # Inject the generated list of themes into the markdown
     sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${docStyleGeneral} > "$HELP_FILE"
 
     if command -v glow &> /dev/null; then
@@ -47,7 +39,6 @@ let
     fi
   '';
 
-  # Displays generic setup docs
   showSetupHelp = pkgs.writeShellScriptBin "omanix-show-setup-help" ''
     TOPIC="$1"
     DOCS_DIR="${../../../docs}"
@@ -82,23 +73,17 @@ let
     DOC_OVERRIDE="${docStyleOverride}"
     WALKER="${walkerPkg}/bin/walker"
 
-    # 1. Select Theme
     THEME_NAME=$(jq -r 'keys[]' "$THEMES_FILE" | $WALKER --dmenu --placeholder "Select Theme...")
     [ -z "$THEME_NAME" ] && exit 0
 
-    # 2. Select Wallpaper (Presets + Custom Option)
     PRESETS=$(jq -r --arg t "$THEME_NAME" '.[$t] | to_entries | .[] | "\(.key): \(.value)"' "$THEMES_FILE")
 
-    # We prepend the Custom option to the list
     SELECTION=$(echo -e "[Custom]: Use your own image file...\n$PRESETS" | \
       $WALKER --dmenu --placeholder "Select Wallpaper for $THEME_NAME...")
 
     [ -z "$SELECTION" ] && exit 0
 
-    # 3. Handle Selection
     if [[ "$SELECTION" == "[Custom]"* ]]; then
-      # --- CUSTOM OVERRIDE PATH ---
-      # Just show the static documentation for overriding
       if command -v glow &> /dev/null; then
         ghostty --class="org.omanix.terminal" -e sh -c "glow -p '$DOC_OVERRIDE'"
       else
@@ -107,25 +92,33 @@ let
       exit 0
     fi
 
-    # --- PRESET PREVIEW PATH ---
     WP_INDEX=$(echo "$SELECTION" | cut -d: -f1)
     WP_PATH=$(echo "$SELECTION" | cut -d: -f2 | xargs)
 
-    # A. Hot-Reload Preview
     pkill swaybg
     swaybg -i "$WP_PATH" -m fill & 
 
-    # B. Show Instructions (Templated)
     export THEME_NAME
     export WP_INDEX
 
-    # Substitute variables in the markdown template
     HELP_TEXT=$(envsubst < "$DOC_PREVIEW")
 
     TMP_HELP=$(mktemp)
     echo "$HELP_TEXT" > "$TMP_HELP"
 
     ghostty --class="org.omanix.terminal" -e sh -c "${pkgs.glow}/bin/glow -p '$TMP_HELP'; rm '$TMP_HELP'"
+  '';
+
+  # ═══════════════════════════════════════════════════════════════════
+  # LOGOUT SCRIPT
+  # ═══════════════════════════════════════════════════════════════════
+  logout = pkgs.writeShellScriptBin "omanix-cmd-logout" ''
+    # Close all windows gracefully before logging out
+    ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r ".[].address" | \
+      xargs -r -I{} ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:{}
+    sleep 0.5
+    # Exit Hyprland (logs out the session)
+    ${pkgs.hyprland}/bin/hyprctl dispatch exit
   '';
 
   # ═══════════════════════════════════════════════════════════════════
@@ -242,10 +235,11 @@ let
     }
 
     show_system_menu() {
-      CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
+      CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰗽  Logout\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
       case "$CHOICE" in
         *Lock*)        omanix-lock-screen ;;
         *Screensaver*) omanix-screensaver ;;
+        *Logout*)      omanix-cmd-logout ;;
         *Suspend*)     systemctl suspend ;;
         *Restart*)     omanix-cmd-reboot ;;
         *Shutdown*)    omanix-cmd-shutdown ;;
@@ -433,6 +427,9 @@ in
     showStyleHelp
     showSetupHelp
     keybindingsMenu
+
+    # System Scripts
+    logout
 
     # Utilities
     restartWalker

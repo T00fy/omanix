@@ -14,12 +14,11 @@ let
   availableThemes = builtins.attrNames omanixLib.themes;
 
   # Check if we're running under NixOS with omanix enabled
-  hasOsTheme =
+  hasOsConfig =
     osConfig != null
     && osConfig ? omanix
     && osConfig.omanix ? enable
-    && osConfig.omanix.enable
-    && osConfig.omanix ? theme;
+    && osConfig.omanix.enable;
 in
 {
   options.omanix = {
@@ -29,7 +28,7 @@ in
 
     theme = mkOption {
       type = types.enum availableThemes;
-      default = if hasOsTheme then osConfig.omanix.theme else "tokyo-night";
+      default = if hasOsConfig then osConfig.omanix.theme else "tokyo-night";
       defaultText = literalExpression ''
         If running under NixOS with omanix.enable = true: osConfig.omanix.theme
         Otherwise: "tokyo-night"
@@ -44,16 +43,26 @@ in
       '';
     };
 
-    wallPaperIndex = mkOption {
+    wallpaperIndex = mkOption {
       type = types.int;
-      default = 0;
+      default = if hasOsConfig then osConfig.omanix.wallpaperIndex else 0;
+      defaultText = literalExpression ''
+        If running under NixOS with omanix.enable = true: osConfig.omanix.wallpaperIndex
+        Otherwise: 0
+      '';
       description = "Index of the wallpaper to use from the theme's wallpaper list.";
     };
+
     wallpaperOverride = mkOption {
       type = types.nullOr types.path;
-      default = null;
+      default = if hasOsConfig then osConfig.omanix.wallpaperOverride else null;
+      defaultText = literalExpression ''
+        If running under NixOS with omanix.enable = true: osConfig.omanix.wallpaperOverride
+        Otherwise: null
+      '';
       description = "Override the theme's wallpaper with a specific local file (takes priority over index).";
     };
+
     activeTheme = mkOption {
       type = themeSchema;
       readOnly = true;
@@ -236,16 +245,14 @@ in
         selectedWallpaper =
           if cfg.wallpaperOverride != null then
             cfg.wallpaperOverride
-          else if builtins.length baseTheme.assets.wallpapers > cfg.wallPaperIndex then
-            builtins.elemAt baseTheme.assets.wallpapers cfg.wallPaperIndex
+          else if builtins.length baseTheme.assets.wallpapers > cfg.wallpaperIndex then
+            builtins.elemAt baseTheme.assets.wallpapers cfg.wallpaperIndex
           else
             builtins.elemAt baseTheme.assets.wallpapers 0;
       in
-      baseTheme
-      // {
+      baseTheme // {
         assets = baseTheme.assets // {
           wallpaper = selectedWallpaper;
-
         };
       };
   };
