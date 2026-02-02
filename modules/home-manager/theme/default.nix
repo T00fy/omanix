@@ -49,7 +49,11 @@ in
       default = 0;
       description = "Index of the wallpaper to use from the theme's wallpaper list.";
     };
-
+    wallpaperOverride = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Override the theme's wallpaper with a specific local file (takes priority over index).";
+    };
     activeTheme = mkOption {
       type = themeSchema;
       readOnly = true;
@@ -230,10 +234,12 @@ in
       let
         baseTheme = omanixLib.themes.${cfg.theme};
         selectedWallpaper =
-          if builtins.length baseTheme.assets.wallpapers > cfg.wallPaperIndex then
+          if cfg.wallpaperOverride != null then
+            cfg.wallpaperOverride
+          else if builtins.length baseTheme.assets.wallpapers > cfg.wallPaperIndex then
             builtins.elemAt baseTheme.assets.wallpapers cfg.wallPaperIndex
           else
-            builtsin.elemAt baseTheme.assets.wallpapers 0;
+            builtins.elemAt baseTheme.assets.wallpapers 0;
       in
       baseTheme
       // {

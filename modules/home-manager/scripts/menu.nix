@@ -8,51 +8,46 @@
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
   availableThemes = builtins.attrNames omanixLib.themes;
+  # Generate the list for the static style guide
   themeListFormatted = builtins.concatStringsSep "\n" (map (t: "- ${t}") availableThemes);
 
   # ═══════════════════════════════════════════════════════════════════
-  # THEME DATA & TEMPLATES
+  # DATA FILES
   # ═══════════════════════════════════════════════════════════════════
+
+  # 1. Theme Data (JSON)
   themesJson = pkgs.writeText "omanix-themes.json" (
     builtins.toJSON (builtins.mapAttrs (name: val: val.assets.wallpapers) omanixLib.themes)
   );
 
-  wallpaperHelpTemplate = pkgs.writeText "wallpaper-help.md" ''
-    # Theme Change: ${"$"}{THEME_NAME}
-
-    You are currently previewing wallpaper **#${"$"}{WP_INDEX}**.
-    
-    To make this permanent, update your `flake.nix` or Home Manager config:
-
-    ```nix
-    omanix = {
-      theme = "${"$"}{THEME_NAME}";
-      # If 0, this line is optional
-      wallpaperIndex = ${"$"}{WP_INDEX};
-    };
-    ```
-
-    **Next Steps:**
-    1. Edit your config.
-    2. Run your rebuild command (e.g., `rebuild`).
-    3. The preview will persist until you reboot or rebuild.
-  '';
+  # 2. Markdown Templates (Read from docs dir)
+  # We read these files at build time so they are available in the nix store
+  docStylePreview = pkgs.writeText "style-preview.md" (
+    builtins.readFile ../../../docs/style-preview.md
+  );
+  docStyleOverride = pkgs.writeText "style-override.md" (
+    builtins.readFile ../../../docs/style-override.md
+  );
+  docStyleGeneral = ../../../docs/style.md; # We need the raw path for sed manipulation
 
   # ═══════════════════════════════════════════════════════════════════
-  # HELP SYSTEM
+  # HELP SCRIPTS
   # ═══════════════════════════════════════════════════════════════════
+
+  # Displays the main Style Guide with the theme list injected
   showStyleHelp = pkgs.writeShellScriptBin "omanix-show-style-help" ''
     HELP_FILE=$(mktemp /tmp/omanix-help-XXXXXX.md)
-    sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${../../../docs/style.md} > "$HELP_FILE"
+    # Inject the generated list of themes into the markdown
+    sed 's/{{THEME_LIST}}/${themeListFormatted}/' ${docStyleGeneral} > "$HELP_FILE"
 
     if command -v glow &> /dev/null; then
-      # CHANGED: org.omanix.float -> org.omanix.terminal (matches rules.nix)
       ghostty --class="org.omanix.terminal" -e sh -c "glow -p '$HELP_FILE'; rm '$HELP_FILE'"
     else
       ghostty --class="org.omanix.terminal" -e sh -c "less '$HELP_FILE'; rm '$HELP_FILE'"
     fi
   '';
 
+  # Displays generic setup docs
   showSetupHelp = pkgs.writeShellScriptBin "omanix-show-setup-help" ''
     TOPIC="$1"
     DOCS_DIR="${../../../docs}"
@@ -77,47 +72,64 @@ let
   '';
 
   # ═══════════════════════════════════════════════════════════════════
-  # INTERACTIVE THEME SWITCHER
+  # INTERACTIVE STYLE MENU
   # ═══════════════════════════════════════════════════════════════════
   styleMenu = pkgs.writeShellScriptBin "omanix-menu-style" ''
-    export PATH="${pkgs.jq}/bin:${pkgs.swaybg}/bin:${pkgs.coreutils}/bin:${pkgs.gnused}/bin:$PATH"
-    
+    export PATH="${pkgs.jq}/bin:${pkgs.swaybg}/bin:${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.envsubst}/bin:$PATH"
+
     THEMES_FILE="${themesJson}"
-    TEMPLATE_FILE="${wallpaperHelpTemplate}"
+    DOC_PREVIEW="${docStylePreview}"
+    DOC_OVERRIDE="${docStyleOverride}"
     WALKER="${walkerPkg}/bin/walker"
 
     # 1. Select Theme
     THEME_NAME=$(jq -r 'keys[]' "$THEMES_FILE" | $WALKER --dmenu --placeholder "Select Theme...")
     [ -z "$THEME_NAME" ] && exit 0
 
-    # 2. Select Wallpaper (Format: "Index: Path")
-    WP_SELECTION=$(jq -r --arg t "$THEME_NAME" '.[$t] | to_entries | .[] | "\(.key): \(.value)"' "$THEMES_FILE" | \
+    # 2. Select Wallpaper (Presets + Custom Option)
+    PRESETS=$(jq -r --arg t "$THEME_NAME" '.[$t] | to_entries | .[] | "\(.key): \(.value)"' "$THEMES_FILE")
+
+    # We prepend the Custom option to the list
+    SELECTION=$(echo -e "[Custom]: Use your own image file...\n$PRESETS" | \
       $WALKER --dmenu --placeholder "Select Wallpaper for $THEME_NAME...")
-    [ -z "$WP_SELECTION" ] && exit 0
 
-    # Extract Index and Path
-    WP_INDEX=$(echo "$WP_SELECTION" | cut -d: -f1)
-    WP_PATH=$(echo "$WP_SELECTION" | cut -d: -f2 | xargs)
+    [ -z "$SELECTION" ] && exit 0
 
-    # 3. Hot-Reload Preview
+    # 3. Handle Selection
+    if [[ "$SELECTION" == "[Custom]"* ]]; then
+      # --- CUSTOM OVERRIDE PATH ---
+      # Just show the static documentation for overriding
+      if command -v glow &> /dev/null; then
+        ghostty --class="org.omanix.terminal" -e sh -c "glow -p '$DOC_OVERRIDE'"
+      else
+        ghostty --class="org.omanix.terminal" -e sh -c "less '$DOC_OVERRIDE'"
+      fi
+      exit 0
+    fi
+
+    # --- PRESET PREVIEW PATH ---
+    WP_INDEX=$(echo "$SELECTION" | cut -d: -f1)
+    WP_PATH=$(echo "$SELECTION" | cut -d: -f2 | xargs)
+
+    # A. Hot-Reload Preview
     pkill swaybg
     swaybg -i "$WP_PATH" -m fill & 
 
-    # 4. Show Instructions
+    # B. Show Instructions (Templated)
     export THEME_NAME
     export WP_INDEX
-    
-    HELP_TEXT=$(envsubst < "$TEMPLATE_FILE")
-    
+
+    # Substitute variables in the markdown template
+    HELP_TEXT=$(envsubst < "$DOC_PREVIEW")
+
     TMP_HELP=$(mktemp)
     echo "$HELP_TEXT" > "$TMP_HELP"
-    
-    # CHANGED: org.omanix.float -> org.omanix.terminal (matches rules.nix)
+
     ghostty --class="org.omanix.terminal" -e sh -c "${pkgs.glow}/bin/glow -p '$TMP_HELP'; rm '$TMP_HELP'"
   '';
 
   # ═══════════════════════════════════════════════════════════════════
-  # MAIN MENU
+  # MAIN MENU LOGIC
   # ═══════════════════════════════════════════════════════════════════
   menu = pkgs.writeShellScriptBin "omanix-menu" ''
     WALKER="${walkerPkg}/bin/walker"
@@ -147,9 +159,6 @@ let
       esac
     }
 
-    # ... [Rest of the sub-menus remain unchanged] ...
-    
-    # REPEATED HERE FOR CLARITY - COPY THIS WHOLE FILE
     show_learn_menu() {
       CHOICE=$(menu_cmd "Learn" "󰌌  Keybindings\n󰖟  Hyprland\n󱄅  NixOS Wiki\n󰊠  Neovim\n󱆃  Bash")
       case "$CHOICE" in
@@ -209,7 +218,7 @@ let
     }
 
     show_style_menu() {
-      CHOICE=$(menu_cmd "Style" "🎨  Change Theme & Wallpaper\n📖  Read Style Guide")
+      CHOICE=$(menu_cmd "Style" "󰏘  Change Theme & Wallpaper\n󰈮  Read Style Guide")
       case "$CHOICE" in
         *Change*) omanix-menu-style ;;
         *Read*)   omanix-show-style-help ;;
@@ -252,7 +261,7 @@ let
   '';
 
   # ═══════════════════════════════════════════════════════════════════
-  # KEYBINDINGS MENU
+  # KEYBINDINGS MENU (RESTORED)
   # ═══════════════════════════════════════════════════════════════════
   keybindingsMenu = pkgs.writeShellScriptBin "omanix-menu-keybindings" ''
     export PATH="${pkgs.gawk}/bin:${pkgs.libxkbcommon}/bin:${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
@@ -425,7 +434,7 @@ in
     showSetupHelp
     keybindingsMenu
 
-    # Utility Scripts
+    # Utilities
     restartWalker
     launchAudio
     launchWifi
