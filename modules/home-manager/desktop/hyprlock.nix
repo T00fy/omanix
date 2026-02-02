@@ -1,4 +1,9 @@
-{ config, lib, omanixLib, ... }:
+{
+  config,
+  lib,
+  omanixLib,
+  ...
+}:
 let
   theme = config.omanix.activeTheme;
   colors = omanixLib.colors;
@@ -14,33 +19,37 @@ in
         ignore_empty_input = true;
       };
 
-      background = [{
-        path = "${theme.assets.wallpaper}";
-        blur_passes = 3;
-        color = colors.hexToRgbaCss theme.colors.background;
-      }];
+      background = [
+        {
+          path = "${theme.assets.wallpaper}";
+          blur_passes = 3;
+          color = colors.hexToRgbaCss theme.colors.background;
+        }
+      ];
 
-      input-field = [{
-        size = "650, 100";
-        position = "0, 0";
-        halign = "center";
-        valign = "center";
+      input-field = [
+        {
+          size = "650, 100";
+          position = "0, -100";
+          halign = "center";
+          valign = "center";
 
-        outline_thickness = 4;
-        dots_size = 0.33;
-        dots_spacing = 0.15;
-        dots_center = true;
+          outline_thickness = 4;
+          dots_size = 0.33;
+          dots_spacing = 0.15;
+          dots_center = true;
 
-        outer_color = "rgb(${colors.stripHash theme.colors.foreground})";
-        inner_color = colors.hexToRgbaCss theme.colors.background;
-        font_color = "rgb(${colors.stripHash theme.colors.foreground})";
-        fade_on_empty = false;
-        
-        placeholder_text = "Enter Password";
-        
-        check_color = "rgb(${colors.stripHash theme.colors.accent})";
-        fail_text = "<i>$FAIL <b>($ATTEMPTS)</b></i>";
-      }];
+          outer_color = "rgb(${colors.stripHash theme.colors.foreground})";
+          inner_color = colors.hexToRgbaCss theme.colors.background;
+          font_color = "rgb(${colors.stripHash theme.colors.foreground})";
+          fade_on_empty = false;
+
+          placeholder_text = "Enter Password";
+
+          check_color = "rgb(${colors.stripHash theme.colors.accent})";
+          fail_text = "<i>$FAIL <b>($ATTEMPTS)</b></i>";
+        }
+      ];
 
       label = [
         # Time
