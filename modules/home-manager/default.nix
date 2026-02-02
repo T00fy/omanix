@@ -5,13 +5,12 @@
     ./scripts
     ./core/fonts.nix
     ./core/gtk.nix
-    ./core/xcompose.nix
     ./core/shell.nix
     ./core/git.nix
     ./core/languages.nix
     ./apps/firefox.nix
     ./apps/neovim.nix
-    ./apps/spotatui.nix  # NEW: Spotify TUI client
+    ./apps/spotatui.nix
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix
