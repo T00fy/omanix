@@ -5,13 +5,13 @@
   gtk4-layer-shell,
   vte-gtk4,
   gobject-introspection,
-  wrapGAppsHook,
+  wrapGAppsHook4, # <--- CHANGED from wrapGAppsHook
 }:
 
 python3Packages.buildPythonApplication {
   pname = "omanix-screensaver";
   version = "1.0.0";
-  format = "other"; # It's a script, not a setup.py module
+  format = "other";
 
   src = ./.;
 
@@ -28,10 +28,9 @@ python3Packages.buildPythonApplication {
 
   nativeBuildInputs = [
     gobject-introspection
-    wrapGAppsHook
+    wrapGAppsHook4 # <--- CHANGED from wrapGAppsHook
   ];
 
-  # We don't have a setup.py, so we manually install the script
   installPhase = ''
     runHook preInstall
     mkdir -p $out/bin
@@ -40,9 +39,7 @@ python3Packages.buildPythonApplication {
     runHook postInstall
   '';
 
-  # The Critical LD_PRELOAD Fix
-  # wrapGAppsHook handles GI_TYPELIB_PATH automatically, but we need to inject
-  # the layer-shell library before Python starts.
+  # The LD_PRELOAD fix is still required
   preFixup = ''
     makeWrapperArgs+=(
       "--set" "LD_PRELOAD" "${gtk4-layer-shell}/lib/libgtk4-layer-shell.so"

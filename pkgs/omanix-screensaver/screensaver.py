@@ -42,20 +42,30 @@ class ScreensaverWindow(Gtk.ApplicationWindow):
         self.monitor = monitor
         self.logo_path = logo_path
 
+        # --- Layer Shell Setup ---
         Gtk4LayerShell.init_for_window(self)
         Gtk4LayerShell.set_monitor(self, monitor)
         Gtk4LayerShell.set_layer(self, Gtk4LayerShell.Layer.OVERLAY)
         Gtk4LayerShell.set_namespace(self, "omanix-screensaver")
         
-        # EXCLUSIVE mode + CAPTURE phase is the combo needed for locking
+        # EXCLUSIVE mode captures input without focus
         Gtk4LayerShell.set_keyboard_mode(self, Gtk4LayerShell.KeyboardMode.EXCLUSIVE)
         
+        # Anchor to all edges
         for edge in [Gtk4LayerShell.Edge.TOP, Gtk4LayerShell.Edge.BOTTOM, 
                      Gtk4LayerShell.Edge.LEFT, Gtk4LayerShell.Edge.RIGHT]:
             Gtk4LayerShell.set_anchor(self, edge, True)
         
         Gtk4LayerShell.set_exclusive_zone(self, -1)
 
+        # --- Visual Setup ---
+        
+        # 1. Hide Mouse Pointer immediately
+        # We use the standard "none" cursor name which implies invisibility
+        cursor = Gdk.Cursor.new_from_name("none", None)
+        self.set_cursor(cursor)
+
+        # 2. CSS for black background
         css_provider = Gtk.CssProvider()
         css_provider.load_from_data(b"""
             window { background-color: black; } 
@@ -65,19 +75,33 @@ class ScreensaverWindow(Gtk.ApplicationWindow):
             Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
 
+        # 3. Terminal Widget Setup
         self.terminal = Vte.Terminal()
-        self.terminal.set_cursor_blink_mode(Vte.CursorBlinkMode.OFF)
         self.terminal.set_mouse_autohide(True)
         self.terminal.set_input_enabled(False)
         
+        # FIX: Hide the Terminal Caret (Cursor)
+        # We make the cursor fully transparent (Alpha = 0)
+        transparent = Gdk.RGBA()
+        transparent.parse("rgba(0,0,0,0)")
+        self.terminal.set_color_cursor(transparent)
+        # Ensure it doesn't blink
+        self.terminal.set_cursor_blink_mode(Vte.CursorBlinkMode.OFF)
+        # Set shape to Block (easier to hide than I-Beam if transparency fails for some reason)
+        self.terminal.set_cursor_shape(Vte.CursorShape.BLOCK)
+        
+        # Layout
         box = Gtk.Box()
         box.append(self.terminal)
         self.terminal.set_hexpand(True)
         self.terminal.set_vexpand(True)
         self.set_child(box)
 
+        # Signals
         self.terminal.connect("child-exited", self.on_effect_finished)
         self.setup_input()
+        
+        # Start
         self.spawn_effect()
 
     def setup_input(self):
@@ -107,7 +131,6 @@ class ScreensaverWindow(Gtk.ApplicationWindow):
         tte_bin = shutil.which("tte")
         
         if not tte_bin:
-            # Silently fail or just quit if TTE isn't there
             self.get_application().quit()
             return
 

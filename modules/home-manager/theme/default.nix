@@ -72,6 +72,11 @@ in
           default = 150;
           description = "Seconds of inactivity before screensaver starts (default: 150 = 2.5 minutes).";
         };
+        logo = mkOption {
+          type = types.path;
+          default = ../../../assets/branding/logo.txt;
+          description = "Path to the ASCII text file displayed by the screensaver.";
+        };
       };
 
       dimScreen = {

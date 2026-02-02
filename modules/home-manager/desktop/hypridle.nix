@@ -2,13 +2,12 @@
 let
   cfg = config.omanix.idle;
 
-  logoPath = "${config.home.homeDirectory}/omanix/assets/branding/logo.txt";
-
   listeners = lib.flatten [
-    # Screensaver - no on-resume needed, it handles its own exit
+    # Screensaver
     (lib.optional cfg.screensaver.enable {
       timeout = cfg.screensaver.timeout;
-      on-timeout = "omanix-screensaver --logo ${logoPath}";
+      # Nix will automatically interpolate logoPath into the full /nix/store/... path here
+      on-timeout = "omanix-screensaver --logo ${cfg.screensaver.logo}";
     })
 
     # Dim screen
@@ -18,7 +17,7 @@ let
       on-resume = "brightnessctl -r";
     })
 
-    # Lock screen - kill screensaver before locking
+    # Lock screen
     (lib.optional cfg.lock.enable {
       timeout = cfg.lock.timeout;
       on-timeout = "pkill -f 'omanix-screensaver'; pidof hyprlock || hyprlock";
