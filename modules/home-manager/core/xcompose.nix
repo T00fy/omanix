@@ -1,5 +1,28 @@
 { config, pkgs, ... }:
 {
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+    fcitx5.addons = [
+      pkgs.fcitx5-gtk
+      # Support for Qt5 apps
+      pkgs.libsForQt5.fcitx5-qt
+      # Support for Qt6 apps (Preferred in Unstable/24.11)
+      pkgs.kdePackages.fcitx5-qt
+      # The config tool has been moved to Qt6/kdePackages
+      pkgs.kdePackages.fcitx5-configtool
+    ];
+  };
+
+  # Environment variables to force apps to use Fcitx5
+  home.sessionVariables = {
+    GTK_IM_MODULE = "fcitx";
+    QT_IM_MODULE = "fcitx";
+    XMODIFIERS = "@im=fcitx";
+    # Tell Fcitx where to find our custom map
+    XCOMPOSEFILE = "$HOME/.config/XCompose";
+  };
+
   # Port the XCompose file from upstream
   xdg.configFile."XCompose".text = ''
     include "%L"

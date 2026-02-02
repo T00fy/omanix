@@ -3,7 +3,7 @@
   wayland.windowManager.hyprland.settings = {
     input = {
       kb_layout = "us";
-      kb_options = "compose:caps";
+      kb_options = "compose:caps, caps:escape_shifted_capslock";
       follow_mouse = 1;
 
       # touchpad = {
