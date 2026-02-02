@@ -69,7 +69,7 @@ in
         };
         timeout = mkOption {
           type = types.int;
-          default = 10;
+          default = 150;
           description = "Seconds of inactivity before screensaver starts (default: 150 = 2.5 minutes).";
         };
       };
