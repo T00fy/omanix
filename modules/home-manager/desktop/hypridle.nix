@@ -3,14 +3,7 @@ let
   cfg = config.omanix.idle;
   
   listeners = lib.flatten [
-    # Activity monitor - always active, kills screensaver on any resume
-    [{
-      timeout = 1;
-      on-timeout = "true";
-      on-resume = "pgrep -f org.omanix.screensaver && omanix-screensaver-kill || true";
-    }]
-
-    # Screensaver launcher
+    # Screensaver - no on-resume needed, it handles its own exit
     (lib.optional cfg.screensaver.enable {
       timeout = cfg.screensaver.timeout;
       on-timeout = "omanix-screensaver";
@@ -23,7 +16,7 @@ let
       on-resume = "brightnessctl -r";
     })
 
-    # Lock screen
+    # Lock screen - kill screensaver before locking
     (lib.optional cfg.lock.enable {
       timeout = cfg.lock.timeout;
       on-timeout = "omanix-screensaver-kill; loginctl lock-session";
