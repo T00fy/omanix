@@ -4,9 +4,27 @@ let
   logoFile = ../../../assets/branding/logo.txt;
 
   screensaverEffect = pkgs.writeShellScriptBin "omanix-screensaver-effect" ''
-    export PATH="${pkgs.coreutils}/bin:${pkgs.ncurses}/bin:$PATH"
+    export PATH="${pkgs.coreutils}/bin:${pkgs.ncurses}/bin:${pkgs.procps}/bin:$PATH"
 
     TTE_PID=""
+
+    # --- 1. Helper Functions (Restored) ---
+
+    # Check for any input (keyboard key press) with a short timeout
+    check_input() {
+      read -rsn1 -t 0.1 && return 0
+      return 1
+    }
+
+    # Exit and kill ALL screensavers
+    exit_all() {
+      # Kill the current TTE process if running
+      [[ -n "$TTE_PID" ]] && kill "$TTE_PID" 2>/dev/null
+      
+      # Spawn external kill command (ensure this script exists in your config)
+      nohup omanix-screensaver-kill >/dev/null 2>&1 &
+      exit 0
+    }
 
     cleanup() {
       [[ -n "$TTE_PID" ]] && kill "$TTE_PID" 2>/dev/null
@@ -18,9 +36,13 @@ let
 
     trap cleanup EXIT INT TERM HUP QUIT
 
+    # Setup terminal
     printf '\033]11;rgb:00/00/00\007'
     tput civis
     printf '\033[?25l'
+
+    # Enable mouse tracking so we can detect mouse movement
+    printf '\033[?1003h'
 
     EFFECTS=(
       beams binarypath blackhole bouncyballs bubbles burn colorshift
@@ -30,12 +52,15 @@ let
       swarm sweep synthgrid unstable vhstape waves wipe
     )
 
+    # --- 2. Main Loop (Restored Asynchronous Logic) ---
+
     while true; do
       clear
       printf '\033[?25l'
-      
+
       EFFECT="''${EFFECTS[$RANDOM % ''${#EFFECTS[@]}]}"
       
+      # Run TTE in the BACKGROUND (&) so we can check inputs
       ${tte}/bin/tte \
         --input-file ${logoFile} \
         --canvas-width 0 \
@@ -43,10 +68,31 @@ let
         --anchor-canvas c \
         --anchor-text c \
         "$EFFECT" \
-        2>/dev/null
+        2>/dev/null &
       
+      # Capture the PID of the running effect
+      TTE_PID=$!
+
+      # Loop while the effect is running to check for input
+      while kill -0 "$TTE_PID" 2>/dev/null; do
+        if check_input; then
+          exit_all
+        fi
+        sleep 0.1
+      done
+
+      wait "$TTE_PID" 2>/dev/null || true
+      TTE_PID=""
+
       printf '\033[?25l'
-      sleep 2
+
+      # Sleep for 2 seconds between effects, BUT keep checking input
+      for i in {1..20}; do
+        if check_input; then
+          exit_all
+        fi
+        sleep 0.1
+      done
     done
   '';
 
