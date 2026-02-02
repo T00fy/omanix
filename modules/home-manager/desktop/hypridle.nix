@@ -1,12 +1,14 @@
 { config, lib, ... }:
 let
   cfg = config.omanix.idle;
-  
+
+  logoPath = "${config.home.homeDirectory}/omanix/assets/branding/logo.txt";
+
   listeners = lib.flatten [
     # Screensaver - no on-resume needed, it handles its own exit
     (lib.optional cfg.screensaver.enable {
       timeout = cfg.screensaver.timeout;
-      on-timeout = "omanix-screensaver";
+      on-timeout = "omanix-screensaver --logo ${logoPath}";
     })
 
     # Dim screen
@@ -19,7 +21,7 @@ let
     # Lock screen - kill screensaver before locking
     (lib.optional cfg.lock.enable {
       timeout = cfg.lock.timeout;
-      on-timeout = "omanix-screensaver-kill; loginctl lock-session";
+      on-timeout = "pkill -f 'omanix-screensaver'; pidof hyprlock || hyprlock";
     })
 
     # DPMS (screen off)
@@ -41,10 +43,10 @@ in
     enable = true;
     settings = {
       general = {
-        lock_cmd = "pidof hyprlock || hyprlock";
+        lock_cmd = "pkill -f 'omanix-screensaver'; pidof hyprlock || hyprlock";
         before_sleep_cmd = "loginctl lock-session";
         after_sleep_cmd = "hyprctl dispatch dpms on";
-        unlock_cmd = "omanix-screensaver-kill";
+        unlock_cmd = "pkill -f 'omanix-screensaver'";
       };
 
       listener = listeners;

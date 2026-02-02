@@ -52,6 +52,7 @@
 
       overlays.default = final: prev: {
         spotatui = prev.callPackage inputs.spotatui { };
+        omanix-screensaver = final.callPackage ./pkgs/omanix-screensaver { };
       };
 
       nixosModules.default =

@@ -16,18 +16,6 @@
       "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 
       # ─────────────────────────────────────────────────────────────────
-      # Screensaver (TTE in fullscreen terminal)
-      # ─────────────────────────────────────────────────────────────────
-      "fullscreen on, match:class ^(org\\.omanix\\.screensaver)$"
-      "float on, match:class ^(org\\.omanix\\.screensaver)$"
-      "opacity 1 1, match:class ^(org\\.omanix\\.screensaver)$"
-      "no_blur on, match:class ^(org\\.omanix\\.screensaver)$"
-      "no_shadow on, match:class ^(org\\.omanix\\.screensaver)$"
-      "border_size 0, match:class ^(org\\.omanix\\.screensaver)$"
-      "suppress_event activate, match:class ^(org\\.omanix\\.screensaver)$"
-      "no_focus on, match:class ^(org\\.omanix\\.screensaver)$"
-
-      # ─────────────────────────────────────────────────────────────────
       # Password Managers
       # ─────────────────────────────────────────────────────────────────
       "no_screen_share on, match:class ^(1[p|P]assword)$"
