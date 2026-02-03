@@ -42,7 +42,6 @@
       lazyvim,
       walker,
       elephant,
-      silentSDDM,
       ...
     }@inputs:
     let
@@ -72,8 +71,8 @@
         {
           imports = [
             ./modules/nixos
-            # Import SilentSDDM's NixOS module for SDDM theming
-            silentSDDM.nixosModules.default
+            # Note: We build our own SDDM theme package instead of using silentSDDM's module
+            # This allows us to bake in the wallpaper and custom config
           ];
 
           nixpkgs.overlays = [ self.overlays.default ];
