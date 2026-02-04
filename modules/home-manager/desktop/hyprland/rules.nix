@@ -44,18 +44,28 @@ _: {
       # ─────────────────────────────────────────────────────────────────
       # JetBrains IDEs
       # ─────────────────────────────────────────────────────────────────
+      # 1. Splash Screen: Tag and Styling
+      # Fixes splash screen showing in weird places and prevents focus takeovers
       "tag +jetbrains-splash, match:class ^(jetbrains-.*)$, match:title ^(splash)$, match:float 1"
       "center on, match:tag jetbrains-splash"
       "no_focus on, match:tag jetbrains-splash"
       "border_size 0, match:tag jetbrains-splash"
-      "tag +jetbrains, match:class ^(jetbrains-.*), match:title ^()$, match:float 1"
-      "center on, match:tag jetbrains"
-      "stay_focused on, match:tag jetbrains"
-      "border_size 0, match:tag jetbrains"
-      "min_size (monitor_w*0.5) (monitor_h*0.5), match:class ^(jetbrains-.*), match:title ^()$, match:float 1"
-      "no_initial_focus on, match:class ^(jetbrains-.*)$, match:title ^(win.*)$, match:float 1"
-      "no_follow_mouse on, match:class ^(jetbrains-.*)$"
 
+      # 2. Popups (Search/Find/New File): Tag and Styling
+      # Center these and ensure they stay focused so you can type in them
+      "tag +jetbrains-popup, match:class ^(jetbrains-.*)$, match:title ^()$, match:float 1"
+      "center on, match:tag jetbrains-popup"
+      "stay_focused on, match:tag jetbrains-popup"
+      "border_size 0, match:tag jetbrains-popup"
+      "min_size (monitor_w*0.5) (monitor_h*0.5), match:tag jetbrains-popup"
+
+      # 3. Tooltips & Autocomplete
+      # Prevent flickering/focus theft when code completion windows appear
+      "no_initial_focus on, match:class ^(jetbrains-.*)$, match:title ^(win.*)$, match:float 1"
+
+      # 4. General Mouse Behavior
+      # Prevent mouse movement from accidentally shifting focus away from IDE
+      "no_follow_mouse on, match:class ^(jetbrains-.*)$"
       # ─────────────────────────────────────────────────────────────────
       # DaVinci Resolve
       # ─────────────────────────────────────────────────────────────────

@@ -12,6 +12,8 @@
     ./apps/jetbrains.nix
     ./apps/neovim.nix
     ./apps/spotatui.nix
+    ./apps/obsidian.nix
+    ./apps/whatsapp.nix
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix
