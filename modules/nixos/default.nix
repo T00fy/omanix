@@ -7,6 +7,7 @@ in
 {
   imports = [
     ./login.nix
+    ./steam.nix
   ];
 
   options.omanix = {
@@ -41,6 +42,12 @@ in
       readOnly = true;
       internal = true;
       description = "The fully resolved theme data (read-only, computed from omanix.theme)";
+    };
+
+    steam.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Enable Steam and gaming tools (requires omanix.enable).";
     };
   };
 
