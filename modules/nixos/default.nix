@@ -52,6 +52,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    nixpkgs.config.allowUnfree = true;
     omanix.activeTheme =
       let
         baseTheme = omanixLib.themes.${cfg.theme};

@@ -9,6 +9,7 @@
     ./core/git.nix
     ./core/languages.nix
     ./apps/firefox.nix
+    ./apps/jetbrains.nix
     ./apps/neovim.nix
     ./apps/spotatui.nix
     ./desktop/hyprland/autostart.nix
