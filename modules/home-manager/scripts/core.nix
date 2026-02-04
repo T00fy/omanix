@@ -2,7 +2,6 @@
 let
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  # Launch or Focus
   launchOrFocus = pkgs.writeShellScriptBin "omanix-launch-or-focus" ''
     if (($# == 0)); then
       echo "Usage: omanix-launch-or-focus [window-pattern] [launch-command]"
@@ -21,8 +20,6 @@ let
     fi
   '';
 
-  # Launch TUI (Terminal User Interface) in a floating window
-  # Used for Wifi (Impala), Btop, etc.
   launchTui = pkgs.writeShellScriptBin "omanix-launch-tui" ''
     if (($# == 0)); then
       echo "Usage: omanix-launch-tui [command] [args...]"
@@ -35,7 +32,6 @@ let
     exec setsid uwsm app -- ghostty --class="org.omanix.$CMD_NAME" -e "$@"
   '';
 
-  # Launch or Focus TUI
   launchOrFocusTui = pkgs.writeShellScriptBin "omanix-launch-or-focus-tui" ''
     if (($# == 0)); then
       echo "Usage: omanix-launch-or-focus-tui [command]"
@@ -49,7 +45,6 @@ let
     exec omanix-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
   '';
 
-  # Launch Browser
   launchBrowser = pkgs.writeShellScriptBin "omanix-launch-browser" ''
     BROWSER=$(${pkgs.xdg-utils}/bin/xdg-settings get default-web-browser 2>/dev/null || echo "firefox.desktop")
 
@@ -71,7 +66,6 @@ let
     fi
   '';
 
-  # Terminal CWD
   terminalCwd = pkgs.writeShellScriptBin "omanix-cmd-terminal-cwd" ''
     active_pid=$(${pkgs.hyprland}/bin/hyprctl activewindow -j | ${pkgs.jq}/bin/jq '.pid')
     if [[ -n "$active_pid" && "$active_pid" != "null" ]]; then
@@ -86,7 +80,6 @@ let
     fi
   '';
 
-  # Launch Walker
   launchWalker = pkgs.writeShellScriptBin "omanix-launch-walker" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -116,11 +109,9 @@ in
     terminalCwd
     launchWalker
 
-    # Core Dependencies
     pkgs.jq
     pkgs.procps
 
-    # Core Apps
     pkgs.nautilus
     pkgs.chromium
     pkgs.firefox

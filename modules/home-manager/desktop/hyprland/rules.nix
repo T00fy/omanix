@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   wayland.windowManager.hyprland.settings = {
     # ═══════════════════════════════════════════════════════════════════
     # WINDOW RULES - Omarchy Parity

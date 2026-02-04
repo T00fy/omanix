@@ -1,7 +1,6 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   cfg = config.omanix;
-  # OSD client command that targets the focused monitor
   osdClient = ''swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"'';
   musicCommand = if cfg.spotatui.enable then "omanix-launch-tui-spotatui" else "spotify";
 in

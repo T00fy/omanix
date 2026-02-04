@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  # 1. Screenshot
+  # TODO: Should be in its own file
   screenshot = pkgs.writeShellScriptBin "omanix-cmd-screenshot" ''
     export PATH="${pkgs.coreutils}/bin:${pkgs.jq}/bin:${pkgs.gawk}/bin:${pkgs.procps}/bin:$PATH"
 
@@ -129,7 +129,6 @@ let
     fi
   '';
 
-  # 2. Lock Screen (New Upstream Parity)
   lockScreen = pkgs.writeShellScriptBin "omanix-lock-screen" ''
     # Lock the screen immediately
     pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock &
@@ -146,7 +145,6 @@ let
     fi
   '';
 
-  # 3. Shutdown / Reboot (Graceful)
   shutdown = pkgs.writeShellScriptBin "omanix-cmd-shutdown" ''
     # Close all windows first to save state
     ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r ".[].address" | xargs -r -I{} ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:{}
@@ -167,7 +165,6 @@ in
     shutdown
     reboot
 
-    # System Dependencies
     pkgs.satty
     pkgs.wayfreeze
     pkgs.grim
@@ -177,6 +174,6 @@ in
     pkgs.hyprpicker
     pkgs.blueman
     pkgs.bitwarden-cli
-    pkgs.procps # for pkill
+    pkgs.procps
   ];
 }

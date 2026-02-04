@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   wayland.windowManager.hyprland.settings = {
     input = {
       kb_layout = "us";
@@ -11,7 +10,6 @@
       # };
     };
 
-    # New gesture syntax (replaces the old gestures block)
     gesture = [
       "3, horizontal, workspace"
     ];

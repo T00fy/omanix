@@ -1,7 +1,8 @@
-{ config, pkgs, ... }: 
+{ config, pkgs, ... }:
 let
-  wallpaper = config.omanix.activeTheme.assets.wallpaper;
-in {
+  inherit (config.omanix.activeTheme.assets) wallpaper;
+in
+{
   wayland.windowManager.hyprland.settings = {
     exec-once = [
       "fcitx5 -d -r"

@@ -1,7 +1,6 @@
-{ config, pkgs, omanixLib, ... }:
+{ config, pkgs, ... }:
 let
   theme = config.omanix.activeTheme;
-  colors = omanixLib.colors;
 in
 {
   # SwayOSD package

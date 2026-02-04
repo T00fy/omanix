@@ -1,6 +1,5 @@
 { pkgs, ... }:
 let
-  # Smart Audio Switcher (New Upstream Parity)
   audioSwitch = pkgs.writeShellScriptBin "omanix-cmd-audio-switch" ''
     export PATH="${pkgs.jq}/bin:${pkgs.pulseaudio}/bin:${pkgs.swayosd}/bin:${pkgs.hyprland}/bin:$PATH"
 
@@ -46,7 +45,6 @@ in
   home.packages = [
     audioSwitch
 
-    # Media Dependencies (Moved from scripts.nix)
     pkgs.playerctl
     pkgs.brightnessctl
     pkgs.wireplumber

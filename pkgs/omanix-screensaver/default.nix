@@ -5,7 +5,7 @@
   gtk4-layer-shell,
   vte-gtk4,
   gobject-introspection,
-  wrapGAppsHook4, # <--- CHANGED from wrapGAppsHook
+  wrapGAppsHook4,
 }:
 
 python3Packages.buildPythonApplication {
@@ -28,7 +28,7 @@ python3Packages.buildPythonApplication {
 
   nativeBuildInputs = [
     gobject-introspection
-    wrapGAppsHook4 # <--- CHANGED from wrapGAppsHook
+    wrapGAppsHook4
   ];
 
   installPhase = ''
@@ -39,7 +39,6 @@ python3Packages.buildPythonApplication {
     runHook postInstall
   '';
 
-  # The LD_PRELOAD fix is still required
   preFixup = ''
     makeWrapperArgs+=(
       "--set" "LD_PRELOAD" "${gtk4-layer-shell}/lib/libgtk4-layer-shell.so"

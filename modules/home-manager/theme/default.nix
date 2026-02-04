@@ -13,12 +13,8 @@ let
   themeSchema = import ../../../lib/theme-schema.nix { inherit lib; };
   availableThemes = builtins.attrNames omanixLib.themes;
 
-  # Check if we're running under NixOS with omanix enabled
   hasOsConfig =
-    osConfig != null
-    && osConfig ? omanix
-    && osConfig.omanix ? enable
-    && osConfig.omanix.enable;
+    osConfig != null && osConfig ? omanix && osConfig.omanix ? enable && osConfig.omanix.enable;
 in
 {
   options.omanix = {
@@ -250,7 +246,8 @@ in
           else
             builtins.elemAt baseTheme.assets.wallpapers 0;
       in
-      baseTheme // {
+      baseTheme
+      // {
         assets = baseTheme.assets // {
           wallpaper = selectedWallpaper;
         };

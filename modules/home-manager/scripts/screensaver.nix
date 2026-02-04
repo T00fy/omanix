@@ -1,13 +1,15 @@
 { pkgs, ... }:
 {
-  # Just install the package from our overlay
   home.packages = [ pkgs.omanix-screensaver ];
 
-  # Keep the cleanup service just in case
   systemd.user.services.omanix-screensaver-cleanup = {
     Unit = {
       Description = "Cleanup Omanix screensaver on shutdown";
-      Before = [ "shutdown.target" "reboot.target" "halt.target" ];
+      Before = [
+        "shutdown.target"
+        "reboot.target"
+        "halt.target"
+      ];
     };
     Service = {
       Type = "oneshot";

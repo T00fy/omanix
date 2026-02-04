@@ -27,7 +27,6 @@
       flake = false;
     };
 
-    # SilentSDDM - Qt6-native SDDM theme with extensive customization
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -50,7 +49,6 @@
       omanixLib = import ./lib { inherit (nixpkgs) lib; };
     in
     {
-      # Export the library for external use
       lib = omanixLib;
 
       # ═══════════════════════════════════════════════════════════════════

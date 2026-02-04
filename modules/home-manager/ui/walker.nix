@@ -1,10 +1,14 @@
-{ config, pkgs, lib, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 let
   theme = config.omanix.activeTheme;
   elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
-  
-  # CSS Content matching Omarchy's walker theme
-  # FIXED: Removed the invalid "display: none" CSS property
+
   styleCss = ''
     @define-color selected-text ${theme.colors.accent};
     @define-color text ${theme.colors.foreground};
@@ -74,7 +78,7 @@ let
       padding: 10px;
       margin-top: 10px;
     }
-    
+
     /* FIXED: GTK4 doesn't support "display: none", use opacity/visibility instead */
     .keybinds { 
       opacity: 0;
@@ -95,27 +99,51 @@ in
       hide_action_hints = true;
       close_when_open = true;
       click_to_close = true;
-      
+
       width = 644;
       maxheight = 300;
       minheight = 300;
 
-      keybinds.quick_activate = [];
+      keybinds.quick_activate = [ ];
 
       providers = {
         max_results = 256;
-        default = [ "desktopapplications" "websearch" ];
+        default = [
+          "desktopapplications"
+          "websearch"
+        ];
         empty = [ "desktopapplications" ];
       };
 
       prefixes = [
-        { prefix = "/"; provider = "providerlist"; }
-        { prefix = "."; provider = "files"; }
-        { prefix = ":"; provider = "symbols"; }
-        { prefix = "="; provider = "calc"; }
-        { prefix = "@"; provider = "websearch"; }
-        { prefix = "$"; provider = "clipboard"; }
-        { prefix = ">"; provider = "runner"; }
+        {
+          prefix = "/";
+          provider = "providerlist";
+        }
+        {
+          prefix = ".";
+          provider = "files";
+        }
+        {
+          prefix = ":";
+          provider = "symbols";
+        }
+        {
+          prefix = "=";
+          provider = "calc";
+        }
+        {
+          prefix = "@";
+          provider = "websearch";
+        }
+        {
+          prefix = "$";
+          provider = "clipboard";
+        }
+        {
+          prefix = ">";
+          provider = "runner";
+        }
       ];
 
       placeholders = {
@@ -150,16 +178,13 @@ in
     };
   };
 
-  # CRITICAL FIX: Walker service needs elephant in its PATH
   systemd.user.services.walker = lib.mkIf config.programs.walker.runAsService {
     Service.Environment = lib.mkForce [
-      # Add elephant to Walker's PATH so it can find and communicate with it
       "PATH=${elephantPkg}/bin:/etc/profiles/per-user/${config.home.username}/bin:/run/current-system/sw/bin:${config.home.homeDirectory}/.nix-profile/bin"
       "XDG_DATA_DIRS=${config.home.homeDirectory}/.nix-profile/share:/etc/profiles/per-user/${config.home.username}/share:/run/current-system/sw/share:${config.home.homeDirectory}/.local/share:/usr/local/share:/usr/share"
     ];
   };
 
-  # Theme files
   xdg.configFile = {
     "walker/themes/omanix-default/style.css".text = styleCss;
     "walker/themes/omanix-default/layout.xml".source = ../../../assets/branding/walker-layout.xml;

@@ -16,6 +16,5 @@ in
 
   config = lib.mkIf cfg.enable {
     home.packages = [ pkgs.spotatui ];
-    # We are leaving xdg.configFile empty to use the built-in defaults
   };
 }

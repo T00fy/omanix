@@ -1,12 +1,11 @@
 {
   config,
-  lib,
   omanixLib,
   ...
 }:
 let
   theme = config.omanix.activeTheme;
-  colors = omanixLib.colors;
+  inherit (omanixLib) colors;
 in
 {
   programs.hyprlock = {

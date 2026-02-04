@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   lib,
   ...
 }:
@@ -9,7 +8,6 @@ let
   cfg = config.omanix.waybar;
   monitorCfg = config.omanix.monitors;
 
-  # Build format-icons dynamically from monitor config
   # Each monitor shows workspaces 1-5 (displayed as 1-5 regardless of internal numbering)
   buildFormatIcons =
     monitors:
@@ -49,7 +47,7 @@ let
           count = mon.workspaceCount or 5;
         in
         {
-          name = mon.name;
+          inherit (mon) name;
           value = map (n: base + n) (lib.range 1 count);
         }
       ) monitors
@@ -124,9 +122,9 @@ in
           height = 26;
           spacing = 0;
 
-          modules-left = cfg.modules-left;
-          modules-center = cfg.modules-center;
-          modules-right = cfg.modules-right;
+          inherit (cfg) modules-left;
+          inherit (cfg) modules-center;
+          inherit (cfg) modules-right;
 
           "hyprland/workspaces" = {
             format = "{icon}";

@@ -1,36 +1,34 @@
-{ config, lib, pkgs, omanixLib, ... }:
+{ config, pkgs, ... }:
 let
   theme = config.omanix.activeTheme;
-  colors = theme.colors;
+  inherit (theme) colors;
 in
 {
   programs.ghostty = {
     enable = true;
     settings = {
-      # Explicitly use Zsh
       command = "${pkgs.zsh}/bin/zsh";
-      
+
       window-padding-x = 14;
       window-padding-y = 14;
       window-decoration = false;
       confirm-close-surface = false;
       resize-overlay = "never";
       gtk-toolbar-style = "flat";
-      
+
       cursor-style = "block";
       cursor-style-blink = false;
-      mouse-scroll-multiplier = 1.0;      
+      mouse-scroll-multiplier = 1.0;
       font-family = config.omanix.font;
       font-style = "Regular";
       font-size = 10;
 
-      # Theme Injection
-      background = colors.background;
-      foreground = colors.foreground;
+      inherit (colors) background;
+      inherit (colors) foreground;
       cursor-color = colors.cursor;
       selection-background = colors.selection_background;
       selection-foreground = colors.selection_foreground;
-      
+
       palette = [
         "0=${colors.color0}"
         "1=${colors.color1}"

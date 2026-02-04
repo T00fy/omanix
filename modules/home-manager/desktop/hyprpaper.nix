@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   theme = config.omanix.activeTheme;
 in

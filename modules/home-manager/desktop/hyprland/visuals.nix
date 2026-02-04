@@ -1,12 +1,11 @@
 {
   config,
-  lib,
   omanixLib,
   ...
 }:
 let
   theme = config.omanix.activeTheme;
-  colors = omanixLib.colors;
+  inherit (omanixLib) colors;
   cfg = config.omanix;
 in
 {
@@ -34,19 +33,19 @@ in
       };
 
       decoration = {
-        rounding = cfg.hyprland.rounding;
+        inherit (cfg.hyprland) rounding;
 
         shadow = {
-          enabled = cfg.hyprland.shadow.enabled;
-          range = cfg.hyprland.shadow.range;
+          inherit (cfg.hyprland.shadow) enabled;
+          inherit (cfg.hyprland.shadow) range;
           render_power = 3;
           color = "rgba(1a1a1aee)";
         };
 
         blur = {
-          enabled = cfg.hyprland.blur.enabled;
-          size = cfg.hyprland.blur.size;
-          passes = cfg.hyprland.blur.passes;
+          inherit (cfg.hyprland.blur) enabled;
+          inherit (cfg.hyprland.blur) size;
+          inherit (cfg.hyprland.blur) passes;
           special = true;
           brightness = 0.6;
           contrast = 0.75;
@@ -54,7 +53,7 @@ in
       };
 
       animations = {
-        enabled = cfg.hyprland.animations.enabled;
+        inherit (cfg.hyprland.animations) enabled;
         bezier = [
           "easeOutQuint,0.23,1,0.32,1"
           "easeInOutCubic,0.65,0.05,0.36,1"

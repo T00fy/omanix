@@ -2,7 +2,6 @@
   pkgs,
   inputs,
   omanixLib,
-  config,
   ...
 }:
 let
@@ -124,6 +123,8 @@ let
   # ═══════════════════════════════════════════════════════════════════
   # MAIN MENU LOGIC
   # ═══════════════════════════════════════════════════════════════════
+
+  #TODO: This should be in its own file
   menu = pkgs.writeShellScriptBin "omanix-menu" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -421,24 +422,20 @@ let
 in
 {
   home.packages = [
-    # Menu Scripts
     menu
     styleMenu
     showStyleHelp
     showSetupHelp
     keybindingsMenu
 
-    # System Scripts
     logout
 
-    # Utilities
     restartWalker
     launchAudio
     launchWifi
     launchBluetooth
     toggleWaybar
 
-    # Dependencies
     pkgs.networkmanagerapplet
     pkgs.libxkbcommon
     pkgs.gawk

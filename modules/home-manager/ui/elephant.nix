@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   inputs,
@@ -10,8 +9,7 @@
 let
   elephantPkg = inputs.elephant.packages.${pkgs.system}.default;
   availableThemes = builtins.attrNames omanixLib.themes;
-  
-  # NixOS puts .desktop files in these locations
+
   nixosDataDirs = lib.concatStringsSep ":" [
     "\${HOME}/.nix-profile/share"
     "/etc/profiles/per-user/\${USER}/share"
@@ -22,7 +20,6 @@ let
   ];
 in
 {
-  # Install elephant package
   home.packages = [ elephantPkg ];
 
   xdg.configFile = {
@@ -49,8 +46,7 @@ in
       async = false
     '';
 
-    "elephant/runner.toml".text = ''
-    '';
+    "elephant/runner.toml".text = "";
 
     "elephant/files.toml".text = ''
       min_score = 50
@@ -76,7 +72,7 @@ in
       name = "DuckDuckGo"
       url = "https://duckduckgo.com/?q=%s"
       prefix = "d"
-      
+
       [[engines]]
       name = "NixOS Packages"
       url = "https://search.nixos.org/packages?query=%s"
@@ -109,7 +105,6 @@ in
     XDG_DATA_DIRS = lib.mkDefault "${nixosDataDirs}";
   };
 
-  # CRITICAL FIX: Elephant needs a proper PATH to launch applications
   systemd.user.services.elephant = lib.mkForce {
     Unit = {
       Description = "Elephant Data Provider for Walker";
@@ -119,10 +114,8 @@ in
 
     Service = {
       Type = "simple";
-      # CRITICAL: Include all NixOS binary paths so Elephant can launch apps
       Environment = [
         "XDG_DATA_DIRS=%h/.nix-profile/share:/etc/profiles/per-user/%u/share:/run/current-system/sw/share:%h/.local/share:/usr/local/share:/usr/share"
-        # This PATH is essential - it's where Firefox, Chromium, etc. actually live
         "PATH=/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin:%h/.nix-profile/bin:/usr/local/bin:/usr/bin:/bin"
       ];
       ExecStart = "${elephantPkg}/bin/elephant --config %h/.config/elephant";

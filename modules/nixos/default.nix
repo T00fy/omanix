@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, ... }:
 let
   omanixLib = import ../../lib { inherit lib; };
   cfg = config.omanix;
@@ -18,7 +18,7 @@ in
       description = ''
         The active Omanix theme. This setting is inherited by Home Manager
         when using Home Manager as a NixOS module.
-        
+
         Available themes: ${lib.concatStringsSep ", " availableThemes}
       '';
       example = "tokyo-night";
@@ -45,7 +45,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Resolve the active theme from the theme name, including wallpaper selection
     omanix.activeTheme =
       let
         baseTheme = omanixLib.themes.${cfg.theme};
@@ -57,7 +56,8 @@ in
           else
             builtins.elemAt baseTheme.assets.wallpapers 0;
       in
-      baseTheme // {
+      baseTheme
+      // {
         assets = baseTheme.assets // {
           wallpaper = selectedWallpaper;
         };

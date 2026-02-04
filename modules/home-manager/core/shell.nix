@@ -1,6 +1,5 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
-  # Enable Zsh
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -17,7 +16,6 @@
 
       # ... rest of your initExtra
     '';
-    # Oh My Zsh configuration
     oh-my-zsh = {
       enable = true;
       plugins = [
@@ -34,11 +32,9 @@
         "copypath"
         "copyfile"
       ];
-      # We use Starship for the prompt, so no theme needed
       theme = "";
     };
 
-    # History settings
     history = {
       size = 10000;
       save = 10000;
@@ -48,7 +44,6 @@
       share = true;
     };
 
-    # Omarchy-like Aliases
     shellAliases = {
       ".." = "cd ..";
       "..." = "cd ../..";
@@ -61,13 +56,11 @@
       pbpaste = "wl-paste";
       cat = "bat -pp";
 
-      # Nix specific shortcuts
       rebuild = "sudo nixos-rebuild switch --flake .";
       nix-clean = "sudo nix-collect-garbage -d";
       nix-search = "nix search nixpkgs";
     };
 
-    # Environment variables
     sessionVariables = {
       EDITOR = "nvim";
       VISUAL = "nvim";
@@ -75,7 +68,6 @@
     };
   };
 
-  # Starship prompt (works great with Zsh)
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
@@ -99,7 +91,6 @@
     };
   };
 
-  # Ensure these tools are present for the aliases
   home.packages = with pkgs; [
     eza
     ripgrep

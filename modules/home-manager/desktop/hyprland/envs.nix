@@ -1,5 +1,4 @@
-{ config, pkgs, ... }:
-{
+_: {
   wayland.windowManager.hyprland.settings = {
     env = [
       # Cursor - Explicitly force it
@@ -18,7 +17,7 @@
       "XDG_CURRENT_DESKTOP,Hyprland"
       "XDG_SESSION_TYPE,wayland"
       "XDG_SESSION_DESKTOP,Hyprland"
-      
+
       # Theming
       "GTK_THEME,Adwaita-dark"
     ];
