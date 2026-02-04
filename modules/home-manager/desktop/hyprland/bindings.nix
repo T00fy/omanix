@@ -2,7 +2,7 @@
 let
   cfg = config.omanix;
   osdClient = ''swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"'';
-  musicCommand = if cfg.spotatui.enable then "omanix-launch-tui-spotatui" else "spotify";
+  musicCommand = if cfg.apps.spotatui.enable then "omanix-launch-tui-spotatui" else "spotify";
 in
 {
   wayland.windowManager.hyprland.settings = {

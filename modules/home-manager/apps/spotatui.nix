@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.omanix.spotatui;
+  cfg = config.omanix.apps.spotatui;
 in
 {
-  options.omanix.spotatui = {
+  options.omanix.apps.spotatui = {
     enable = lib.mkEnableOption "Spotatui" // {
       default = false;
     };

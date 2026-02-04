@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.omanix.neovim;
+  cfg = config.omanix.apps.neovim;
   lang = config.omanix.languages;
 in
 {
-  options.omanix.neovim = {
+  options.omanix.apps.neovim = {
     enable = lib.mkEnableOption "Neovim with LazyVim" // {
       default = true;
     };
