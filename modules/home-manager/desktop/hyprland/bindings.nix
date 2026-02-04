@@ -153,7 +153,8 @@ in
       # ─────────────────────────────────────────────────────────────────
       "$mainMod SHIFT, SPACE, Toggle Waybar, exec, omanix-toggle-waybar"
       "$mainMod CTRL, SPACE, Next Wallpaper, exec, omanix-theme-bg-next"
-      ''$mainMod, BACKSPACE, Toggle Opacity, exec, hyprctl dispatch setprop "address:$(hyprctl activewindow -j | jq -r '.address')" opaque toggle''
+      "$mainMod, BACKSPACE, Smart Delete Line, exec, omanix-smart-delete"
+      # ''$mainMod, BACKSPACE, Toggle Opacity, exec, hyprctl dispatch setprop "address:$(hyprctl activewindow -j | jq -r '.address')" opaque toggle''
       "$mainMod SHIFT, BACKSPACE, Toggle Gaps, exec, omanix-hyprland-workspace-toggle-gaps"
 
       # ─────────────────────────────────────────────────────────────────
