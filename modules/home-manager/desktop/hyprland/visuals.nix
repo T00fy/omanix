@@ -17,6 +17,10 @@ in
         "GDK_SCALE,2"
       ];
 
+      xwayland = {
+        force_zero_scaling = true;
+      };
+
       monitor = ",highres,auto,${toString cfg.monitor.scale}";
 
       general = {
