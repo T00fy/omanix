@@ -14,24 +14,6 @@ let
   };
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  launchOrFocus = pkgs.writeShellScriptBin "omanix-launch-or-focus" ''
-    if (($# == 0)); then
-      echo "Usage: omanix-launch-or-focus [window-pattern] [launch-command]"
-      exit 1
-    fi
-
-    WINDOW_PATTERN="$1"
-    LAUNCH_COMMAND="''${2:-"uwsm app -- $WINDOW_PATTERN"}"
-
-    WINDOW_ADDRESS=$(${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r --arg p "$WINDOW_PATTERN" '.[] | select((.class | test($p; "i")) or (.title | test($p; "i"))) | .address' | head -n1)
-
-    if [[ -n $WINDOW_ADDRESS ]]; then
-      ${pkgs.hyprland}/bin/hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
-    else
-      eval exec setsid $LAUNCH_COMMAND
-    fi
-  '';
-
   launchTui = pkgs.writeShellScriptBin "omanix-launch-tui" ''
     if (($# == 0)); then
       echo "Usage: omanix-launch-tui [command] [args...]"
@@ -114,7 +96,6 @@ in
 {
   home.packages = [
     omanixScripts
-    launchOrFocus
     launchTui
     launchOrFocusTui
     terminalCwd
