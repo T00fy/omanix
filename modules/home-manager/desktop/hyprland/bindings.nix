@@ -11,7 +11,7 @@ in
     # ═══════════════════════════════════════════════════════════════════
     # APP LAUNCHERS
     # ═══════════════════════════════════════════════════════════════════
-    "$terminal" = "uwsm app -- xdg-terminal-exec --dir=\"$(omanix-cmd-terminal-cwd)\"";
+    "$terminal" = "ghostty";
     "$fileManager" = "nautilus --new-window";
     "$browser" = "omanix-launch-browser";
     "$music" = musicCommand;
