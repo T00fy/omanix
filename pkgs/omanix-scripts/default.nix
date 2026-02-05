@@ -40,6 +40,12 @@
   docsDir ? null,
   themeListFormatted ? "",
   screensaverLogo ? null,
+  # Hyprland visual defaults for gap toggling
+  gapsOuter ? "10",
+  gapsInner ? "5",
+  borderSize ? "2",
+  # Newline-separated wallpaper paths for cycling
+  wallpaperList ? "",
 }:
 
 stdenv.mkDerivation {
@@ -263,6 +269,42 @@ stdenv.mkDerivation {
     chmod +x $out/bin/omanix-cmd-audio-switch
     wrapProgram $out/bin/omanix-cmd-audio-switch \
       --prefix PATH : ${lib.makeBinPath [ bash jq hyprland pulseaudio swayosd ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 24. omanix-hyprland-window-close-all
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-hyprland-window-close-all.sh $out/bin/omanix-hyprland-window-close-all
+    chmod +x $out/bin/omanix-hyprland-window-close-all
+    wrapProgram $out/bin/omanix-hyprland-window-close-all \
+      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq coreutils ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 25. omanix-hyprland-window-pop
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-hyprland-window-pop.sh $out/bin/omanix-hyprland-window-pop
+    chmod +x $out/bin/omanix-hyprland-window-pop
+    wrapProgram $out/bin/omanix-hyprland-window-pop \
+      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 26. omanix-hyprland-workspace-toggle-gaps
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-hyprland-workspace-toggle-gaps.sh $out/bin/omanix-hyprland-workspace-toggle-gaps
+    chmod +x $out/bin/omanix-hyprland-workspace-toggle-gaps
+    wrapProgram $out/bin/omanix-hyprland-workspace-toggle-gaps \
+      --set OMANIX_GAPS_OUTER "${gapsOuter}" \
+      --set OMANIX_GAPS_INNER "${gapsInner}" \
+      --set OMANIX_BORDER_SIZE "${borderSize}" \
+      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 27. omanix-theme-bg-next
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-theme-bg-next.sh $out/bin/omanix-theme-bg-next
+    chmod +x $out/bin/omanix-theme-bg-next
+    wrapProgram $out/bin/omanix-theme-bg-next \
+      --set OMANIX_WALLPAPERS "${wallpaperList}" \
+      --prefix PATH : ${lib.makeBinPath [ bash coreutils swaybg libnotify procps ]}
   '';
 
   meta = with lib; {

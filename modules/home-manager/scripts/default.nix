@@ -25,10 +25,18 @@ let
   docsDir = ../../../docs;
   screensaverLogo = config.omanix.idle.screensaver.logo;
 
+  gapsOuter = toString config.omanix.hyprland.gaps.outer;
+  gapsInner = toString config.omanix.hyprland.gaps.inner;
+  borderSize = toString config.omanix.hyprland.border.size;
+
+  activeTheme = config.omanix.activeTheme;
+  wallpaperList = builtins.concatStringsSep "\n" (map toString activeTheme.assets.wallpapers);
+
   omanixScripts = pkgs.omanix-scripts.override {
     browserFallback = defaultBrowser;
     walker = inputs.walker.packages.${pkgs.system}.default;
     inherit themesJson docStylePreview docStyleOverride docStyleGeneral docsDir themeListFormatted screensaverLogo;
+    inherit gapsOuter gapsInner borderSize wallpaperList;
   };
 in
 {
