@@ -11,8 +11,8 @@ in
     # ═══════════════════════════════════════════════════════════════════
     # APP LAUNCHERS
     # ═══════════════════════════════════════════════════════════════════
-    "$terminal" = "ghostty";
-    "$fileManager" = "nautilus --new-window";
+    "$terminal" = "ghostty --working-directory=\"$(omanix-cmd-terminal-cwd)\"";
+    "$fileManager" = "nautilus --new-window \"$(omanix-cmd-terminal-cwd)\"";
     "$browser" = "omanix-launch-browser";
     "$music" = musicCommand;
 
