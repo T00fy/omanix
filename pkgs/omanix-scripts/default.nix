@@ -9,6 +9,8 @@
   coreutils,
   ghostty,
   procps,
+  systemd,
+  walker,
   # Configurable options
   browserFallback ? "firefox.desktop",
 }:
@@ -99,6 +101,22 @@ stdenv.mkDerivation {
           hyprland
           jq
           procps
+          coreutils
+        ]
+      }
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 6. omanix-launch-walker
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-launch-walker.sh $out/bin/omanix-launch-walker
+    chmod +x $out/bin/omanix-launch-walker
+    wrapProgram $out/bin/omanix-launch-walker \
+      --set WALKER_BIN "${walker}/bin/walker" \
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          procps
+          systemd
           coreutils
         ]
       }

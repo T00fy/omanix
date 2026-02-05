@@ -11,27 +11,8 @@ let
   # Override the generic package with specific config for this user
   omanixScripts = pkgs.omanix-scripts.override {
     browserFallback = defaultBrowser;
+    walker = inputs.walker.packages.${pkgs.system}.default;
   };
-  walkerPkg = inputs.walker.packages.${pkgs.system}.default;
-
-  launchWalker = pkgs.writeShellScriptBin "omanix-launch-walker" ''
-    WALKER="${walkerPkg}/bin/walker"
-
-    # Ensure elephant is running
-    if ! pgrep -x elephant > /dev/null; then
-      systemctl --user start elephant.service
-      sleep 0.5
-    fi
-
-    # Ensure walker service is running
-    if ! pgrep -f "walker --gapplication-service" > /dev/null; then
-      systemctl --user start walker.service
-      sleep 0.3
-    fi
-
-    # Launch walker with specific Omarchy dimensions
-    exec "$WALKER" --width 644 --maxheight 300 --minheight 300 "$@"
-  '';
 
   smartDelete = pkgs.writeShellScriptBin "omanix-smart-delete" ''
     # 1. Get info about the currently active window
@@ -57,7 +38,6 @@ in
 {
   home.packages = [
     omanixScripts
-    launchWalker
     smartDelete
 
     pkgs.jq
