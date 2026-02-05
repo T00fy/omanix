@@ -31,6 +31,10 @@
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    wlctl = {
+      url = "github:aashish-thapa/wlctl";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -42,6 +46,7 @@
       walker,
       elephant,
       silentSDDM,
+      wlctl,
       ...
     }@inputs:
     let
@@ -59,6 +64,7 @@
         spotatui = prev.callPackage inputs.spotatui { };
         omanix-screensaver = final.callPackage ./pkgs/omanix-screensaver { };
         omanix-scripts = final.callPackage ./pkgs/omanix-scripts { };
+        wlctl = inputs.wlctl.packages.${prev.system}.default;
       };
 
       nixosModules.default =

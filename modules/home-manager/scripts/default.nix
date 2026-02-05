@@ -70,6 +70,7 @@ in
     gnused
     localsend
     bluetui
+    wlctl
     glow
     envsubst
     swaybg

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec omanix-launch-or-focus-tui nmtui
+exec omanix-launch-or-focus-tui wlctl
