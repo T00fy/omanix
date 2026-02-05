@@ -1,5 +1,17 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  config,
+  ...
+}:
 let
+  # Determine fallback based on what is enabled in the user config
+  defaultBrowser = if config.programs.firefox.enable then "firefox.desktop" else "chromium.desktop"; # TODO need to add chromium as an option
+
+  # Override the generic package with specific config for this user
+  omanixScripts = pkgs.omanix-scripts.override {
+    browserFallback = defaultBrowser;
+  };
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
   launchOrFocus = pkgs.writeShellScriptBin "omanix-launch-or-focus" ''
@@ -43,27 +55,6 @@ let
     LAUNCH_COMMAND="omanix-launch-tui $@"
 
     exec omanix-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
-  '';
-
-  launchBrowser = pkgs.writeShellScriptBin "omanix-launch-browser" ''
-    BROWSER=$(${pkgs.xdg-utils}/bin/xdg-settings get default-web-browser 2>/dev/null || echo "firefox.desktop")
-
-    if [[ "$BROWSER" == *"firefox"* ]]; then
-      EXEC="firefox"
-      PRIVATE_FLAG="--private-window"
-    elif [[ "$BROWSER" == *"chromium"* || "$BROWSER" == *"chrome"* || "$BROWSER" == *"brave"* ]]; then
-      EXEC="chromium" 
-      PRIVATE_FLAG="--incognito"
-    else
-      EXEC="firefox"
-      PRIVATE_FLAG="--private-window"
-    fi
-
-    if [[ "$1" == "--private" ]]; then
-      exec $EXEC $PRIVATE_FLAG "''${@:2}"
-    else
-      exec $EXEC "$@"
-    fi
   '';
 
   terminalCwd = pkgs.writeShellScriptBin "omanix-cmd-terminal-cwd" ''
@@ -122,10 +113,10 @@ let
 in
 {
   home.packages = [
+    omanixScripts
     launchOrFocus
     launchTui
     launchOrFocusTui
-    launchBrowser
     terminalCwd
     launchWalker
     smartDelete
