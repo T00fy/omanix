@@ -21,6 +21,15 @@
   pavucontrol,
   hyprpicker,
   waybar,
+  satty,
+  wayfreeze,
+  grim,
+  slurp,
+  wl-clipboard,
+  hyprlock,
+  bitwarden-cli,
+  pulseaudio,
+  swayosd,
   # Configurable options
   browserFallback ? "firefox.desktop",
   # Data files injected by the module
@@ -207,6 +216,51 @@ stdenv.mkDerivation {
     chmod +x $out/bin/omanix-toggle-waybar
     wrapProgram $out/bin/omanix-toggle-waybar \
       --prefix PATH : ${lib.makeBinPath [ bash procps waybar ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 19. omanix-cmd-screenshot
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-cmd-screenshot.sh $out/bin/omanix-cmd-screenshot
+    chmod +x $out/bin/omanix-cmd-screenshot
+    wrapProgram $out/bin/omanix-cmd-screenshot \
+      --prefix PATH : ${lib.makeBinPath [
+        bash coreutils jq gawk procps hyprland
+        grim slurp satty wl-clipboard wayfreeze libnotify
+      ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 20. omanix-lock-screen
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-lock-screen.sh $out/bin/omanix-lock-screen
+    chmod +x $out/bin/omanix-lock-screen
+    wrapProgram $out/bin/omanix-lock-screen \
+      --prefix PATH : ${lib.makeBinPath [
+        bash hyprland hyprlock libnotify bitwarden-cli procps
+      ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 21. omanix-cmd-shutdown
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-cmd-shutdown.sh $out/bin/omanix-cmd-shutdown
+    chmod +x $out/bin/omanix-cmd-shutdown
+    wrapProgram $out/bin/omanix-cmd-shutdown \
+      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq coreutils systemd ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 22. omanix-cmd-reboot
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-cmd-reboot.sh $out/bin/omanix-cmd-reboot
+    chmod +x $out/bin/omanix-cmd-reboot
+    wrapProgram $out/bin/omanix-cmd-reboot \
+      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq coreutils systemd ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 23. omanix-cmd-audio-switch
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-cmd-audio-switch.sh $out/bin/omanix-cmd-audio-switch
+    chmod +x $out/bin/omanix-cmd-audio-switch
+    wrapProgram $out/bin/omanix-cmd-audio-switch \
+      --prefix PATH : ${lib.makeBinPath [ bash jq hyprland pulseaudio swayosd ]}
   '';
 
   meta = with lib; {
