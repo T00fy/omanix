@@ -53,6 +53,7 @@ in
 
   config = lib.mkIf cfg.enable {
     nixpkgs.config.allowUnfree = true;
+    programs.uwsm.enable = true;
     omanix.activeTheme =
       let
         baseTheme = omanixLib.themes.${cfg.theme};

@@ -14,20 +14,6 @@ let
   };
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  terminalCwd = pkgs.writeShellScriptBin "omanix-cmd-terminal-cwd" ''
-    active_pid=$(${pkgs.hyprland}/bin/hyprctl activewindow -j | ${pkgs.jq}/bin/jq '.pid')
-    if [[ -n "$active_pid" && "$active_pid" != "null" ]]; then
-      shell_pid=$(${pkgs.procps}/bin/pgrep -P "$active_pid" | head -n1)
-      if [[ -n "$shell_pid" ]]; then
-        readlink -e "/proc/$shell_pid/cwd" || echo "$HOME"
-      else
-        echo "$HOME"
-      fi
-    else
-      echo "$HOME"
-    fi
-  '';
-
   launchWalker = pkgs.writeShellScriptBin "omanix-launch-walker" ''
     WALKER="${walkerPkg}/bin/walker"
 
@@ -71,13 +57,12 @@ in
 {
   home.packages = [
     omanixScripts
-    terminalCwd
     launchWalker
     smartDelete
 
     pkgs.jq
     pkgs.procps
-
+    pkgs.uwsm
     pkgs.nautilus
     pkgs.chromium
     pkgs.firefox

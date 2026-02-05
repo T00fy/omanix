@@ -100,11 +100,16 @@
     };
   };
 
+  home.sessionVariables = {
+    XDG_TERMINAL_EXEC_FALLBACK = "com.mitchellh.ghostty.desktop";
+  };
   home.packages = with pkgs; [
     eza
     ripgrep
     fd
     fzf
     zsh-completions
+    xdg-terminal-exec
   ];
+
 }

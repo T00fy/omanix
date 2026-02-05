@@ -9,6 +9,7 @@
   coreutils,
   ghostty,
   uwsm,
+  procps,
   # Configurable options
   browserFallback ? "firefox.desktop",
 }:
@@ -26,7 +27,12 @@ stdenv.mkDerivation {
     mkdir -p $out/bin
 
     # Helper paths
-    local_bin_path="${lib.makeBinPath [ bash coreutils ]}"
+    local_bin_path="${
+      lib.makeBinPath [
+        bash
+        coreutils
+      ]
+    }"
 
     # ═══════════════════════════════════════════════════════════════════
     # 1. omanix-launch-browser
@@ -35,7 +41,12 @@ stdenv.mkDerivation {
     chmod +x $out/bin/omanix-launch-browser
     wrapProgram $out/bin/omanix-launch-browser \
       --set OMANIX_BROWSER_FALLBACK "${browserFallback}" \
-      --prefix PATH : ${lib.makeBinPath [ bash xdg-utils ]}
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          xdg-utils
+        ]
+      }
 
     # ═══════════════════════════════════════════════════════════════════
     # 2. omanix-launch-or-focus
@@ -43,7 +54,15 @@ stdenv.mkDerivation {
     cp src/omanix-launch-or-focus.sh $out/bin/omanix-launch-or-focus
     chmod +x $out/bin/omanix-launch-or-focus
     wrapProgram $out/bin/omanix-launch-or-focus \
-      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq coreutils uwsm ]}
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          hyprland
+          jq
+          coreutils
+          uwsm
+        ]
+      }
 
     # ═══════════════════════════════════════════════════════════════════
     # 3. omanix-launch-tui
@@ -51,7 +70,14 @@ stdenv.mkDerivation {
     cp src/omanix-launch-tui.sh $out/bin/omanix-launch-tui
     chmod +x $out/bin/omanix-launch-tui
     wrapProgram $out/bin/omanix-launch-tui \
-      --prefix PATH : ${lib.makeBinPath [ bash ghostty uwsm coreutils ]}
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          ghostty
+          uwsm
+          coreutils
+        ]
+      }
 
     # ═══════════════════════════════════════════════════════════════════
     # 4. omanix-launch-or-focus-tui
@@ -60,7 +86,28 @@ stdenv.mkDerivation {
     chmod +x $out/bin/omanix-launch-or-focus-tui
     # Note: We include $out/bin in the PATH so it can call scripts 2 and 3
     wrapProgram $out/bin/omanix-launch-or-focus-tui \
-      --prefix PATH : "$out/bin:${lib.makeBinPath [ bash coreutils ]}"
+      --prefix PATH : "$out/bin:${
+        lib.makeBinPath [
+          bash
+          coreutils
+        ]
+      }"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 5. omanix-cmd-terminal-cwd
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-cmd-terminal-cwd.sh $out/bin/omanix-cmd-terminal-cwd
+    chmod +x $out/bin/omanix-cmd-terminal-cwd
+    wrapProgram $out/bin/omanix-cmd-terminal-cwd \
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          hyprland
+          jq
+          procps
+          coreutils
+        ]
+      }
   '';
 
   meta = with lib; {
