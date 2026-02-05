@@ -80,7 +80,7 @@ class ScreensaverWindow(Gtk.ApplicationWindow):
         self.terminal.set_mouse_autohide(True)
         self.terminal.set_input_enabled(False)
         
-       transparent = Gdk.RGBA()
+        transparent = Gdk.RGBA()
         transparent.parse("rgba(0,0,0,0)")
         self.terminal.set_color_cursor(transparent)
         # Ensure it doesn't blink
