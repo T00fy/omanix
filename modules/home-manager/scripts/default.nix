@@ -70,6 +70,7 @@ in
     hyprpicker
     blueman
     bitwarden-cli
+    btop
 
     # Menu
     networkmanagerapplet
