@@ -120,6 +120,19 @@ stdenv.mkDerivation {
           coreutils
         ]
       }
+    # ═══════════════════════════════════════════════════════════════════
+    # 7. omanix-smart-delete
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-smart-delete.sh $out/bin/omanix-smart-delete
+    chmod +x $out/bin/omanix-smart-delete
+    wrapProgram $out/bin/omanix-smart-delete \
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          hyprland
+          jq
+        ]
+      }
   '';
 
   meta = with lib; {
