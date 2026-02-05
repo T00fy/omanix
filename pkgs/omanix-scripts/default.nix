@@ -7,7 +7,6 @@
   hyprland,
   jq,
   coreutils,
-  # New dependencies for launch-tui
   ghostty,
   uwsm,
   # Configurable options
@@ -25,6 +24,9 @@ stdenv.mkDerivation {
 
   installPhase = ''
     mkdir -p $out/bin
+
+    # Helper paths
+    local_bin_path="${lib.makeBinPath [ bash coreutils ]}"
 
     # ═══════════════════════════════════════════════════════════════════
     # 1. omanix-launch-browser
@@ -50,6 +52,15 @@ stdenv.mkDerivation {
     chmod +x $out/bin/omanix-launch-tui
     wrapProgram $out/bin/omanix-launch-tui \
       --prefix PATH : ${lib.makeBinPath [ bash ghostty uwsm coreutils ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 4. omanix-launch-or-focus-tui
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-launch-or-focus-tui.sh $out/bin/omanix-launch-or-focus-tui
+    chmod +x $out/bin/omanix-launch-or-focus-tui
+    # Note: We include $out/bin in the PATH so it can call scripts 2 and 3
+    wrapProgram $out/bin/omanix-launch-or-focus-tui \
+      --prefix PATH : "$out/bin:${lib.makeBinPath [ bash coreutils ]}"
   '';
 
   meta = with lib; {

@@ -14,19 +14,6 @@ let
   };
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  launchOrFocusTui = pkgs.writeShellScriptBin "omanix-launch-or-focus-tui" ''
-    if (($# == 0)); then
-      echo "Usage: omanix-launch-or-focus-tui [command]"
-      exit 1
-    fi
-
-    CMD_NAME=$(basename "$1")
-    APP_ID="org.omanix.$CMD_NAME"
-    LAUNCH_COMMAND="omanix-launch-tui $@"
-
-    exec omanix-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
-  '';
-
   terminalCwd = pkgs.writeShellScriptBin "omanix-cmd-terminal-cwd" ''
     active_pid=$(${pkgs.hyprland}/bin/hyprctl activewindow -j | ${pkgs.jq}/bin/jq '.pid')
     if [[ -n "$active_pid" && "$active_pid" != "null" ]]; then
@@ -84,7 +71,6 @@ in
 {
   home.packages = [
     omanixScripts
-    launchOrFocusTui
     terminalCwd
     launchWalker
     smartDelete
