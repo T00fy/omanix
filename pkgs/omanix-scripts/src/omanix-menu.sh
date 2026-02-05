@@ -111,7 +111,7 @@ show_system_menu() {
   CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n󰗽  Logout\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
   case "$CHOICE" in
     *Lock*)        omanix-lock-screen ;;
-    *Screensaver*) omanix-screensaver ;;
+    *Screensaver*) omanix-screensaver ${OMANIX_SCREENSAVER_LOGO:+--logo "$OMANIX_SCREENSAVER_LOGO"} ;;
     *Logout*)      omanix-cmd-logout ;;
     *Suspend*)     systemctl suspend ;;
     *Restart*)     omanix-cmd-reboot ;;

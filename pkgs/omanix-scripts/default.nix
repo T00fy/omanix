@@ -39,6 +39,7 @@
   docStyleGeneral ? null,
   docsDir ? null,
   themeListFormatted ? "",
+  screensaverLogo ? null,
 }:
 
 stdenv.mkDerivation {
@@ -118,6 +119,7 @@ stdenv.mkDerivation {
     chmod +x $out/bin/omanix-menu
     wrapProgram $out/bin/omanix-menu \
       --set WALKER_BIN "${walker}/bin/walker" \
+      ${lib.optionalString (screensaverLogo != null) ''--set OMANIX_SCREENSAVER_LOGO "${screensaverLogo}"''} \
       --prefix PATH : "$out/bin:${lib.makeBinPath [
         bash coreutils hyprpicker libnotify systemd xdg-utils
       ]}"

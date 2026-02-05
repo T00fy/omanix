@@ -23,11 +23,12 @@ let
   );
   docStyleGeneral = ../../../docs/style.md;
   docsDir = ../../../docs;
+  screensaverLogo = config.omanix.idle.screensaver.logo;
 
   omanixScripts = pkgs.omanix-scripts.override {
     browserFallback = defaultBrowser;
     walker = inputs.walker.packages.${pkgs.system}.default;
-    inherit themesJson docStylePreview docStyleOverride docStyleGeneral docsDir themeListFormatted;
+    inherit themesJson docStylePreview docStyleOverride docStyleGeneral docsDir themeListFormatted screensaverLogo;
   };
 in
 {
