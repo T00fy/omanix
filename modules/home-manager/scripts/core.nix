@@ -14,18 +14,6 @@ let
   };
   walkerPkg = inputs.walker.packages.${pkgs.system}.default;
 
-  launchTui = pkgs.writeShellScriptBin "omanix-launch-tui" ''
-    if (($# == 0)); then
-      echo "Usage: omanix-launch-tui [command] [args...]"
-      exit 1
-    fi
-
-    CMD_NAME=$(basename "$1")
-    # We use ghostty class to trigger the 'floating-window' rule in Hyprland
-    # Class format: org.omanix.[command]
-    exec setsid uwsm app -- ghostty --class="org.omanix.$CMD_NAME" -e "$@"
-  '';
-
   launchOrFocusTui = pkgs.writeShellScriptBin "omanix-launch-or-focus-tui" ''
     if (($# == 0)); then
       echo "Usage: omanix-launch-or-focus-tui [command]"
@@ -96,7 +84,6 @@ in
 {
   home.packages = [
     omanixScripts
-    launchTui
     launchOrFocusTui
     terminalCwd
     launchWalker

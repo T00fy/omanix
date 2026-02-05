@@ -7,6 +7,9 @@
   hyprland,
   jq,
   coreutils,
+  # New dependencies for launch-tui
+  ghostty,
+  uwsm,
   # Configurable options
   browserFallback ? "firefox.desktop",
 }:
@@ -14,13 +17,10 @@
 stdenv.mkDerivation {
   pname = "omanix-scripts";
   version = "1.0.0";
-  
-  # Point to the root of the package directory so we can access ./src
   src = ./.;
 
   nativeBuildInputs = [ makeWrapper ];
 
-  # We don't need a build phase for shell scripts
   dontBuild = true;
 
   installPhase = ''
@@ -41,7 +41,15 @@ stdenv.mkDerivation {
     cp src/omanix-launch-or-focus.sh $out/bin/omanix-launch-or-focus
     chmod +x $out/bin/omanix-launch-or-focus
     wrapProgram $out/bin/omanix-launch-or-focus \
-      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq coreutils ]}
+      --prefix PATH : ${lib.makeBinPath [ bash hyprland jq coreutils uwsm ]}
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 3. omanix-launch-tui
+    # ═══════════════════════════════════════════════════════════════════
+    cp src/omanix-launch-tui.sh $out/bin/omanix-launch-tui
+    chmod +x $out/bin/omanix-launch-tui
+    wrapProgram $out/bin/omanix-launch-tui \
+      --prefix PATH : ${lib.makeBinPath [ bash ghostty uwsm coreutils ]}
   '';
 
   meta = with lib; {
