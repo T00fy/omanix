@@ -69,7 +69,6 @@ in
     gawk
     gnused
     localsend
-    impala
     bluetui
     glow
     envsubst

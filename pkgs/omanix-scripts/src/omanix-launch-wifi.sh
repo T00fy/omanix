@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec omanix-launch-or-focus-tui impala
+exec omanix-launch-or-focus-tui nmtui
