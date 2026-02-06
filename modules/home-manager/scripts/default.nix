@@ -35,8 +35,21 @@ let
   omanixScripts = pkgs.omanix-scripts.override {
     browserFallback = defaultBrowser;
     walker = inputs.walker.packages.${pkgs.system}.default;
-    inherit themesJson docStylePreview docStyleOverride docStyleGeneral docsDir themeListFormatted screensaverLogo;
-    inherit gapsOuter gapsInner borderSize wallpaperList;
+    inherit
+      themesJson
+      docStylePreview
+      docStyleOverride
+      docStyleGeneral
+      docsDir
+      themeListFormatted
+      screensaverLogo
+      ;
+    inherit
+      gapsOuter
+      gapsInner
+      borderSize
+      wallpaperList
+      ;
   };
 in
 {
@@ -71,6 +84,7 @@ in
     blueman
     bitwarden-cli
     btop
+    lazydocker
 
     # Menu
     networkmanagerapplet
