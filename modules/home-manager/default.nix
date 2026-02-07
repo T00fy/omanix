@@ -30,6 +30,7 @@
     ./ui/walker.nix
     ./ui/hidden-apps.nix
     ./ui/swayosd.nix
+    ./ui/mako.nix
     ./terminal/ghostty.nix
     ./core/bat.nix
   ];
