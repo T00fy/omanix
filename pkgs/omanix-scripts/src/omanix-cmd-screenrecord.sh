@@ -81,6 +81,7 @@ start_screenrecording() {
   [[ -n "$audio_devices" ]] && audio_args+="-a $audio_devices"
 
   gpu-screen-recorder -w portal -f 60 -fallback-cpu-encoding yes -o "$filename" $audio_args -ac aac &
+  notify-send "Screen Recording" "Recording started — press ALT+Print to stop" -t 3000
   toggle_screenrecording_indicator
 }
 

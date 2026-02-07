@@ -150,6 +150,7 @@ in
       "$mainMod SHIFT, SPACE, Toggle Waybar, exec, omanix-toggle-waybar"
       "$mainMod CTRL, SPACE, Next Wallpaper, exec, omanix-theme-bg-next"
       "$mainMod, BACKSPACE, Smart Delete Line, exec, omanix-smart-delete"
+      "$mainMod CTRL, N, Toggle Opacity, exec, hyprctl dispatch setprop active opaque toggle"
       "$mainMod SHIFT, BACKSPACE, Toggle Gaps, exec, omanix-hyprland-workspace-toggle-gaps"
 
       # ─────────────────────────────────────────────────────────────────
@@ -200,9 +201,14 @@ in
     ]
 
     # Spotatui music binding (only when enabled)
-    ++ (if cfg.apps.spotatui.enable then [
-      "$mainMod SHIFT, M, Open Music Player, exec, omanix-launch-tui-spotatui"
-    ] else []);
+    ++ (
+      if cfg.apps.spotatui.enable then
+        [
+          "$mainMod SHIFT, M, Open Music Player, exec, omanix-launch-tui-spotatui"
+        ]
+      else
+        [ ]
+    );
 
     # ═══════════════════════════════════════════════════════════════════
     # Mouse bindings
