@@ -4,6 +4,7 @@
 
 [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
 OUTPUT_DIR="${OMARCHY_SCREENRECORD_DIR:-${XDG_VIDEOS_DIR:-$HOME/Videos}}"
+STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/omanix-screenrecording"
 
 if [[ ! -d "$OUTPUT_DIR" ]]; then
   notify-send "Screen recording directory does not exist: $OUTPUT_DIR" -u critical -t 3000
@@ -81,28 +82,40 @@ start_screenrecording() {
   [[ -n "$audio_devices" ]] && audio_args+="-a $audio_devices"
 
   gpu-screen-recorder -w portal -f 60 -fallback-cpu-encoding yes -o "$filename" $audio_args -ac aac &
+  echo "$!" > "$STATE_FILE"
   notify-send "Screen Recording" "Recording started — press ALT+Print to stop" -t 3000
   toggle_screenrecording_indicator
 }
 
 stop_screenrecording() {
-  pkill -SIGINT -f "^gpu-screen-recorder"
+  local pid=""
+  [[ -f "$STATE_FILE" ]] && pid=$(cat "$STATE_FILE")
 
-  local count=0
-  while pgrep -f "^gpu-screen-recorder" >/dev/null && [ $count -lt 50 ]; do
-    sleep 0.1
-    count=$((count + 1))
-  done
+  if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+    kill -SIGINT "$pid"
 
-  if pgrep -f "^gpu-screen-recorder" >/dev/null; then
-    pkill -9 -f "^gpu-screen-recorder"
-    cleanup_webcam
-    notify-send "Screen recording error" "Recording process had to be force-killed. Video may be corrupted." -u critical -t 5000
+    local count=0
+    while kill -0 "$pid" 2>/dev/null && [ $count -lt 50 ]; do
+      sleep 0.1
+      count=$((count + 1))
+    done
+
+    if kill -0 "$pid" 2>/dev/null; then
+      kill -9 "$pid"
+      cleanup_webcam
+      notify-send "Screen recording error" "Recording process had to be force-killed. Video may be corrupted." -u critical -t 5000
+    else
+      cleanup_webcam
+      notify-send "Screen recording saved to $OUTPUT_DIR" -t 2000
+    fi
   else
+    # Fallback: try pgrep if state file is stale
+    pkill -SIGINT -f "gpu-screen-recorder -w" 2>/dev/null
     cleanup_webcam
-    notify-send "Screen recording saved to $OUTPUT_DIR" -t 2000
+    notify-send "Screen recording stopped" -t 2000
   fi
 
+  rm -f "$STATE_FILE"
   toggle_screenrecording_indicator
 }
 
@@ -111,15 +124,13 @@ toggle_screenrecording_indicator() {
 }
 
 screenrecording_active() {
-  pgrep -f "^gpu-screen-recorder" >/dev/null || pgrep -f "WebcamOverlay" >/dev/null
+  [[ -f "$STATE_FILE" ]] && kill -0 "$(cat "$STATE_FILE")" 2>/dev/null
 }
 
 if screenrecording_active; then
-  if pgrep -f "WebcamOverlay" >/dev/null && ! pgrep -f "^gpu-screen-recorder" >/dev/null; then
-    cleanup_webcam
-  else
-    stop_screenrecording
-  fi
+  stop_screenrecording
+elif pgrep -f "WebcamOverlay" >/dev/null; then
+  cleanup_webcam
 elif [[ "$STOP_RECORDING" == "false" ]]; then
   [[ "$WEBCAM" == "true" ]] && start_webcam_overlay
   start_screenrecording || cleanup_webcam

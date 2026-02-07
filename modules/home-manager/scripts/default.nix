@@ -35,9 +35,7 @@ let
 
   # Generate monitor map for omanix-workspace: "DP-2=0:HDMI-A-2=10"
   monitorMap = lib.concatStringsSep ":" (
-    lib.imap0 (idx: mon:
-      "${mon.name}=${toString (idx * 10)}"
-    ) config.omanix.monitors
+    lib.imap0 (idx: mon: "${mon.name}=${toString (idx * 10)}") config.omanix.monitors
   );
 
   omanixScripts = pkgs.omanix-scripts.override {
@@ -81,6 +79,7 @@ in
     brightnessctl
     wireplumber
     pavucontrol
+    mpv
 
     # System
     satty

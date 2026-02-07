@@ -115,7 +115,7 @@ in
   config = {
     programs.waybar = {
       enable = true;
-
+      systemd.enable = true;
       settings = {
         mainBar = {
           layer = "top";
@@ -153,14 +153,13 @@ in
             ];
             max-length = 50;
           };
-
           "custom/screenrecording-indicator" = {
-            exec = ''pgrep -f "^gpu-screen-recorder" >/dev/null && echo "󰑊" || echo ""'';
+            exec = ''echo "󰑊"'';
+            exec-if = ''test -f "''${XDG_RUNTIME_DIR:-/tmp}/omanix-screenrecording"'';
             interval = 2;
             return-type = "";
             signal = 8;
           };
-
           clock = {
             format = "{:%a %H:%M}";
             format-alt = "{:%d %b %Y}";

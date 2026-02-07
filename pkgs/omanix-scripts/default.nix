@@ -331,14 +331,15 @@ stdenv.mkDerivation {
     # ═══════════════════════════════════════════════════════════════════
     # 18. omanix-toggle-waybar
     # ═══════════════════════════════════════════════════════════════════
+
+
     cp src/omanix-toggle-waybar.sh $out/bin/omanix-toggle-waybar
     chmod +x $out/bin/omanix-toggle-waybar
     wrapProgram $out/bin/omanix-toggle-waybar \
       --prefix PATH : ${
         lib.makeBinPath [
           bash
-          procps
-          waybar
+          systemd
         ]
       }
 

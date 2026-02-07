@@ -20,6 +20,7 @@ _: {
 
       # Theming
       "GTK_THEME,Adwaita-dark"
+      "GTK_IM_MODULE,"
     ];
   };
 }
