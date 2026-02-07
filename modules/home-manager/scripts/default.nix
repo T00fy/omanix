@@ -79,7 +79,6 @@ in
     brightnessctl
     wireplumber
     pavucontrol
-    mpv
 
     # System
     satty

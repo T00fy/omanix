@@ -15,6 +15,7 @@
     ./apps/spotatui.nix
     ./apps/obsidian.nix
     ./apps/whatsapp.nix
+    ./apps/mpv.nix
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix

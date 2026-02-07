@@ -140,8 +140,7 @@ _: {
       "float on, match:class org.gnome.Calculator"
 
       # No transparency on media windows
-      "opacity 1 1, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$"
-
+      "opacity 1 override 1 override, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$"
       # Popped window rounding
       "rounding 8, match:tag pop"
 
