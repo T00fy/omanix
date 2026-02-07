@@ -2,6 +2,7 @@
   pkgs,
   inputs,
   config,
+  lib,
   omanixLib,
   ...
 }:
@@ -32,6 +33,13 @@ let
   activeTheme = config.omanix.activeTheme;
   wallpaperList = builtins.concatStringsSep "\n" (map toString activeTheme.assets.wallpapers);
 
+  # Generate monitor map for omanix-workspace: "DP-2=0:HDMI-A-2=10"
+  monitorMap = lib.concatStringsSep ":" (
+    lib.imap0 (idx: mon:
+      "${mon.name}=${toString (idx * 10)}"
+    ) config.omanix.monitors
+  );
+
   omanixScripts = pkgs.omanix-scripts.override {
     browserFallback = defaultBrowser;
     walker = inputs.walker.packages.${pkgs.system}.default;
@@ -49,6 +57,7 @@ let
       gapsInner
       borderSize
       wallpaperList
+      monitorMap
       ;
   };
 in
@@ -85,6 +94,11 @@ in
     bitwarden-cli
     btop
     lazydocker
+
+    # Screen recording
+    gpu-screen-recorder
+    ffmpeg
+    v4l-utils
 
     # Menu
     networkmanagerapplet

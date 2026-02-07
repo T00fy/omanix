@@ -66,11 +66,13 @@ show_screenshot_menu() {
 }
 
 show_screenrecord_menu() {
-  CHOICE=$(menu_cmd "Screenrecord" "󰍹  Full Screen\n󰆞  Region\n󰓛  Stop Recording")
+  CHOICE=$(menu_cmd "Screenrecord" "󰍹  Record Screen\n󰍹  Record + Desktop Audio\n󰍹  Record + Microphone\n󰍹  Record + All Audio\n󰓛  Stop Recording")
   case "$CHOICE" in
-    *Full*)   notify-send "Screen Recording" "Full screen recording not yet implemented" ;;
-    *Region*) notify-send "Screen Recording" "Region recording not yet implemented" ;;
-    *Stop*)   pkill -SIGINT wf-recorder || pkill -SIGINT wl-screenrec ;;
+    *"All Audio"*)    omanix-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
+    *"Desktop Audio"*) omanix-cmd-screenrecord --with-desktop-audio ;;
+    *Microphone*)     omanix-cmd-screenrecord --with-microphone-audio ;;
+    *"Record Screen"*) omanix-cmd-screenrecord ;;
+    *Stop*)           omanix-cmd-screenrecord --stop-recording ;;
     *) back_to show_capture_menu ;;
   esac
 }

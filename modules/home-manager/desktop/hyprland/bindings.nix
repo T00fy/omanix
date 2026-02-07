@@ -2,7 +2,6 @@
 let
   cfg = config.omanix;
   osdClient = ''swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"'';
-  musicCommand = if cfg.apps.spotatui.enable then "omanix-launch-tui-spotatui" else "spotify";
 in
 {
   wayland.windowManager.hyprland.settings = {
@@ -14,7 +13,6 @@ in
     "$terminal" = "ghostty --working-directory=\"$(omanix-cmd-terminal-cwd)\"";
     "$fileManager" = "nautilus --new-window \"$(omanix-cmd-terminal-cwd)\"";
     "$browser" = "omanix-launch-browser";
-    "$music" = musicCommand;
 
     # ═══════════════════════════════════════════════════════════════════
     # BINDINGS WITH DESCRIPTIONS (bindd)
@@ -28,7 +26,6 @@ in
       "$mainMod SHIFT, F, Open File Manager, exec, $fileManager"
       "$mainMod SHIFT, B, Open Browser, exec, $browser"
       "$mainMod SHIFT ALT, B, Open Private Browser, exec, omanix-launch-browser --private"
-      "$mainMod SHIFT, M, Open Music Player, exec, $music"
       "$mainMod SHIFT, N, Open Neovim, exec, $terminal -e nvim"
       "$mainMod SHIFT, D, Open Lazydocker, exec, $terminal -e lazydocker"
       "$mainMod SHIFT, O, Open Obsidian, exec, obsidian -disable-gpu"
@@ -146,7 +143,6 @@ in
       "$mainMod ALT, SPACE, Main Menu, exec, omanix-menu"
       "$mainMod, ESCAPE, System Menu, exec, omanix-menu system"
       "$mainMod, K, Show Keybindings, exec, omanix-menu-keybindings"
-      ", XF86Calculator, Calculator, exec, gnome-calculator"
 
       # ─────────────────────────────────────────────────────────────────
       # Aesthetics
@@ -154,7 +150,6 @@ in
       "$mainMod SHIFT, SPACE, Toggle Waybar, exec, omanix-toggle-waybar"
       "$mainMod CTRL, SPACE, Next Wallpaper, exec, omanix-theme-bg-next"
       "$mainMod, BACKSPACE, Smart Delete Line, exec, omanix-smart-delete"
-      # ''$mainMod, BACKSPACE, Toggle Opacity, exec, hyprctl dispatch setprop "address:$(hyprctl activewindow -j | jq -r '.address')" opaque toggle''
       "$mainMod SHIFT, BACKSPACE, Toggle Gaps, exec, omanix-hyprland-workspace-toggle-gaps"
 
       # ─────────────────────────────────────────────────────────────────
@@ -170,14 +165,13 @@ in
       # System Toggles
       # ─────────────────────────────────────────────────────────────────
       "$mainMod CTRL, I, Toggle Idle Inhibit, exec, omanix-toggle-idle"
-      "$mainMod CTRL, N, Toggle Night Light, exec, omanix-toggle-nightlight"
 
       # ─────────────────────────────────────────────────────────────────
       # Screenshots & Screen Recording
       # ─────────────────────────────────────────────────────────────────
       ", PRINT, Screenshot, exec, omanix-cmd-screenshot"
       "SHIFT, PRINT, Screenshot to Clipboard, exec, omanix-cmd-screenshot smart clipboard"
-      "ALT, PRINT, Screen Record Menu, exec, omanix-menu screenrecord"
+      "ALT, PRINT, Screen Record Toggle, exec, omanix-cmd-screenrecord"
       "$mainMod, PRINT, Color Picker, exec, pkill hyprpicker || hyprpicker -a"
 
       # ─────────────────────────────────────────────────────────────────
@@ -203,7 +197,12 @@ in
       # Lock & Power
       # ─────────────────────────────────────────────────────────────────
       "$mainMod CTRL, L, Lock Screen, exec, omanix-lock-screen"
-    ];
+    ]
+
+    # Spotatui music binding (only when enabled)
+    ++ (if cfg.apps.spotatui.enable then [
+      "$mainMod SHIFT, M, Open Music Player, exec, omanix-launch-tui-spotatui"
+    ] else []);
 
     # ═══════════════════════════════════════════════════════════════════
     # Mouse bindings

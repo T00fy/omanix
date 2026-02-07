@@ -100,6 +100,7 @@ in
     modules-right = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [
+        "custom/screenrecording-indicator"
         "mpris"
         "tray"
         "bluetooth"
@@ -151,6 +152,13 @@ in
               "brave"
             ];
             max-length = 50;
+          };
+
+          "custom/screenrecording-indicator" = {
+            exec = ''pgrep -f "^gpu-screen-recorder" >/dev/null && echo "󰑊" || echo ""'';
+            interval = 2;
+            return-type = "";
+            signal = 8;
           };
 
           clock = {
