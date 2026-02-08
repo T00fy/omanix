@@ -91,26 +91,20 @@ hyprctl dispatch focusmonitor +0 >/dev/null 2>&1
 
 # Processing Logic
 if [[ "$DEST" == "file" ]]; then
-  # USE A TEMP FILE. This is the fix for blurry screenshots.
-  # Piping into Satty often results in incorrect DPI scaling of the buffer.
   TEMP_FILE="/tmp/omanix-snap-$(date +%s).png"
-  
-  # Capture to physical file
-  grim -g "$SELECTION" "$TEMP_FILE"
-  
-  # Determine final destination
   FILE_NAME="$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
   
-  # Open in editor using the physical file
+  grim -g "$SELECTION" "$TEMP_FILE"
+  
   satty --filename "$TEMP_FILE" \
       --output-filename "$FILE_NAME" \
       --early-exit \
+      --actions-on-enter save-to-clipboard \
+      --save-after-copy \
       --copy-command "wl-copy"
       
-  # Cleanup
   rm -f "$TEMP_FILE"
 else
-  # Clipboard mode - quality is fine here as clipboard accepts the raw stream
   grim -g "$SELECTION" - | wl-copy
   notify-send "Screenshot copied to clipboard"
 fi
