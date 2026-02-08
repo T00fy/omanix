@@ -21,7 +21,6 @@
   pavucontrol,
   hyprpicker,
   waybar,
-  satty,
   wayfreeze,
   grim,
   slurp,
@@ -359,7 +358,6 @@ stdenv.mkDerivation {
           hyprland
           grim
           slurp
-          satty
           wl-clipboard
           wayfreeze
           libnotify

@@ -91,19 +91,10 @@ hyprctl dispatch focusmonitor +0 >/dev/null 2>&1
 
 # Processing Logic
 if [[ "$DEST" == "file" ]]; then
-  TEMP_FILE="/tmp/omanix-snap-$(date +%s).png"
-  FILE_NAME="$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
-  
-  grim -g "$SELECTION" "$TEMP_FILE"
-  
-  satty --filename "$TEMP_FILE" \
-      --output-filename "$FILE_NAME" \
-      --early-exit \
-      --actions-on-enter save-to-clipboard \
-      --save-after-copy \
-      --copy-command "wl-copy"
-      
-  rm -f "$TEMP_FILE"
+  # Pipe directly to Satty via stdin (matches Omarchy approach)
+  # Config file handles: early-exit, actions-on-enter, save-after-copy,
+  # copy-command, output-filename, etc.
+  grim -g "$SELECTION" - | satty --filename -
 else
   grim -g "$SELECTION" - | wl-copy
   notify-send "Screenshot copied to clipboard"

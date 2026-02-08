@@ -81,7 +81,6 @@ in
     pavucontrol
 
     # System
-    satty
     wayfreeze
     grim
     slurp
