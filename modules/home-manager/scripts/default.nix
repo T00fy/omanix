@@ -89,7 +89,6 @@ in
     hyprpicker
     blueman
     bitwarden-cli
-    btop
     lazydocker
 
     # Screen recording
