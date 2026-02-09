@@ -76,11 +76,12 @@ show_screenrecord_menu() {
     *) back_to show_capture_menu ;;
   esac
 }
-
 show_share_menu() {
-  CHOICE=$(menu_cmd "Share" "󰷛  LocalSend")
+  CHOICE=$(menu_cmd "Share" "󰅍  Clipboard\n󰈔  File\n󰉋  Folder")
   case "$CHOICE" in
-    *LocalSend*) localsend_app ;;
+    *Clipboard*) omanix-cmd-share clipboard ;;
+    *File*)      ghostty --class="org.omanix.bash" -e bash -c "omanix-cmd-share file" ;;
+    *Folder*)    ghostty --class="org.omanix.bash" -e bash -c "omanix-cmd-share folder" ;;
     *) back_to show_trigger_menu ;;
   esac
 }
