@@ -8,14 +8,9 @@ let
   cfg = config.omanix.waybar;
   monitorCfg = config.omanix.monitors;
 
-  # Each monitor shows workspaces 1-5 (displayed as 1-5 regardless of internal numbering)
   buildFormatIcons =
     monitors:
     let
-      # For each monitor, create mappings from internal workspace number to display number
-      # Monitor 0: ws 1-5 → display 1-5
-      # Monitor 1: ws 11-15 → display 1-5
-      # etc.
       monitorMappings = lib.flatten (
         lib.imap0 (
           idx: mon:
@@ -36,7 +31,6 @@ let
       default = "";
     };
 
-  # Build persistent-workspaces from monitor config
   buildPersistentWorkspaces =
     monitors:
     lib.listToAttrs (
@@ -53,7 +47,6 @@ let
       ) monitors
     );
 
-  # Fallback icons if no monitors configured (single monitor setup)
   defaultFormatIcons = {
     "1" = "1";
     "2" = "2";
@@ -69,7 +62,6 @@ let
     default = "";
   };
 
-  # Fallback persistent workspaces
   defaultPersistentWorkspaces = {
     "1" = [ ];
     "2" = [ ];
@@ -78,7 +70,6 @@ let
     "5" = [ ];
   };
 
-  # Use monitor config if available, otherwise defaults
   formatIcons = if monitorCfg != [ ] then buildFormatIcons monitorCfg else defaultFormatIcons;
   persistentWorkspaces =
     if monitorCfg != [ ] then buildPersistentWorkspaces monitorCfg else defaultPersistentWorkspaces;
@@ -109,6 +100,44 @@ in
         "battery"
       ];
       description = "Modules to display on the right side of waybar";
+    };
+
+    extraModuleSettings = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+      description = ''
+        Extra module configurations merged into the waybar settings.
+        Use this to configure custom modules or override built-in module settings.
+
+        Example:
+          omanix.waybar.extraModuleSettings = {
+            "custom/weather" = {
+              exec = "curl -s 'wttr.in/?format=1'";
+              interval = 3600;
+            };
+            clock = {
+              format = "{:%H:%M:%S}";
+              interval = 1;
+            };
+          };
+      '';
+    };
+
+    extraStyle = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Extra CSS appended to the waybar stylesheet.
+        Theme color variables @background, @foreground, and @accent are available.
+
+        Example:
+          omanix.waybar.extraStyle = '''
+            #custom-weather {
+              color: @accent;
+              margin: 0 8px;
+            }
+          ''';
+      '';
     };
   };
 
@@ -230,7 +259,8 @@ in
             format-connected = "󰂱";
             on-click = "blueman-manager";
           };
-        };
+        }
+        // cfg.extraModuleSettings;
       };
 
       style = ''
@@ -303,6 +333,11 @@ in
           opacity: 0.7;
         }
         #custom-voxtype.recording { color: #a55555; }
+      ''
+      + lib.optionalString (cfg.extraStyle != "") ''
+
+        /* ═══ User Extra Styles ═══ */
+        ${cfg.extraStyle}
       '';
     };
   };
