@@ -33,7 +33,6 @@ let
   activeTheme = config.omanix.activeTheme;
   wallpaperList = builtins.concatStringsSep "\n" (map toString activeTheme.assets.wallpapers);
 
-  # Generate monitor map for omanix-workspace: "DP-2=0:HDMI-A-2=10"
   monitorMap = lib.concatStringsSep ":" (
     lib.imap0 (idx: mon: "${mon.name}=${toString (idx * 10)}") config.omanix.monitors
   );
@@ -67,45 +66,47 @@ in
   home.packages = with pkgs; [
     omanixScripts
 
-    # Core
+    # ─────────────────────────────────────────────────────────────────
+    # Script runtime dependencies (used by omanix-scripts at runtime)
+    # ─────────────────────────────────────────────────────────────────
     jq
     procps
-    nautilus
-    chromium
-    firefox
-
-    # Media
-    playerctl
-    brightnessctl
-    wireplumber
-    pavucontrol
-
-    # System
-    wayfreeze
     grim
     slurp
     wl-clipboard
     libnotify
     hyprpicker
-    blueman
-    bitwarden-cli
-    lazydocker
+    wayfreeze
+    libxkbcommon
+    gawk
+    gnused
+    envsubst
+    swaybg
+    wlctl
+    glow
 
-    # Screen recording
+    # ─────────────────────────────────────────────────────────────────
+    # Media / hardware control (no useful HM modules for these)
+    # ─────────────────────────────────────────────────────────────────
+    playerctl
+    brightnessctl
+    wireplumber
+
+    # ─────────────────────────────────────────────────────────────────
+    # Screen recording toolchain
+    # ─────────────────────────────────────────────────────────────────
     gpu-screen-recorder
     ffmpeg
     v4l-utils
 
-    # Menu
-    networkmanagerapplet
-    libxkbcommon
-    gawk
-    gnused
+    # ─────────────────────────────────────────────────────────────────
+    # Standalone apps (no dedicated omanix module yet)
+    # ─────────────────────────────────────────────────────────────────
+    nautilus
+    chromium
+    bitwarden-cli
     localsend
     bluetui
-    wlctl
-    glow
-    envsubst
-    swaybg
+    networkmanagerapplet
   ];
 }
