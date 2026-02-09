@@ -103,6 +103,7 @@ in
     # Standalone apps (no dedicated omanix module yet)
     # ─────────────────────────────────────────────────────────────────
     nautilus
+    fastfetch
     chromium
     bitwarden-cli
     localsend
