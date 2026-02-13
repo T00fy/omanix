@@ -8,6 +8,7 @@ in
   imports = [
     ./login.nix
     ./steam.nix
+    ./libreoffice.nix
   ];
 
   options.omanix = {
