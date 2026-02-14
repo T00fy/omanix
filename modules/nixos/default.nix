@@ -9,6 +9,7 @@ in
     ./login.nix
     ./steam.nix
     ./libreoffice.nix
+    ./docker.nix
   ];
 
   options.omanix = {
@@ -49,6 +50,11 @@ in
       type = lib.types.bool;
       default = true;
       description = "Enable Steam and gaming tools (requires omanix.enable).";
+    };
+    docker.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Enable Docker daemon.";
     };
   };
 
