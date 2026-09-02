@@ -18,9 +18,12 @@ README, `../PORTING-QUATTRO.md`, and the referenced source files.
 ## Locked decisions (apply to every ticket)
 
 - **D1 — Naming:** everything vendored from omarchy is renamed `omarchy` → `omanix`,
-  `OMARCHY_PATH` → `OMANIX_PATH`, `omarchy.` → `omanix.` (plugin IPC ids). This rename is done
-  as a **deterministic patch phase in the nix derivation** that vendors upstream source, never
-  as a hand-edited fork — so re-syncing newer omarchy stays a rebuild.
+  `OMARCHY_PATH` → `OMANIX_PATH`, `omarchy.` → `omanix.` (plugin IPC ids). omanix takes a
+  **committed in-repo snapshot** of upstream (Q0-01), and the rename is applied **once, at vendor
+  time**, by a deterministic ruleset (Q0-03) whose renamed output is committed to `vendor/`. It is
+  not a build-time patch and not a hand-diverged fork of a live input: `nix build` consumes the
+  already-renamed committed tree. omanix owns the copy and does not track upstream; re-vendoring a
+  newer omarchy is a rare, manual re-run of the vendor script + diff review.
 - **D2 — Theming:** build `colors.toml` + `shell.toml` for **all** themes into the store
   (declarative, reproducible, build-checked). The declared `omanix.theme` is the source of
   truth and is applied on every rebuild/restart. Runtime IPC theme switching is an **ephemeral
@@ -130,9 +133,9 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 ### Phase 0 — Foundations
 | ID | Title | Depends on | Status |
 |----|-------|-----------|--------|
-| Q0-01 | Pin upstream omarchy source & vendoring input | none | ⬜ |
+| Q0-01 | Vendor omarchy source snapshot into the repo | none | ⬜ |
 | Q0-02 | Define `OMANIX_PATH` session-env mechanism | Q0-01 | ⬜ |
-| Q0-03 | Deterministic `omarchy`→`omanix` rename patch phase (D1) | Q0-01, Q0-05 | ⬜ |
+| Q0-03 | `omarchy`→`omanix` rename ruleset (applied at vendor time, D1) | Q0-01, Q0-05 | ⬜ |
 | Q0-04 | Runtime state dir layout (`~/.local/state/omanix`) | none | ⬜ |
 | Q0-05 | Shell external-command contract & plugin scope | Q0-01 | ⬜ |
 
@@ -140,7 +143,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 | ID | Title | Depends on | Status |
 |----|-------|-----------|--------|
 | Q1-01 | Validate/package Quickshell with required Qt service modules | Q0-01 | ⬜ |
-| Q1-02 | `pkgs/omanix-shell`: vendor shell/ QML tree + rename patch + assets | Q0-03, Q1-01 | ⬜ |
+| Q1-02 | `pkgs/omanix-shell`: package vendored shell/ QML tree + assets | Q0-03, Q1-01 | ⬜ |
 | Q1-03 | HM module: Quickshell session integration + seed `shell.json` | Q0-02, Q0-05, Q1-02 | ⬜ |
 | Q1-04 | `omanix-shell` IPC CLI wrapper | Q1-03 | ⬜ |
 | Q1-05 | Bar plugin + core bar widgets | Q1-04 | ⬜ |
@@ -181,13 +184,14 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 | Q4-02 | Hardware detection (`omanix-hw-*`) | none | ⬜ |
 | Q4-03 | Audio tuning subsystem (PipeWire filter-chain) | none | ⬜ |
 | Q4-04 | Network tools (`omanix-network-*`) | none | ⬜ |
-| Q4-05 | Capture tools (QR/region/OCR/webcam) | none | ⬜ |
+| Q4-05 | Capture tools (QR/region/OCR/webcam/image transcode) | none | ⬜ |
 | Q4-06 | Security: sshd + sudoless-docker → Nix module options | none | ⬜ |
 | Q4-07 | Tailscale taildrop send/receive | none | ⬜ |
 | Q4-08 | Gaming: Battle.net + RetroArch retro | none | ⬜ |
 | Q4-09 | Plymouth boot-splash theming (hybrid, mirrors D2) | Q2-01 | ⬜ |
 | Q4-10 | Palette-only theme targets (tmux/claude/pi/browser/osc) | Q2-04 | ⬜ |
 | Q4-11 | herdr: package + config + bindings + dev-layout fns | none | ⬜ |
+| Q4-12 | Custom branding: About screen + logo→ANSI | none | ⬜ |
 
 ### Phase 5 — AI agents (optional; depends on shell)
 | ID | Title | Depends on | Status |

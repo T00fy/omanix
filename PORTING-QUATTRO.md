@@ -40,19 +40,26 @@ filesystem and imperative install model, and are obsoleted by the Nix store.
 
 ## 2. Decisions (locked)
 
-### D1 — Naming: rename everything to `omanix-*`
+### D1 — Naming: rename everything to `omanix-*` (committed snapshot)
 
 The vendored Quickshell `shell/` tree hardcodes `omarchy-*` command names, `omarchy.*`
 plugin IPC ids, and reads `$OMARCHY_PATH`. We rename all of it to the omanix namespace
 (`omanix-*`, `omanix.*`, `$OMANIX_PATH`).
 
-**Mitigation for upstream re-syncs:** do the rename as a **deterministic patch phase in the
-nix derivation** that vendors the shell, not as a hand-edited fork. A `substituteInPlace` /
-`sed` sweep over `omarchy` → `omanix`, `OMARCHY_PATH` → `OMANIX_PATH`, `omarchy.` → `omanix.`
-(plugin ids), applied at build time to a pinned upstream source. Re-syncing a newer omarchy
-then becomes: bump the source rev + rebuild. Keep the sweep patterns in one place and
-review its diff on each bump. Watch for false positives (URLs, user-facing strings, the
-literal word in docs) — pin the substitution to code contexts where possible.
+**Vendoring model — committed in-repo snapshot, not a live input.** omanix does **not** track
+omarchy as a live dependency and does not keep in sync. It takes a **one-time snapshot**: the
+needed upstream source is copied into the repo under `vendor/`, the rename is applied **once at
+vendor time** by a deterministic ruleset, and the renamed result is **committed** (Q0-01, Q0-03).
+The build consumes the committed, already-renamed tree — no fetch, no `flake = false` source input,
+no build-time patch. Reproducibility comes from git, not a lockfile. "Pinned" means the snapshot
+records the exact upstream rev it came from (`vendor/PROVENANCE.md`) and the files live in git.
+
+A `scripts/vendor-omarchy.sh` helper regenerates the snapshot from a given rev (clone → rename →
+copy) purely as a **manual developer tool**. Re-syncing a newer omarchy is therefore a rare,
+deliberate act: re-run the script + review the `git diff vendor/`. Because omanix owns the copy,
+local hand-edits to the vendored tree are allowed (record them per Q0-01's local-edit policy).
+Keep the rename patterns in one place and watch for false positives (URLs, user-facing strings,
+the literal word in docs) — scope substitutions to code contexts and use UTF-8-safe `sed`.
 
 ### D2 — Theming: hybrid (declarative build + ephemeral runtime switch)
 
@@ -127,16 +134,16 @@ everything" lives. Phase 5 is optional and depends on Phase 1.
 ### Phase 0 — Foundations ⬜
 
 - [ ] ✅ Branch `quattro` created.
-- [ ] Pin an upstream omarchy source rev to vendor `shell/` from (record the rev here: `__________`).
+- [ ] Vendor a committed in-repo snapshot of omarchy's `shell/` under `vendor/omanix-shell/`; record the exact upstream rev in `vendor/PROVENANCE.md` (Q0-01). No source flake input.
 - [ ] Decide the `OMANIX_PATH` mechanism: what store path the shell resolves, how it's exported into the Hyprland/uwsm session env (omarchy relies on uwsm setting `OMARCHY_PATH`).
-- [ ] Stand up the rename patch phase (D1) as a reusable function/derivation step; verify its diff on the pinned source.
+- [ ] Define the D1 rename ruleset as the re-runnable rename step of `scripts/vendor-omarchy.sh` (applied once at vendor time, output committed); verify its diff (Q0-03).
 - [ ] Pin the shell's external-command contract and per-command disposition (Q0-05): KEEP / ephemeral-overlay / out-of-scope-disable; derive the seeded `disabledPlugins` set and note the two non-rename landmines.
 - [ ] Confirm scope cuts with a one-liner in each retired area.
 
 ### Phase 1 — Quickshell bring-up (KEYSTONE) ⬜
 
 - [ ] Package Quickshell. **Verify** `pkgs.quickshell` (nixpkgs) / the upstream Quickshell flake builds with the required Qt service modules: `Quickshell.{Io,Wayland,Hyprland,Bluetooth,Networking}` and `Quickshell.Services.{Mpris,Notifications,Pam,Pipewire,Polkit,SystemTray,UPower}`. This is the single biggest technical risk — validate early.
-- [ ] New pkg `pkgs/omanix-shell/` — vendor omarchy's `shell/` QML tree (~175 files) into the store, apply the D1 rename patch, ship plugin assets (emojis.json, agent SVGs, per-plugin helper scripts) alongside.
+- [ ] New pkg `pkgs/omanix-shell/` — install the committed, already-renamed `vendor/omanix-shell/` QML tree (~175 files) into the store (no fetch, no build-time rename), ship plugin assets (emojis.json, agent SVGs, per-plugin helper scripts) alongside.
 - [ ] New HM module `modules/home-manager/desktop/shell.nix` (or `ui/quickshell.nix`): export `OMANIX_PATH`, autostart `quickshell -n -p $OMANIX_PATH/shell` from Hyprland, seed a default `shell.json` to `~/.config/omanix/shell.json` (activation **copy**, not symlink — it's user-mutable + IPC-written).
 - [ ] Get built-in plugins loading: bar, notifications, osd, menu, clipboard, background, lock, idle, polkit, media, network, bluetooth, tray, power.
 - [ ] Port the `omanix-shell` IPC CLI (`quickshell ipc` wrapper) + `omanix-bar`, `omanix-osd`, `omanix-restart-shell`, `omanix-refresh-shell`, `omanix-shell-config`.
@@ -168,13 +175,14 @@ Independent CLI helpers (each self-contained; port as desired):
 - [ ] **Hardware detection**: `omanix-hw-{laptop,laptop-closed,clamshell,display,fingerprint,nvidia,intel-sof,webcam}`. Some map to NixOS `hardware.*` options instead of runtime probes — decide per item.
 - [ ] **Audio tuning**: `omanix-audio-tuning` (PipeWire filter-chain EQ/limiter service; data-driven `default/audio/tunings/`; ships dell-xps-2026, needs `lsp-plugins-lv2`), sink resolution helpers, `omanix-restart-audio`.
 - [ ] **Network**: `omanix-network-{band,qr,password,speedtest,status}`; enterprise 802.1X.
-- [ ] **Capture**: `omanix-capture-{qr,region,text(OCR),webcam-list,webcam-resize,screenrecording-with-webcam}`.
+- [ ] **Capture**: `omanix-capture-{qr,region,text(OCR),webcam-list,webcam-resize,screenrecording-with-webcam}` + `omanix-transcode` (image → compressed JPEG to clipboard).
 - [ ] **Security**: `omanix-setup-security-sshd` → reframe as NixOS `services.openssh` + firewall options; `omanix-setup-security-sudoless-docker` → `users.groups`/module option. Port the *intent*, not the imperative scripts.
 - [ ] **Tailscale taildrop**: `omanix-tailscale-{send,receive}` + receiver systemd user service.
 - [ ] **Gaming**: `omanix-install-gaming-battlenet` (umu-launcher + GE-Proton), `omanix-games-retro-{install,cores}` (RetroArch). Reframe installs as packages/options.
 - [ ] **Plymouth**: `omanix-plymouth-{set,list,current,switcher}` — boot splash theming. Nix builds the theme declaratively; runtime switcher is ephemeral (mirror D2).
 - [ ] **Palette-only theme targets** (no shell dependency): `omanix-theme-set-{tmux,claude,pi,browser-policy}`, `omanix-theme-osc`. Straightforward.
 - [ ] **herdr**: package `herdr`; ship `config/herdr/config.toml`; bindings (`Super+Ctrl+Return`); shell fns (`hdl/hds/hdlm/hsl`); `omanix-menu-herdr-keybindings`.
+- [ ] **Custom branding**: `omanix-branding-{about,screensaver}` + `omanix-transcode-ascii` + About screen; swappable logo (declarative default + runtime override); wires the existing `pkgs/omanix-screensaver/`.
 
 ### Phase 5 — AI agents (optional; depends on Phase 1) ⬜
 

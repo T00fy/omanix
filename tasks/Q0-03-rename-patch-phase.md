@@ -1,4 +1,4 @@
-# Q0-03: Deterministic `omarchy`→`omanix` rename patch phase (D1)
+# Q0-03: `omarchy`→`omanix` rename ruleset (applied at vendor time)
 
 - **Phase:** 0
 - **Status:** todo
@@ -7,32 +7,37 @@
 - **Size:** M
 
 ## Context
-Decision **D1**: everything vendored from omarchy is rebranded to the omanix namespace, but the
-rename must be a **deterministic, reusable build step** applied to pinned upstream source — never
-a hand-edited fork. This keeps upstream re-syncs to "bump the pin + rebuild + review the diff."
-This ticket builds that reusable rename step so Q1-02 (and later script-port tickets) can call
-it. The vendored shell hardcodes `omarchy-*` command names, `omarchy.*` plugin IPC ids, and
+Decision **D1**: everything vendored from omarchy is rebranded to the omanix namespace. Because
+omanix now takes a **committed in-repo snapshot** (Q0-01) rather than fetching upstream at build
+time, the rename is applied **once, at vendor time**, and the renamed result is committed. It is
+**not** a build-time derivation phase — `nix build` consumes the already-renamed `vendor/omanix-shell/`
+tree as-is. This ticket defines the substitution ruleset and packages it as the rename step of the
+re-vendor helper (`scripts/vendor-omarchy.sh`, Q0-01), so that a future re-vendor of a newer omarchy
+re-applies the exact same rules deterministically and produces a reviewable diff.
+
+The vendored shell hardcodes `omarchy-*` command names, `omarchy.*` plugin IPC ids, and
 `$OMARCHY_PATH`; all must become `omanix`.
 
 ## Scope
-**In scope:** a reusable Nix function/phase that takes an upstream source tree and returns a
-renamed tree; the exact substitution rules; a review workflow for the diff on each bump.
-**Out of scope:** the `omanix-shell` derivation itself (Q1-02); renaming things omanix already
-authored (they're already `omanix-*`).
+**In scope:** the exact substitution rules; a **re-runnable rename step** (a shell function/script
+invoked by `scripts/vendor-omarchy.sh`) that transforms a raw upstream tree into a renamed tree;
+the diff-review workflow for each re-vendor.
+**Out of scope:** the `omanix-shell` package (Q1-02, which just installs the committed renamed
+tree); the vendor location and provenance (Q0-01); renaming omanix-authored code (already `omanix-*`).
 
 ## Implementation notes
-- Implement as a small Nix helper, e.g. `lib/vendor-rename.nix` exposing
-  `renameOmarchy = src: pkgs.runCommand "omanix-renamed-src" {...} ''...''` that copies `src`
-  and runs the substitutions, OR a `postPatch`/`postUnpack` snippet reused across derivations.
-  Prefer a single function so the rules live in one place.
+- **Not a Nix build phase.** Earlier this was planned as a `runCommand`/`substituteInPlace` step
+  inside the derivation. Under the snapshot model the rename runs at vendor time on the developer's
+  machine and its output is committed. Implement it as a shell step of `scripts/vendor-omarchy.sh`
+  (or a `scripts/rename-omarchy.sh` it calls) so the rules live in one auditable place. No Nix
+  helper (`lib/vendor-rename.nix`) is needed; if one was stubbed, drop it.
 - **Substitution rules (ordered, apply the most specific first):**
   1. `OMARCHY_PATH` → `OMANIX_PATH` (env var).
   2. `omarchy.` → `omanix.` — plugin IPC ids and QML namespaces (e.g. `omarchy.menu`,
-     `omarchy.bar`, `module qs.Commons` unaffected; only the `omarchy.` prefix). **Caution:**
-     this also matches things like `omarchy.org` domains — scope to avoid URLs (see gotchas).
+     `omarchy.bar`). **Caution:** this also matches things like `omarchy.org` domains — scope to
+     avoid URLs (see gotchas).
   3. `omarchy-` → `omanix-` (command names, e.g. `omarchy-shell` → `omanix-shell`).
-  4. `omarchy` → `omanix` (bare word: paths like `~/.config/omarchy`, `~/.local/state/omarchy`,
-     `/usr/share/omarchy` → but the last is irrelevant on Nix; and reserved-namespace checks).
+  4. `omarchy` → `omanix` (bare word: paths like `~/.config/omarchy`, `~/.local/state/omarchy`).
 - **Gotchas / false positives to guard against:**
   - **URLs**: `omarchy.org`, `learn.omacom.io`, `github.com/omacom/omarchy`, package repo URLs.
     A blanket `omarchy`→`omanix` would corrupt these. Either (a) exclude URL-bearing files
@@ -47,41 +52,45 @@ authored (they're already `omanix-*`).
     literals too (it will, via rule 2).
   - Binary/asset files (SVG, TTF, PNG, `emojis.json`): do NOT text-substitute binaries. Restrict
     the sweep to text extensions (`.qml`, `.js`, `.sh`, `.json`, `.toml`, `.md`, `.conf`, `.lua`).
+  - The sweep's `sed` must be UTF-8 safe (Nerd Font glyphs are embedded raw in widget QML); scope
+    patterns to ASCII so multibyte codepoints pass through untouched.
 - **This sweep is cosmetic (names only) — it does NOT fix behavioral Arch-coupling.** Per Q0-05,
   two things inside the shell tree are landmines the rename cannot repair and must be handled
   elsewhere: the embedded `pacman -Qq/-Qi/-Q` guard batch in `shell/plugins/menu/MenuModel.js`
   (→ Q1-08) and `pkexec tailscale set --operator` in the tailscale panel (→ Q4-07). Renaming
   `omarchy-`→`omanix-` on a command that has no omanix implementer just relocates the runtime
   failure; Q0-05's disposition table is the authority on which commands must exist vs. which
-  plugins are disabled.
-- Use `find ... -type f` filtered by extension + `sed -i` / `substituteInPlace`. Keep the rule
-  list as a bash array or Nix list so it's auditable.
-- **Diff review workflow (document in the ticket output):** provide a command to diff the
-  renamed tree against the raw upstream tree so a human can eyeball the sweep after each pin
-  bump, e.g. build both and `diff -r`. Note expected categories of change.
+  plugins are disabled. Because the vendored tree is **committed and editable** (Q0-01), these
+  landmines can also simply be hand-fixed in `vendor/omanix-shell/` after the sweep — record any
+  such local edit per Q0-01's local-edit policy.
+- Use `find ... -type f` filtered by extension + `sed -i`. Keep the rule list as a bash array so
+  it's auditable and identical across re-vendors.
+- **Diff review workflow:** since the renamed tree is committed, the reviewable diff on a re-vendor
+  is just the working-tree diff `scripts/vendor-omarchy.sh` produces against the committed
+  `vendor/omanix-shell/` (`git diff vendor/`). Document the expected categories of change so a
+  human can eyeball a future bump.
 
 ## Acceptance criteria
-- [ ] A single reusable helper performs the rename (one place holds the rules).
+- [ ] The rename ruleset lives in one place (a shell step of the Q0-01 re-vendor helper), not a Nix build phase.
 - [ ] All four substitution rules implemented, applied specific-first.
 - [ ] URLs / external references are demonstrably NOT corrupted (spot-checked on the real shell tree).
-- [ ] Binary/asset files are left untouched.
-- [ ] Applied to the omarchy `shell/` tree: no residual `omarchy` in code paths, no broken `omanix.omanix`, plugin ids read `omanix.*`, `OMANIX_PATH` used throughout.
-- [ ] A documented command produces a reviewable diff (renamed vs raw upstream) for future bumps.
+- [ ] Binary/asset files are left untouched; glyph encoding preserved (UTF-8-safe sed).
+- [ ] Applied to the omarchy `shell/` tree and committed to `vendor/omanix-shell/`: no residual `omarchy` in code paths, no broken `omanix.omanix`, plugin ids read `omanix.*`, `OMANIX_PATH` used throughout.
+- [ ] Re-running the rename step is deterministic (same input rev → same committed tree), producing a reviewable `git diff` on a bump.
 
 ## Testing
 ```bash
 cd /home/toofy/projects/omanix
-# Build the renamed tree (helper exposed for testing, or via a scratch derivation):
-nix build .#omanix-shell    # once Q1-02 exists it consumes this; before that, a test attr
-# Assertions on the built output ($out):
-! grep -rIl 'omarchy-' $out/shell        # no omarchy- command refs
-! grep -rIl 'OMARCHY_PATH' $out/shell    # no old env var
-grep -rIl 'omanix\.menu' $out/shell      # plugin ids renamed
-# URL integrity spot check (must still contain upstream URLs unbroken if any retained):
-grep -rI 'omarchy.org\|omacom' $out/shell || echo "no urls retained (acceptable)"
+# The committed renamed tree is the artifact — assert directly on it:
+! grep -rIl 'omarchy-' vendor/omanix-shell       # no omarchy- command refs
+! grep -rIl 'OMARCHY_PATH' vendor/omanix-shell   # no old env var
+grep -rIl 'omanix\.menu' vendor/omanix-shell     # plugin ids renamed
+grep -rI 'omarchy.org\|omacom' vendor/omanix-shell || echo "no urls retained (acceptable)"
+# Determinism: re-run the vendor helper at the recorded rev → no diff:
+scripts/vendor-omarchy.sh <recorded-rev> && git diff --stat vendor/omanix-shell
 ```
-Manual: run the documented raw-vs-renamed diff and confirm only intended changes.
+Manual: review the `git diff vendor/` a re-vendor produces and confirm only intended changes.
 
 ## References
 - omarchy: `shell/` tree; `bin/omarchy-shell`; `bin/omarchy-plugin-validate`; `shell/services/PluginRegistry.qml`
-- omanix: new `lib/vendor-rename.nix` (or equivalent); consumed by `pkgs/omanix-shell/` (Q1-02)
+- omanix: `scripts/vendor-omarchy.sh` (Q0-01) rename step; committed output `vendor/omanix-shell/`; consumed by `pkgs/omanix-shell/` (Q1-02)

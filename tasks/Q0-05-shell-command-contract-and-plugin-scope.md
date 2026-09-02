@@ -60,18 +60,42 @@ Map each to its implementing ticket; none may be left unimplemented if its plugi
 Runtime switching of Nix-declared config, or Arch/package/update coupling.
 
 - **Declared-config pickers (ratified CUT):** `default-browser`, `default-editor`, `default-terminal`, `menu-timezone`, `dns`. Users declare browser/editor/terminal via `xdg.mimeApps`/session vars, `time.timeZone`, and `networking.*`. **Disable** the Setup › Defaults browser/editor/terminal entries, the timezone picker, and the **DNS panel**.
-- **Update / package / channel (already out of scope):** `channel-current`, `update`, `update-available`, `remove-launcher-entry`, `pkg-present`, `pkg-missing`. **Disable** the SystemUpdate widget and the pacman-backed menu guards (see landmine 1).
+- **Update / package / channel (already out of scope):** `channel-current`, `update`, `update-available`, `remove-launcher-entry`, `pkg-present`, `pkg-missing`. **Disable** the SystemUpdate/pending-updates widget and the pacman-backed menu guards (see landmine 1). *(Ratified: no pending-updates indicator.)*
+- **Night Light (ratified CUT):** the NightLight bar indicator/toggle (`hyprsunset`-backed). **Disable** the widget; drop `hyprsunset` from the required PATH set if nothing else uses it. *(User does not want night light.)*
+- **Dropbox panel (ratified CUT for now):** `dropbox-cli` + in-tree `status.py`. **Disable** the Dropbox panel and add to `disabledPlugins`. *(User: don't care right now.)*
 
-### Feature-inclusion decisions (OPEN — not declarative-vs-runtime; decide per feature)
-These are runtime features with no omanix home yet. For each: *implement the callee* or *disable
-the plugin/widget*. Recommend disabling unless wanted:
+### Feature-inclusion decisions (per feature)
+Runtime features with no omanix home yet. For each: *implement the callee* or *disable the
+plugin/widget* (disabled features are added to the seeded `disabledPlugins`).
+
+**Resolved:**
+- Dropbox panel → **DISABLE** (see section C).
+
+**Still OPEN (decide before enabling their plugins; recommend disabling unless wanted):**
 - `weather-status`, `weather-location` (weather widget/panel)
 - `reminder` (reminders)
 - `voxtype-status`, `voxtype-config` (dictation)
 - `disk-speedtest` (disk benchmark panel)
-- Dropbox panel (`dropbox-cli`, in-tree `status.py`) — generic, not `omarchy-*`, but same disable/keep call.
-Record the chosen disposition here when decided; each disabled feature is added to the seeded
-`disabledPlugins`.
+
+### Non-command feature dispositions (reviewed against the Quattro feature tour)
+These aren't part of the 61-command shell surface (they're menu entries, standalone apps, or
+already-shipped omanix features), but were reviewed and ruled on so nothing is silently assumed:
+
+- **Already in omanix — no work, do not re-scope:** LocalSend file sharing (`omanix-cmd-share.sh`);
+  Moonlight/Sunshine game streaming (`modules/nixos/sunshine.nix`) — so **cloud gaming
+  (GeForce NOW/Xbox) stays CUT**, per Q4-08; the BBS/TTFX screensaver (`pkgs/omanix-screensaver/`);
+  the **keybindings menu** (`omanix-menu-keybindings.sh`, built dynamically from `hyprctl -j binds`
+  — automatic, no maintenance; only needs the walker→shell rewire the rest of the menu gets).
+- **CUT (ratified):** Web App Creator (frameless PWA wrapper + webapp menu entries); Ether theme
+  generator; Compose-key/XCompose sequences (tried before, not worth it); direct config-editing
+  from the menu (conflicts with the declarative model — the Style/Learn "edit config" entries are
+  dropped; the Omarchy Manual link is repointed to the maintained GitHub manual); VS Code theme
+  target (not used); multiple named lock-screen styles.
+- **OUT OF SCOPE for now (revisit later):** TUI floating wrappers (btop/lazydocker containers);
+  Windows VM integration; the bespoke built-in apps (Omawrite, Video Trimmer, Calculator, Kampa).
+- **ADD (new work):** image transcoding (image → compressed JPEG → clipboard) → folded into Q4-05;
+  custom system branding / About screen (neofetch-style summary + logo→ANSI, feeding the existing
+  screensaver) → new ticket **Q4-12**.
 
 ## Landmines the D1 rename (Q0-03) cannot fix — needs real handling
 1. **Embedded `pacman -Qq/-Qi/-Q` guard batch** in `shell/plugins/menu/MenuModel.js` (`guardHelpers()`, ~lines 420-437, run via `Menu.qml`). This is Arch bash *inside the QML tree*. The menu uses it to show/hide entries by installed-package presence. On Nix, "is package X installed" is answered differently — reimplement the guard (e.g. `command -v`, or drop package guards for cut entries) in Q1-08. The sed rename will not repair it.
