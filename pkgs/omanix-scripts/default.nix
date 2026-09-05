@@ -13,7 +13,9 @@
   systemd,
   walker,
   gawk,
+  gnugrep,
   gnused,
+  quickshell,
   libxkbcommon,
   libnotify,
   swaybg,
@@ -93,6 +95,15 @@ let
   # it needs $out/bin on PATH (for calling sibling scripts).
   # ═══════════════════════════════════════════════════════════════════
   scripts = [
+    {
+      name = "omanix-shell";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+        quickshell
+      ];
+    }
     {
       name = "omanix-launch-or-focus";
       deps = [

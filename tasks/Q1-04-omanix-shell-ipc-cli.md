@@ -1,7 +1,7 @@
 # Q1-04: `omanix-shell` IPC CLI wrapper
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-03
 - **Blocks:** Q1-05, Q1-06, Q1-07, Q1-08, Q1-09, Q1-10, Q1-11, Q1-12, Q1-13, Q1-14, Q2-03, Q4-01
 - **Size:** S
@@ -42,11 +42,11 @@ scripts, on the session PATH.
   isn't up).
 
 ## Acceptance criteria
-- [ ] `omanix-shell` is packaged and on the session PATH.
-- [ ] `omanix-shell shell ping` against a running shell returns success/pong.
-- [ ] Fails with a clear message when `OMANIX_PATH` is unset (parity with upstream) and returns success under `-q` when the shell is down.
-- [ ] Usage/help text and examples are renamed to `omanix`.
-- [ ] `nix flake check` passes; the package builds.
+- [x] `omanix-shell` is packaged and on the session PATH.
+- [ ] `omanix-shell shell ping` against a running shell returns success/pong. *(needs a live session — verify in a Hyprland session with the shell running)*
+- [x] Fails with a clear message when `OMANIX_PATH` is unset (parity with upstream) and returns success under `-q` when the shell is down.
+- [x] Usage/help text and examples are renamed to `omanix`.
+- [x] `nix flake check` passes; the package builds.
 
 ## Testing
 ```bash

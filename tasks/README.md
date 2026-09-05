@@ -145,7 +145,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 | Q1-01 | Validate/package Quickshell with required Qt service modules | Q0-01 | ✅ |
 | Q1-02 | `pkgs/omanix-shell`: package vendored shell/ QML tree + assets | Q0-03, Q1-01 | ⬜ |
 | Q1-03 | HM module: Quickshell session integration + seed `shell.json` | Q0-02, Q0-05, Q1-02 | ⬜ |
-| Q1-04 | `omanix-shell` IPC CLI wrapper | Q1-03 | ⬜ |
+| Q1-04 | `omanix-shell` IPC CLI wrapper | Q1-03 | ✅ |
 | Q1-05 | Bar plugin + core bar widgets | Q1-04 | ⬜ |
 | Q1-06 | Notifications plugin | Q1-04 | ⬜ |
 | Q1-07 | OSD plugin + `omanix-osd` | Q1-04 | ⬜ |
