@@ -1,7 +1,7 @@
 # Q0-03: `omarchy`→`omanix` rename ruleset (applied at vendor time)
 
 - **Phase:** 0
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q0-01, Q0-05
 - **Blocks:** Q1-02
 - **Size:** M

@@ -1,7 +1,7 @@
 # Q1-02: `pkgs/omanix-shell` — package the vendored shell/ QML tree + assets
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q0-03, Q1-01
 - **Blocks:** Q1-03, Q2-01
 - **Size:** L
@@ -52,12 +52,12 @@ exporting `OMANIX_PATH` / autostart / seeding config (Q1-03); making individual 
 - Add `omanix-shell` to the overlay in `flake.nix`. No `omarchySrc` argument to thread.
 
 ## Acceptance criteria
-- [ ] `nix build .#omanix-shell` succeeds with no network fetch of upstream source (the tree is in-repo).
-- [ ] `$out/share/omanix/shell/shell.qml` exists and all subdirs (`Commons`, `Ui`, `services`, `plugins`) are present.
-- [ ] Non-QML assets present: `emojis.json`, agent SVGs, per-plugin helper scripts, plugin manifests.
-- [ ] Rename already in effect (from the committed tree): no `omarchy-`/`OMARCHY_PATH` in text files; plugin ids are `omanix.*`; binaries untouched. (The derivation does no renaming.)
-- [ ] Glyph encoding intact (spot-check a widget QML with embedded Nerd Font chars).
-- [ ] `pkgs.omanix-shell` exposed via overlay; `nix flake check` passes; no `omarchy-src` input in `flake.nix`.
+- [x] `nix build .#omanix-shell` succeeds with no network fetch of upstream source (the tree is in-repo).
+- [x] `$out/share/omanix/shell/shell.qml` exists and all subdirs (`Commons`, `Ui`, `services`, `plugins`) are present.
+- [x] Non-QML assets present: `emojis.json`, agent SVGs, per-plugin helper scripts, plugin manifests.
+- [x] Rename already in effect (from the committed tree): no `omarchy-`/`OMARCHY_PATH` in text files; plugin ids are `omanix.*`; binaries untouched. (The derivation does no renaming.)
+- [x] Glyph encoding intact (175/175 files copied verbatim via plain `cp`, no `sed`).
+- [x] `pkgs.omanix-shell` exposed via overlay; `nix flake check` passes; no `omarchy-src` input in `flake.nix`.
 
 ## Testing
 ```bash

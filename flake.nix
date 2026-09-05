@@ -71,6 +71,7 @@
         spotatui = prev.callPackage inputs.spotatui { };
         omanix-screensaver = final.callPackage ./pkgs/omanix-screensaver { };
         omanix-scripts = final.callPackage ./pkgs/omanix-scripts { };
+        omanix-shell = final.callPackage ./pkgs/omanix-shell { };
         wlctl = inputs.wlctl.packages.${prev.stdenv.hostPlatform.system}.default;
 
         # Pass-through so a future bump can be pinned/overridden here in one place.
@@ -111,6 +112,12 @@
         inherit self inputs home-manager;
         inherit omanixLib;
       };
+
+      packages.x86_64-linux.omanix-shell =
+        (import nixpkgs {
+          system = "x86_64-linux";
+          overlays = [ self.overlays.default ];
+        }).omanix-shell;
 
       # ═══════════════════════════════════════════════════════════════════
       # Home Manager Module (user-level configuration)

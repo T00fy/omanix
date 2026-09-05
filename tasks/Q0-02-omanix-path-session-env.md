@@ -1,7 +1,7 @@
 # Q0-02: Define `OMANIX_PATH` session-env mechanism
 
 - **Phase:** 0
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q0-01
 - **Blocks:** Q1-03
 - **Size:** S
