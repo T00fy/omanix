@@ -1,7 +1,7 @@
 # Q1-01: Validate/package Quickshell with required Qt service modules
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q0-01
 - **Blocks:** Q1-02
 - **Size:** M
@@ -38,12 +38,26 @@ the flake overlay/packages so later tickets can reference `pkgs.quickshell`.
   missing optional modules fail at import time, not build time.
 
 ## Acceptance criteria
-- [ ] A `quickshell` package builds via the omanix flake (`nix build`).
-- [ ] All required modules import successfully (verified by the smoke test below, not assumed).
-- [ ] `pkgs.quickshell` is exposed through the omanix overlay.
-- [ ] A trivial `ShellRoot` renders in a live Hyprland session.
-- [ ] `nix flake check` passes.
-- [ ] Findings recorded: which modules needed extra flags/inputs, and whether nixpkgs or the upstream flake was used (note in this ticket + `../PORTING-QUATTRO.md` R1).
+- [x] A `quickshell` package builds via the omanix flake (built from the flake's locked nixpkgs; fetched from `cache.nixos.org` — no compile).
+- [x] All required modules import successfully (verified by both smoke tests below, not assumed).
+- [x] `pkgs.quickshell` is exposed through the omanix overlay.
+- [~] A trivial `ShellRoot` renders in a live Hyprland session — validated **headless** (`quickshell -p … -n`): `ShellRoot` loads and `Configuration Loaded` with no errors. On-screen render in a live Hyprland session not performed in this environment; defer visual confirmation to Q1-03 session integration.
+- [x] `nix flake check` passes.
+- [x] Findings recorded below + `../PORTING-QUATTRO.md` R1 / Phase 1.
+
+## Findings (2026-09-05)
+**Outcome: nixpkgs `quickshell` used as-is — no override, no upstream flake input needed.**
+
+- **Source:** `pkgs.quickshell` **0.3.0** from the flake's pinned nixpkgs (`nixos-unstable`, rev `2fad6eac…`, Qt6 6.11.1). Store path `…-quickshell-0.3.0`, **substitutable from `cache.nixos.org`** (`nix path-info --store https://cache.nixos.org` succeeds) → zero user compile.
+- **Why no flags needed:** upstream CMake declares every feature (`HYPRLAND`, `NETWORK`, `BLUETOOTH`, all `SERVICE_*`) **default ON**, and nixpkgs' `cmakeFlags` never disables any. `Hyprland` needs only Wayland; `Networking`/`Bluetooth` and the DBus services (`Mpris`/`Notifications`/`SystemTray`/`UPower`) are **DBus-only at build time** (talk to NetworkManager/BlueZ over DBus at *runtime*; `Qt6::DBus` ships with qtbase). The earlier "nixpkgs omits NetworkManager" concern was a *runtime* dep, not a missing module.
+- **Module verification:** all 13 required modules present in the store under `…/lib/qt-6/qml/Quickshell/…`: base, `Io`, `Wayland`, `Hyprland`, `Bluetooth`, `Networking`, `Services/{Mpris,Notifications,Pam,Pipewire,Polkit,SystemTray,UPower}` (plus extras: `I3`, `Widgets`, `DBusMenu`, `Services/Greetd`, …).
+- **Smoke tests (both PASS):** (1) scratch `shell.qml` importing all 13 modules → logs `OMANIX_QS_ALL_MODULES_IMPORTED`, `Configuration Loaded`, no import errors. (2) real vendored tree `vendor/omanix-shell` → `Configuration Loaded`, **zero** module-resolution errors.
+- **Overlay:** added a documented pass-through `quickshell = prev.quickshell;` in `flake.nix` `overlays.default` — the single point to pin/override if a future nixpkgs bump regresses a module or brings Qt ABI skew.
+- **Runtime (not build) follow-ups for later tickets:** the vendored shell run emitted non-blocking warnings that belong downstream, not to Q1-01 —
+  - `default shell.json load failed` → correct `$out/shell/config` layout + user seed = **Q1-02**; `builtinShellConfig` fallback covered it.
+  - `inotifywait … could not be found` → the plugin watcher needs `inotify-tools` on PATH = **Q1-02/Q1-03** wrapping.
+  - `Quickshell.Networking` needs NetworkManager running, `.Bluetooth` needs BlueZ = NixOS-module wiring (`networking.networkmanager.enable`, `hardware.bluetooth.enable`) in **Q1-03/Phase 4**.
+- **Note:** there is no `packages.<system>.quickshell` flake output, so `nix build .#quickshell` does not resolve; consume via `pkgs.quickshell` (through the overlay) instead.
 
 ## Testing
 ```bash

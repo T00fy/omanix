@@ -73,6 +73,9 @@
         omanix-scripts = final.callPackage ./pkgs/omanix-scripts { };
         wlctl = inputs.wlctl.packages.${prev.stdenv.hostPlatform.system}.default;
 
+        # Pass-through so a future bump can be pinned/overridden here in one place.
+        quickshell = prev.quickshell;
+
         yt-dlp = prev.yt-dlp.overrideAttrs (oldAttrs: {
           src = inputs.yt-dlp-src;
           version = "master";
