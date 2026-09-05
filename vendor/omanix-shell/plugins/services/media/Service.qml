@@ -245,7 +245,7 @@ Item {
 
   function showOsd(actionLabel, iconName, player) {
     if (!shell) return
-    shell.summon("omarchy.osd", JSON.stringify({
+    shell.summon("omanix.osd", JSON.stringify({
       icon: iconName || "media",
       message: osdMessage(player || activePlayer, actionLabel)
     }))

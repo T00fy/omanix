@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.audio",
+  "id": "omanix.audio",
   "name": "Audio",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "description": "Volume slider, output picker, per-app mixer",
   "kinds": [
     "bar-widget"

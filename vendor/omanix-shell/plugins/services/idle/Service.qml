@@ -8,11 +8,11 @@ import "IdleModel.js" as IdleModel
 Item {
   id: root
 
-  // Injected by omarchy-shell (the first-party service loader).
+  // Injected by omanix-shell (the first-party service loader).
   property var shell: null
 
   readonly property string home: Quickshell.env("HOME")
-  readonly property string stayAwakeStateDir: home + "/.local/state/omarchy/indicators"
+  readonly property string stayAwakeStateDir: home + "/.local/state/omanix/indicators"
   readonly property string stayAwakeStatePath: stayAwakeStateDir + "/stay-awake"
   readonly property int defaultScreensaverSeconds: 150
   readonly property int defaultLockSeconds: 300
@@ -23,7 +23,7 @@ Item {
   readonly property int screensaverDelaySeconds: Math.max(0, screensaverTimeoutSeconds - firstIdleTimeoutSeconds)
   readonly property int lockDelaySeconds: Math.max(0, lockTimeoutSeconds - firstIdleTimeoutSeconds)
   readonly property bool idleEnabled: stayAwakeStateLoaded && !stayAwake
-  readonly property string screensaverClass: "org.omarchy.screensaver"
+  readonly property string screensaverClass: "org.omanix.screensaver"
 
   property bool stayAwake: false
   property bool stayAwakeStateLoaded: false
@@ -48,7 +48,7 @@ Item {
     var suffix = details === undefined || details === null || details === "" ? "" : ": " + String(details)
     root.lastEventAt = nowIso()
     root.lastEvent = event + suffix
-    console.log("omarchy idle " + root.lastEventAt + " " + root.lastEvent)
+    console.log("omanix idle " + root.lastEventAt + " " + root.lastEvent)
   }
 
   function runProcess(process, label, command) {
@@ -65,7 +65,7 @@ Item {
   function launchScreensaver() {
     root.screensaverStartedThisCycle = true
     screensaverLaunchGraceTimer.restart()
-    runProcess(screensaverProcess, "screensaver", "[[ $(omarchy-shell lock isLocked 2>/dev/null) == \"true\" ]] || omarchy-launch-screensaver")
+    runProcess(screensaverProcess, "screensaver", "[[ $(omanix-shell lock isLocked 2>/dev/null) == \"true\" ]] || omanix-launch-screensaver")
   }
 
   function lockSystem(reason) {
@@ -76,7 +76,7 @@ Item {
     root.idledThisCycle = false
     root.screensaverStartedThisCycle = false
     resetScreensaverWindows()
-    runProcess(lockProcess, "lock", "omarchy-system-lock")
+    runProcess(lockProcess, "lock", "omanix-system-lock")
   }
 
   function startIdleCycle() {
@@ -103,7 +103,7 @@ Item {
     lockTimer.stop()
     screensaverLaunchGraceTimer.stop()
 
-    if (root.idledThisCycle) runProcess(wakeProcess, "wake", "omarchy-system-wake")
+    if (root.idledThisCycle) runProcess(wakeProcess, "wake", "omanix-system-wake")
 
     root.idledThisCycle = false
     root.screensaverStartedThisCycle = false
@@ -208,8 +208,8 @@ Item {
 
   function persistStayAwake(value) {
     var command = value
-      ? "mkdir -p \"$HOME/.local/state/omarchy/indicators\" && touch \"$HOME/.local/state/omarchy/indicators/stay-awake\""
-      : "rm -f \"$HOME/.local/state/omarchy/indicators/stay-awake\""
+      ? "mkdir -p \"$HOME/.local/state/omanix/indicators\" && touch \"$HOME/.local/state/omanix/indicators/stay-awake\""
+      : "rm -f \"$HOME/.local/state/omanix/indicators/stay-awake\""
 
     if (stayAwakeStateWriter.running) {
       root.pendingStayAwakePersist = !!value
@@ -300,7 +300,7 @@ Item {
 
   Process {
     id: stayAwakeStateProbe
-    command: ["bash", "-c", "mkdir -p \"$HOME/.local/state/omarchy/indicators\"; if [[ -f $HOME/.local/state/omarchy/indicators/stay-awake ]]; then echo yes; else echo no; fi"]
+    command: ["bash", "-c", "mkdir -p \"$HOME/.local/state/omanix/indicators\"; if [[ -f $HOME/.local/state/omanix/indicators/stay-awake ]]; then echo yes; else echo no; fi"]
     stdout: SplitParser {
       onRead: function(line) { root.applyStayAwake(String(line).trim() === "yes", false, "state-file") }
     }

@@ -12,7 +12,7 @@ Item {
 
   readonly property string home: Quickshell.env("HOME")
   readonly property string stateHome: home + "/.local/state"
-  readonly property string currentBackgroundLink: stateHome + "/omarchy/current/background"
+  readonly property string currentBackgroundLink: stateHome + "/omanix/current/background"
 
   property string currentBackground: ""
   property string displayedBackground: ""
@@ -110,13 +110,13 @@ Item {
 
   Process {
     id: bgSwitchProc
-    command: ["bash", "-c", "background=$(omarchy-theme-bg-switcher); [[ -n $background ]] && omarchy-theme-bg-set \"$background\""]
+    command: ["bash", "-c", "background=$(omanix-theme-bg-switcher); [[ -n $background ]] && omanix-theme-bg-set \"$background\""]
     onExited: root.refreshBackground()
   }
 
   Process {
     id: themeSwitchProc
-    command: ["bash", "-c", "theme=$(omarchy-theme-switcher); [[ -n $theme ]] && omarchy-theme-set \"$theme\" >/dev/null 2>&1 &"]
+    command: ["bash", "-c", "theme=$(omanix-theme-switcher); [[ -n $theme ]] && omanix-theme-set \"$theme\" >/dev/null 2>&1 &"]
     onExited: root.refreshBackground()
   }
 
@@ -196,7 +196,7 @@ Item {
       color: "transparent"
       // Keep render updates enabled. The background layer has been observed to
       // lose its committed buffer while parked with updatesEnabled=false,
-      // leaving a black desktop until omarchy-shell is restarted. The wallpaper
+      // leaving a black desktop until omanix-shell is restarted. The wallpaper
       // itself is static, so this favors correctness over a small render-loop
       // optimization.
       updatesEnabled: true
@@ -213,7 +213,7 @@ Item {
         })
       }
 
-      WlrLayershell.namespace: "omarchy-background"
+      WlrLayershell.namespace: "omanix-background"
       WlrLayershell.layer: WlrLayer.Background
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore

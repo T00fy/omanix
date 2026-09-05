@@ -8,14 +8,14 @@ Item {
   id: root
 
   property var shell: null
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
+  property string omanixPath: Quickshell.env("OMANIX_PATH")
 
   readonly property int batteryThreshold: 10
   property string pendingPowerSource: ""
 
   PersistentProperties {
     id: persisted
-    reloadableId: "omarchy-battery"
+    reloadableId: "omanix-battery"
     property bool notifiedLowBattery: false
   }
 
@@ -36,7 +36,7 @@ Item {
   function sendLowBatteryWarning(level) {
     if (warningProcess.running) return
     warningProcess.command = [
-      "omarchy-battery-low",
+      "omanix-battery-low",
       String(level)
     ]
     warningProcess.running = true
@@ -48,7 +48,7 @@ Item {
   }
 
   function runPendingPowerProfile() {
-    powerProfileProcess.command = ["omarchy-powerprofiles-set", pendingPowerSource]
+    powerProfileProcess.command = ["omanix-powerprofiles-set", pendingPowerSource]
     pendingPowerSource = ""
     powerProfileProcess.running = true
   }

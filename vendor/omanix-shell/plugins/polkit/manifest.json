@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.polkit",
+  "id": "omanix.polkit",
   "name": "Polkit Agent",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "description": "Theme-aware authentication dialog for privileged actions.",
   "kinds": [
     "service"

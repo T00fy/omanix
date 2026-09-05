@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.menu",
-  "name": "Omarchy menu",
+  "id": "omanix.menu",
+  "name": "Omanix menu",
   "version": "1.0.0",
-  "author": "Omarchy",
-  "description": "Quickshell-powered Omarchy command menu",
+  "author": "Omanix",
+  "description": "Quickshell-powered Omanix command menu",
   "kinds": [
     "menu",
     "bar-widget"
@@ -15,8 +15,8 @@
     "barWidget": "BarWidget.qml"
   },
   "barWidget": {
-    "displayName": "Omarchy menu",
-    "description": "Launches the Omarchy menu",
+    "displayName": "Omanix menu",
+    "description": "Launches the Omanix menu",
     "category": "Compositor",
     "allowMultiple": false
   }

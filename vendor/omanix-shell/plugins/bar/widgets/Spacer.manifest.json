@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.spacer",
+  "id": "omanix.spacer",
   "name": "Spacer",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "description": "Configurable blank space",
   "kinds": [
     "bar-widget"

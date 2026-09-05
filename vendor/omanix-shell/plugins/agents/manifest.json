@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.agents",
+  "id": "omanix.agents",
   "name": "Agents",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "license": "MIT",
-  "description": "Claude Code, Codex, and Fireworks usage, limits, and pace in a native Omarchy bar panel.",
+  "description": "Claude Code, Codex, and Fireworks usage, limits, and pace in a native Omanix bar panel.",
   "kinds": ["bar-widget"],
   "activation": "on-demand",
   "entryPoints": {

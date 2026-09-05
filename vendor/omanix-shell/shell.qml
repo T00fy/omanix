@@ -21,14 +21,14 @@ ShellRoot {
 
   property string home: Quickshell.env("HOME")
 
-  // The omarchy-shell host is the long-running entry point. Plugins live in
-  // sibling directories under plugins/. OMARCHY_PATH is provided by the uwsm
+  // The omanix-shell host is the long-running entry point. Plugins live in
+  // sibling directories under plugins/. OMANIX_PATH is provided by the uwsm
   // session environment and is the single source of truth for this checkout.
-  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
-  readonly property string shellPath: omarchyPath + "/shell"
+  property string omanixPath: Quickshell.env("OMANIX_PATH")
+  readonly property string shellPath: omanixPath + "/shell"
   readonly property string firstPartyPluginsDir: shellPath + "/plugins"
-  readonly property string defaultsPath: omarchyPath + "/config/omarchy/shell.json"
-  readonly property string userConfigPath: home + "/.config/omarchy/shell.json"
+  readonly property string defaultsPath: omanixPath + "/shell/config/shell.json"
+  readonly property string userConfigPath: home + "/.config/omanix/shell.json"
 
   // Bundled fallback so the shell can start even when the default shell.json is
   // missing or unreadable. The bar config here mirrors the on-disk defaults
@@ -42,11 +42,11 @@ ShellRoot {
     bar: {
       position: "top",
       transparent: false,
-      centerAnchor: "omarchy.clock",
+      centerAnchor: "omanix.clock",
       layout: {
-        left: [{ id: "omarchy.menu" }, { id: "omarchy.workspaces" }],
-        center: [{ id: "omarchy.clock", format: "dddd HH:mm" }],
-        right: [{ id: "omarchy.audio" }]
+        left: [{ id: "omanix.menu" }, { id: "omanix.workspaces" }],
+        center: [{ id: "omanix.clock", format: "dddd HH:mm" }],
+        right: [{ id: "omanix.audio" }]
       }
     },
     plugins: []
@@ -139,8 +139,8 @@ ShellRoot {
   }
 
   Component.onCompleted: {
-    console.log("omarchy-shell paths",
-      "omarchyPath=" + shell.omarchyPath,
+    console.log("omanix-shell paths",
+      "omanixPath=" + shell.omanixPath,
       "shellDir=" + Quickshell.shellDir,
       "firstPartyPluginsDir=" + shell.firstPartyPluginsDir,
       "defaultsPath=" + shell.defaultsPath,
@@ -163,7 +163,7 @@ ShellRoot {
 
   // Exposed as a property so child plugins (notifications, future panels)
   // can read barSize/barHidden/position to anchor relative to the active bar.
-  readonly property string defaultBarId: "omarchy.bar"
+  readonly property string defaultBarId: "omanix.bar"
   readonly property string selectedBarId: {
     var config = shell.barConfig
     if (Util.isPlainObject(config)) {
@@ -213,7 +213,7 @@ ShellRoot {
 
   function configureBar(target, manifest) {
     if (!target) return
-    if ("omarchyPath" in target) target.omarchyPath = shell.omarchyPath
+    if ("omanixPath" in target) target.omanixPath = shell.omanixPath
     if ("shell" in target) target.shell = shell
     if ("manifest" in target) target.manifest = manifest
     if ("barWidgetRegistry" in target) target.barWidgetRegistry = shell.barWidgetRegistry
@@ -226,7 +226,7 @@ ShellRoot {
     id: defaultBarComponent
 
     Bar {
-      omarchyPath: shell.omarchyPath
+      omanixPath: shell.omanixPath
       barWidgetRegistry: shell.barWidgetRegistry
       barConfig: shell.barConfig
       shell: shell
@@ -302,7 +302,7 @@ ShellRoot {
         console.warn("service plugin createObject returned null for", key)
         return
       }
-      if ("omarchyPath" in inst) inst.omarchyPath = shell.omarchyPath
+      if ("omanixPath" in inst) inst.omanixPath = shell.omanixPath
       if ("shell" in inst) inst.shell = shell
       if ("manifest" in inst) inst.manifest = manifest
       if ("barWidgetRegistry" in inst) inst.barWidgetRegistry = shell.barWidgetRegistry
@@ -429,7 +429,7 @@ ShellRoot {
     if (!m || !Array.isArray(m.kinds)) return false
     if (m.kinds.indexOf("bar-widget") === -1) return false
     // Plugins that are also panel/overlay/menu kinds are owned by the
-    // panel loader (e.g. omarchy.menu); let that path handle them.
+    // panel loader (e.g. omanix.menu); let that path handle them.
     var loaderKinds = ["panel", "overlay", "menu"]
     for (var i = 0; i < loaderKinds.length; i++) {
       if (m.kinds.indexOf(loaderKinds[i]) !== -1) return false
@@ -626,7 +626,7 @@ ShellRoot {
         asynchronous: true
         onLoaded: {
           if (!item) return
-          if ("omarchyPath" in item) item.omarchyPath = shell.omarchyPath
+          if ("omanixPath" in item) item.omanixPath = shell.omanixPath
           if ("shell" in item) item.shell = shell
           if ("manifest" in item) item.manifest = panelEntry.manifest
           if ("barWidgetRegistry" in item) item.barWidgetRegistry = shell.barWidgetRegistry
@@ -814,7 +814,7 @@ ShellRoot {
   // --------------------------------------------------- image selector IPC
 
   function imagePickerItem() {
-    var loader = panelLoaders["omarchy.image-picker"]
+    var loader = panelLoaders["omanix.image-picker"]
     return loader && loader.item ? loader.item : null
   }
 
@@ -837,7 +837,7 @@ ShellRoot {
         showLabels: showLabels,
         filterable: filterable
       })
-      return shell.summon("omarchy.image-picker", payload) ? "ok" : "unknown"
+      return shell.summon("omanix.image-picker", payload) ? "ok" : "unknown"
     }
 
     function preload(imageRowsB64: string,
@@ -857,7 +857,7 @@ ShellRoot {
       if (picker && typeof picker.closeSelector === "function") {
         picker.closeSelector(doneFile || "")
       } else {
-        shell.hide("omarchy.image-picker")
+        shell.hide("omanix.image-picker")
       }
       return "ok"
     }
@@ -957,13 +957,13 @@ ShellRoot {
         var isBarOption = Array.isArray(kinds) && kinds.indexOf("bar") !== -1
         var isBarWidget = Array.isArray(kinds) && kinds.indexOf("bar-widget") !== -1
         var active = isBarOption && shell.isActiveBarOption(id)
-        var metadata = plugins[id].omarchy
+        var metadata = plugins[id].omanix
         var clonedFrom = Util.isPlainObject(metadata) ? String(metadata.clonedFrom || "") : ""
         out.push({
           id: id,
           name: plugins[id].name,
           kinds: kinds,
-          // What `omarchy plugin enable/disable` toggles: for a widget that is
+          // What `omanix plugin enable/disable` toggles: for a widget that is
           // its place in the bar, not whether its component is loadable.
           enabled: isBarOption ? active
             : (isBarWidget ? shell.pluginRegistry.inBar(id) : shell.pluginRegistry.isEnabled(id)),

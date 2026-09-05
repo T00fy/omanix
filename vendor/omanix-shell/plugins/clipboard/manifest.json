@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.clipboard",
+  "id": "omanix.clipboard",
   "name": "Clipboard",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "description": "A clipboard manager to view and paste history",
   "kinds": [
     "overlay"

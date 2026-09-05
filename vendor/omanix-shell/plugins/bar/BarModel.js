@@ -31,7 +31,7 @@ function pinTrayToInner(entries, section) {
   var result = []
   var values = Array.isArray(entries) ? entries : []
   for (var i = 0; i < values.length; i++) {
-    if (entryId(values[i]) === "omarchy.tray") trayEntry = values[i]
+    if (entryId(values[i]) === "omanix.tray") trayEntry = values[i]
     else result.push(values[i])
   }
   if (trayEntry) {

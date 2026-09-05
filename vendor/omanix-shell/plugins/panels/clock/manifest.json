@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.clock",
+  "id": "omanix.clock",
   "name": "Clock",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "description": "Date/time label with a calendar popup",
   "kinds": [
     "bar-widget"

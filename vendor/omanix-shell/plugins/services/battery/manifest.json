@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omarchy.battery",
+  "id": "omanix.battery",
   "name": "Battery",
   "version": "1.0.0",
-  "author": "Omarchy",
+  "author": "Omanix",
   "description": "Low battery warning service",
   "kinds": [
     "service"

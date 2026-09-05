@@ -49,18 +49,56 @@ if [[ ! -d "$SRC" ]]; then
   exit 1
 fi
 
-# --- Q0-03 rename hook -------------------------------------------------------
-# Applies the D1 omanix namespace rename (omarchy-* -> omanix-*, $OMARCHY_PATH -> $OMANIX_PATH,
-# omarchy.* IPC ids -> omanix.*, etc.) over the extracted tree, in place.
-# Q0-01: intentionally a NO-OP so the committed snapshot is the RAW upstream tree.
-# Q0-03: replace the body with the deterministic, UTF-8-safe rename ruleset.
+# --- Q0-03 rename ruleset ----------------------------------------------------
+# Deterministic, UTF-8-safe transform applied ONCE at vendor time over the extracted tree,
+# in place. Output is committed; the build never runs this. Two classes of change (D1 + D5):
+#
+#   D1  Case-preserving namespace rename: omarchy->omanix, Omarchy->Omanix, OMARCHY->OMANIX.
+#       A plain substring swap is safe here — recon found no mixed-case forms and no
+#       coincidental substrings (the only omarchy{C,P} hits are omarchyConfigDir/omarchyPath,
+#       which *should* rename). This one rule covers command names, $OMARCHY_PATH + all
+#       OMARCHY_* env vars, the omarchyPath QML property, omarchy.* IPC/plugin ids, layer-shell
+#       namespaces, PAM config names, notification protocol ids, and ~/.config|.local/state
+#       runtime dirs. Decision (confirmed): rename EVERYTHING EXCEPT the literal word inside
+#       http(s):// URLs (keeps the example plugin URL in README.md intact).
+#
+#   D5  Structural path rewrites (NOT substring) so the shell stops assuming an Omarchy
+#       on-disk checkout:
+#         §4a  strip the "$OMANIX_PATH/bin/" prefix off script calls -> bare omanix-* PATH names.
+#         §4b  repoint the 3 out-of-tree config/default refs to in-store $OMANIX_PATH/shell/
+#              subpaths (Phase-1 packaging installs the Nix-generated files there). This keeps
+#              them inside shell/ (resolved like other in-tree assets), NOT as synthetic
+#              config//default//bin/ siblings of shell/ (D5 §1).
+#
+# Idempotent: on an already-renamed tree every rule matches nothing, so a second run is a no-op.
 apply_rename() {
   local tree="$1"
-  : # no-op (Q0-03 fills this in)
+
+  # All files in the tree are UTF-8 text (qml/js/json/md/svg/sh/py/qmldir); no binaries to skip.
+  find "$tree" -type f -print0 | xargs -0 --no-run-if-empty perl -CSD -i -pe '
+    # (0) Protect the word inside http(s):// URLs before the rename (encode with a sentinel
+    #     that contains no "omarchy" substring, restored verbatim after the rename).
+    s{(https?://\S+)}{ my $u=$1;
+        $u=~s/omarchy/\x01L\x01/g; $u=~s/Omarchy/\x01T\x01/g; $u=~s/OMARCHY/\x01U\x01/g; $u }ge;
+
+    # (1) D1 case-preserving namespace rename.
+    s/Omarchy/Omanix/g; s/OMARCHY/OMANIX/g; s/omarchy/omanix/g;
+
+    # Restore the URL-protected tokens.
+    s/\x01L\x01/omarchy/g; s/\x01T\x01/Omarchy/g; s/\x01U\x01/OMARCHY/g;
+
+    # (2) D5 §4a: strip the $OMANIX_PATH/bin/ prefix -> bare omanix-* command on PATH.
+    s{(?:[A-Za-z_][A-Za-z0-9_]*\.)?omanixPath \+ "/bin/}{"}g;
+
+    # (3) D5 §4b: repoint out-of-tree config/default refs to in-store $OMANIX_PATH/shell/ subpaths.
+    s{omanixPath \+ "/config/omanix/shell\.json"}{omanixPath + "/shell/config/shell.json"}g;
+    s{omanixPath \+ "/default/omanix/omanix-menu\.jsonc"}{omanixPath + "/shell/defaults/omanix-menu.jsonc"}g;
+    s{omanixPath \+ "/default/omanix/launcher\.hides"}{omanixPath + "/shell/defaults/launcher.hides"}g;
+  '
 }
 # ----------------------------------------------------------------------------
 
-echo ">> Applying rename ruleset (Q0-03; no-op in Q0-01) ..."
+echo ">> Applying Q0-03 rename ruleset (D1 namespace + D5 structural rewrites) ..."
 apply_rename "$SRC"
 
 echo ">> Copying shell/ -> vendor/omanix-shell/ ..."

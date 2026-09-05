@@ -12,7 +12,7 @@ import "Model.js" as Model
 // middle click opens the timezone picker.
 BarWidget {
   id: root
-  moduleName: "omarchy.clock"
+  moduleName: "omanix.clock"
 
   property date displayDate: clock.date
 
@@ -127,7 +127,7 @@ BarWidget {
   }
 
   IpcHandler {
-    target: "omarchy.clock"
+    target: "omanix.clock"
 
     function refresh(): void { root.broadcast("refresh") }
     function cycleFormat(): void { root.cycleFormat() }
@@ -152,7 +152,7 @@ BarWidget {
 
     onPressed: function(b) {
       if (b === Qt.RightButton) root.cycleFormat()
-      else if (b === Qt.MiddleButton) { if (root.bar) root.bar.run("omarchy-menu-timezone") }
+      else if (b === Qt.MiddleButton) { if (root.bar) root.bar.run("omanix-menu-timezone") }
       else root.togglePanel()
     }
 

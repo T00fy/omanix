@@ -12,11 +12,14 @@ input, no build-time patch. Reproducibility comes from these files being in git.
 - **`PROVENANCE.md`** — the pinned rev, commit SHA, vendored date, rename-ruleset reference,
   and the local-edit policy for each snapshot.
 
-## State: RAW (not yet renamed)
+## State: RENAMED (Q0-03 ruleset applied)
 
-`omanix-shell/` is currently the **unmodified** upstream tree. The omanix namespace rename
-(`omarchy-*` → `omanix-*`, `$OMARCHY_PATH` → `$OMANIX_PATH`, `omarchy.*` IPC ids → `omanix.*`)
-is defined and applied by **Q0-03**, not here (Q0-01).
+`omanix-shell/` is the upstream tree with the omanix namespace rename applied
+(`omarchy-*` → `omanix-*`, `$OMARCHY_PATH` → `$OMANIX_PATH`, `omarchy.*` IPC ids → `omanix.*`),
+plus the D5 structural path rewrites (strip `$OMANIX_PATH/bin/` prefixes; repoint config/default
+refs to in-store `$OMANIX_PATH/shell/{config,defaults}/…`). The ruleset lives in
+`apply_rename()` in `../scripts/vendor-omarchy.sh`; see `PROVENANCE.md` for details. The only
+retained `omarchy` literals are inside `http(s)://` URLs (an example plugin URL in `README.md`).
 
 ## Regenerate
 
