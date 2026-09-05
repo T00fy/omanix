@@ -50,4 +50,8 @@ then, this log is the record.
 
 #### Local edits
 
-_None yet._
+- `plugins/services/idle/Service.qml` (2026-09-05, Q1-12) — track the omanix screensaver via
+  Hyprland `openlayer`/`closelayer` on namespace `omanix-screensaver` (it is a layer-shell
+  overlay, not a toplevel window, so the upstream `openwindow`/window-class path never fires).
+  Added `screensaverLayerNamespace`/`screensaverLayerCount`/`screensaverPresentCount` and layer
+  open/close handlers; the legacy window-class path is left intact.

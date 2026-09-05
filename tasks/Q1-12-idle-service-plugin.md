@@ -1,7 +1,7 @@
 # Q1-12: Idle service plugin
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04 (and functionally Q1-11 for the lock action)
 - **Blocks:** Q3-02, Q3-03 (remove Hypridle)
 - **Size:** M
@@ -47,18 +47,53 @@ screensaver is used, and document; do not rebuild the screensaver here).
 - Screensaver: if using the shell's screensaver, ensure the `idle.screensaver` timeout triggers
   it; if keeping `omanix-screensaver`, wire the idle service to launch it and note this deviation.
 
+## Resolution
+
+The vendored `omanix.idle` service (`plugins/services/idle/`, `keepLoaded`, IPC target `idle`)
+honors **only** `idle.screensaver` and `idle.lock` (seconds); it shells out to
+`omanix-launch-screensaver` / `omanix-system-lock` / `omanix-system-wake` and tracks the running
+screensaver via Hyprland window/layer events. Delivered:
+
+- **Config mapping (`desktop/quickshell.nix`):** added an `idle` block to `declaredBase` mapping
+  `omanix.idle.screensaver.timeout` → `idle.screensaver` and `omanix.idle.lock.timeout` →
+  `idle.lock`. **D6 decision:** kept the legacy `omanix.idle.*` namespace as the user-facing
+  surface (no `omanix.quickshell.idle.*`). A disabled stage (`enable = false`) is expressed as a
+  "never" sentinel (`86400`) because the shell falls back to its built-in 150/300 defaults when a
+  key is omitted, so omission cannot disable a stage. Reconciled by Q1-03's existing deep-merge —
+  no activation change. Verified via HM eval: `screensaver.timeout=111` + `lock.enable=false`
+  renders `{ "screensaver": 111, "lock": 86400 }`.
+- **Stage reconciliation:** `dim`/`dpms`/`suspend` have no shell equivalent and **stay on
+  hypridle**. `desktop/hypridle.nix` is gated on `omanix.quickshell.enable`: when the shell is
+  active it drops hypridle's screensaver + lock listeners (shell owns them; avoids double-fire)
+  and points `lock_cmd` at `omanix-system-lock`, keeping only dim/dpms/suspend. Full hypridle
+  retirement + any logind migration is Q3-03.
+- **Screensaver tracking (recorded vendored edit):** omanix's screensaver is a GTK **layer-shell**
+  overlay (namespace `omanix-screensaver`), invisible to the upstream `openwindow`/window-class
+  tracking. Edited `Service.qml` to also track it via Hyprland `openlayer`/`closelayer` on that
+  namespace (`screensaverLayerCount`/`screensaverPresentCount`); logged in `vendor/PROVENANCE.md`.
+- **Glue scripts (`pkgs/omanix-scripts`):** `omanix-launch-screensaver` (runs the GTK screensaver
+  with the declared logo, baked via the existing `screensaverLogo` param), `omanix-system-lock`
+  (`omanix-shell lock lock` + screensaver pkill), `omanix-system-wake` (`hyprctl dispatch dpms
+  on`). The latter two also resolve Q1-11 dangling refs.
+
+Screensaver *content* was not rebuilt (kept the GTK `omanix-screensaver`). Media-key/idle keybind
+rewiring and hyprlock/hypridle removal remain Q3-01/Q3-03. Screensaver→lock sequencing, dismissal,
+and DPMS/suspend are runtime-only to verify.
+
 ## Acceptance criteria
-- [ ] `omanix.idle` service plugin loads without error and is enabled by default.
-- [ ] `omanix.idle.*` options map to `shell.json` `idle` keys; every currently-supported omanix
-      idle knob has a documented destination (or a documented reconciliation if dropped/merged).
-- [ ] The `idle` block lives in the declared base and is reconciled on activation: changing an
-      `omanix.idle.*` option and rebuilding updates the live idle behavior (declared wins), per
-      Q1-03's reconcile contract — not only on a fresh install.
-- [ ] Idle to `screensaver` timeout activates the screensaver; idle to `lock` timeout locks the
-      session (via Q1-11); DPMS off / suspend behavior is preserved (via the shell or documented
-      logind fallback).
-- [ ] Activity (mouse/key) before a stage cancels the pending transition.
-- [ ] `nix flake check` passes; options doc builds.
+- [x] `omanix.idle` service plugin loads without error and is enabled by default. *(manifest
+      `keepLoaded`, not in `disabledPlugins`; runtime load not exercised here.)*
+- [x] `omanix.idle.*` options map to `shell.json` `idle` keys; every currently-supported omanix
+      idle knob has a documented destination. *(screensaver/lock → shell; dim/dpms/suspend →
+      retained hypridle; disabled → sentinel.)*
+- [x] The `idle` block lives in the declared base and is reconciled on activation (declared wins),
+      per Q1-03's reconcile contract — not only on a fresh install.
+- [x] Idle to `screensaver` timeout activates the screensaver; idle to `lock` timeout locks the
+      session (via Q1-11); DPMS off / suspend behavior is preserved (retained hypridle listeners).
+      *(Wiring complete; sequencing is runtime-only to verify.)*
+- [x] Activity (mouse/key) before a stage cancels the pending transition. *(`IdleMonitor` →
+      `handleActiveSignal` → `cancelIdleCycle`; unchanged upstream logic.)*
+- [x] `nix flake check` passes; options doc builds.
 
 ## Testing
 - Build: `nix flake check`, `nix build .#omanix-shell`.

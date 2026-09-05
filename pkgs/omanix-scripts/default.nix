@@ -37,6 +37,7 @@
   hypridle,
   localsend,
   fzf,
+  omanix-screensaver,
   # Data files injected by the module
   themesJson ? null,
   docStylePreview ? null,
@@ -113,6 +114,40 @@ let
         jq
       ];
       selfPath = true;
+    }
+    {
+      # Screensaver launcher for the omanix.idle service. Bakes the declared
+      # logo path (omanix.idle.screensaver.logo) so the bare command the shell
+      # invokes still honors it.
+      name = "omanix-launch-screensaver";
+      deps = [
+        bash
+        coreutils
+        omanix-screensaver
+      ];
+      envs = lib.optionalAttrs (screensaverLogo != null) {
+        OMANIX_SCREENSAVER_LOGO = "${screensaverLogo}";
+      };
+    }
+    {
+      # Lock action for the omanix.idle service (and hypridle lock_cmd) — drives
+      # the omanix.lock shell plugin.
+      name = "omanix-system-lock";
+      deps = [
+        bash
+        coreutils
+        procps
+      ];
+      selfPath = true;
+    }
+    {
+      # Wake handler for the omanix.idle service and omanix.lock plugin.
+      name = "omanix-system-wake";
+      deps = [
+        bash
+        coreutils
+        hyprland
+      ];
     }
     {
       name = "omanix-launch-or-focus";

@@ -24,6 +24,10 @@ Item {
   readonly property int lockDelaySeconds: Math.max(0, lockTimeoutSeconds - firstIdleTimeoutSeconds)
   readonly property bool idleEnabled: stayAwakeStateLoaded && !stayAwake
   readonly property string screensaverClass: "org.omanix.screensaver"
+  // omanix screensaver is a layer-shell overlay, not a toplevel window, so it is
+  // tracked via Hyprland openlayer/closelayer on this namespace (see
+  // handleHyprlandEvent) instead of the window-class path above.
+  readonly property string screensaverLayerNamespace: "omanix-screensaver"
 
   property bool stayAwake: false
   property bool stayAwakeStateLoaded: false
@@ -35,6 +39,11 @@ Item {
   property string lastEventAt: ""
   property var screensaverWindows: ({})
   property int screensaverWindowCount: 0
+  property int screensaverLayerCount: 0
+
+  // Total screensaver surfaces up — toplevel windows (legacy) plus layer-shell
+  // overlays (omanix). Drives the grace/dismiss/lock-arm logic.
+  readonly property int screensaverPresentCount: screensaverWindowCount + screensaverLayerCount
 
   function secondsFromConfig(value, fallback) {
     return IdleModel.secondsFromConfig(value, fallback)
@@ -113,6 +122,7 @@ Item {
   function resetScreensaverWindows() {
     root.screensaverWindows = ({})
     root.screensaverWindowCount = 0
+    root.screensaverLayerCount = 0
   }
 
   function setScreensaverWindow(address, visible) {
@@ -128,9 +138,24 @@ Item {
 
   function handleScreensaverWindowClosed(address) {
     setScreensaverWindow(address, false)
+    handleScreensaverGone()
+  }
 
+  // Layer-shell events (omanix screensaver) carry only the namespace, so a
+  // per-surface address map does not apply; count opens/closes instead.
+  function handleScreensaverLayerOpened() {
+    root.screensaverLayerCount++
+    screensaverLaunchGraceTimer.stop()
+  }
+
+  function handleScreensaverLayerClosed() {
+    root.screensaverLayerCount = Math.max(0, root.screensaverLayerCount - 1)
+    handleScreensaverGone()
+  }
+
+  function handleScreensaverGone() {
     if (!root.idleEnabled || !root.idledThisCycle || !root.screensaverStartedThisCycle) return
-    if (root.screensaverWindowCount > 0) return
+    if (root.screensaverPresentCount > 0) return
 
     // The user dismissed the screensaver before the lock deadline. Treat that
     // as activity and cancel the pending lock; the lock timer is only allowed
@@ -151,6 +176,12 @@ Item {
       var close = eventParts(event, 1)
       var address = String(close[0] || "")
       if (root.screensaverWindows[address]) root.handleScreensaverWindowClosed(address)
+    } else if (name === "openlayer") {
+      var openLayer = eventParts(event, 1)
+      if (String(openLayer[0] || "") === root.screensaverLayerNamespace) root.handleScreensaverLayerOpened()
+    } else if (name === "closelayer") {
+      var closeLayer = eventParts(event, 1)
+      if (String(closeLayer[0] || "") === root.screensaverLayerNamespace) root.handleScreensaverLayerClosed()
     }
   }
 
@@ -161,7 +192,7 @@ Item {
     // the lock timer running once the screensaver exists (or during its short
     // launch grace); Hyprland window events cancel the cycle if it exits before
     // the normal lock deadline.
-    if (root.screensaverStartedThisCycle && (root.screensaverWindowCount > 0 || screensaverLaunchGraceTimer.running)) {
+    if (root.screensaverStartedThisCycle && (root.screensaverPresentCount > 0 || screensaverLaunchGraceTimer.running)) {
       logEvent("idle-monitor-active", "screensaver cycle remains armed")
       return
     }
@@ -191,6 +222,7 @@ Item {
       screensaverDelay: root.screensaverDelaySeconds,
       lockDelay: root.lockDelaySeconds,
       screensaverWindows: root.screensaverWindowCount,
+      screensaverLayers: root.screensaverLayerCount,
       timers: {
         screensaver: screensaverTimer.running,
         lock: lockTimer.running,
@@ -274,7 +306,7 @@ Item {
     interval: 3000
     repeat: false
     onTriggered: {
-      if (root.idleEnabled && root.idledThisCycle && root.screensaverStartedThisCycle && root.screensaverWindowCount === 0 && !idleMonitor.isIdle) {
+      if (root.idleEnabled && root.idledThisCycle && root.screensaverStartedThisCycle && root.screensaverPresentCount === 0 && !idleMonitor.isIdle) {
         root.cancelIdleCycle("screensaver-not-running")
       }
     }

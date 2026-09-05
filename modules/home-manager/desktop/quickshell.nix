@@ -6,6 +6,14 @@
 }:
 let
   cfg = config.omanix.quickshell;
+  # Idle knobs keep their legacy top-level namespace (omanix.idle.*, defined in
+  # theme/default.nix) as the user-facing surface — the shell idle service reads
+  # them from shell.json (see the idle block in declaredBase below).
+  idleCfg = config.omanix.idle;
+  # The shell idle service has no per-stage on/off and falls back to its built-in
+  # defaults (150/300s) when a key is missing, so a disabled stage is expressed as
+  # a "never" timeout rather than by omission.
+  idleDisabledSentinel = 86400;
 
   # A bar layout entry is either a bare widget id ("omanix.clock") or an object
   # carrying inline per-widget settings ({ id = "omanix.clock"; format = ...; }).
@@ -13,8 +21,8 @@ let
 
   # Declarative base merged over the user's shell.json on every activation
   # (declared keys win). Carries the required version marker, the disabled
-  # first-party plugins, and the bar block driven by omanix.quickshell.bar.*.
-  # The idle block joins this base in later work.
+  # first-party plugins, the bar block driven by omanix.quickshell.bar.*, and
+  # the idle block driven by omanix.idle.*.
   declaredBase = pkgs.writeText "omanix-shell.json" (builtins.toJSON {
     version = 1;
     disabledPlugins = cfg.disabledPlugins;
@@ -22,6 +30,13 @@ let
       id = "omanix.bar";
       inherit (cfg.bar) position transparent centerAnchor;
       inherit (cfg.bar) layout;
+    };
+    # The omanix.idle service honors only screensaver + lock timeouts (seconds);
+    # dim/dpms/suspend stay on hypridle (see desktop/hypridle.nix).
+    idle = {
+      screensaver =
+        if idleCfg.screensaver.enable then idleCfg.screensaver.timeout else idleDisabledSentinel;
+      lock = if idleCfg.lock.enable then idleCfg.lock.timeout else idleDisabledSentinel;
     };
   });
 in
