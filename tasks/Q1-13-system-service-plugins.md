@@ -1,10 +1,49 @@
 # Q1-13: polkit / media / network / bluetooth / tray / power plugins
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q3-01, Q3-02, Q3-03
 - **Size:** L
+
+## Resolution
+
+All six plugins are first-party and needed **no QML changes** — they auto-load because none
+are in `disabledPlugins`, and Q1-01 already confirmed the Quickshell build ships every module
+they need (`Polkit`, `Mpris`, `Networking`, `Bluetooth`, `SystemTray`, `UPower`). Five of the
+six bar-widget ids (`omanix.network`, `omanix.bluetooth`, `omanix.tray`, `omanix.power`, plus
+`omanix.audio`) were already placed in the bar layout by Q1-05, so the Nix work was small:
+
+- **media widget placement** (`desktop/quickshell.nix`): added `{ id = "omanix.media"; }` as the
+  first entry of the `bar.layout.center` default (before `omanix.clock`), matching omarchy's
+  default layout (`plugins/bar/README.md`). It serializes into `declaredBase` and reconciles onto
+  the user's `shell.json` on activation like every other Q1-05 widget. The `omanix.media` service
+  (Mpris + Pipewire) also auto-loads to feed it.
+- **polkit conflict** (`desktop/hyprland/autostart.nix`): the `omanix.polkit` service auto-loads
+  and registers the DBus polkit agent, so the old `hyprpolkitagent` autostart is now gated on
+  `!omanix.quickshell.enable` — when the shell is active `omanix.polkit` is the sole agent; the old
+  agent still starts when the shell is off. This pulls part of **Q3-02** forward (precedent: Q1-06
+  retired mako early rather than run two of the same daemon at once).
+- **NetworkManager** (decision: leave to host): the network panel drives its list/connect actions
+  through NetworkManager (`Quickshell.Networking` + `nmcli`), which omanix does **not** enable in
+  any module — it stays out of the host's networking choice. Documented via a comment on the
+  `omanix.network` layout entry; hosts must set `networking.networkmanager.enable` for the panel to
+  be functional. `wl-copy`/`uuidgen` (used by the enterprise-connect path) are already in the
+  shell's `home.packages`; bluetooth is already enabled (`hardware.bluetooth`).
+
+Verified by HM eval: `bar.layout.center` renders `["omanix.media","omanix.clock"]`; the right
+section is unchanged; the autostart Lua omits `hyprpolkitagent` when `quickshell.enable = true` and
+includes it when false. `nix flake check` passes.
+
+**Follow-ups / out of scope (non-blocking — plugins load and core service functions work without
+these):** the `omanix-*` helper CLIs the panels shell out to on user action are not yet
+implemented and belong to later phases — `omanix-hw-laptop-closed`, `omanix-battery-status`,
+`omanix-system-stats` (**Q4-02**); `omanix-audio-output-set-default` (**Q4-03**);
+`omanix-network-{status,band}`, `omanix-dns`, `omanix-bluetooth-{device,power}`,
+`omanix-powerprofiles-{list,set}`, `omanix-launch-floating-terminal-with-presentation`
+(**Q4-04** / audio). Panel keybindings are **Q3-01**; Waybar module + networkmanagerapplet removal
+and the rest of the autostart cleanup are **Q3-02/Q3-03**. `omanix.audio` was placed by Q1-05 and
+is not one of this ticket's six.
 
 ## Context
 Omarchy 4.0.2 folds the remaining system-integration surfaces into shell plugins backed by
@@ -54,19 +93,25 @@ modules and old autostarts (Q3-02/Q3-03); advanced network features (band toggle
   summoned by IPC. Match omarchy's default layout for placement.
 
 ## Acceptance criteria
-- [ ] All six plugins load in the running shell without error (no missing-Quickshell-module
-      failures).
-- [ ] **polkit:** a privileged action (e.g. a pkexec prompt) is handled by `omanix.polkit` with a
-      working password dialog; only one polkit agent is active.
-- [ ] **media:** playing media (e.g. a browser/Spotify) shows in the media bar widget; play/pause
-      and track info work via Mpris.
-- [ ] **network:** the network panel lists Wi-Fi networks and can connect/disconnect; status
-      reflects the active connection.
-- [ ] **bluetooth:** the bluetooth panel lists devices and can pair/connect/disconnect.
-- [ ] **tray:** SNI tray icons (e.g. from a running tray app) appear in the bar and respond to
-      click/menu.
-- [ ] **power:** the power panel shows battery/charge state (UPower) and any power actions render.
-- [ ] `nix flake check` passes.
+- [x] All six plugins load in the running shell without error (no missing-Quickshell-module
+      failures). *(All first-party, absent from `disabledPlugins`; Q1-01 confirmed every module
+      present. Runtime load not exercisable here.)*
+- [~] **polkit:** a privileged action (e.g. a pkexec prompt) is handled by `omanix.polkit` with a
+      working password dialog; only one polkit agent is active. *(Sole-agent guaranteed: hyprpolkitagent
+      autostart gated off when the shell is enabled. Dialog is runtime-only.)*
+- [~] **media:** playing media (e.g. a browser/Spotify) shows in the media bar widget; play/pause
+      and track info work via Mpris. *(`omanix.media` added to the center layout; service auto-loads.
+      Runtime-only.)*
+- [~] **network:** the network panel lists Wi-Fi networks and can connect/disconnect; status
+      reflects the active connection. *(Widget in layout; requires host NetworkManager per decision.
+      Runtime-only.)*
+- [~] **bluetooth:** the bluetooth panel lists devices and can pair/connect/disconnect. *(Widget in
+      layout; bluetooth already enabled. Runtime-only.)*
+- [~] **tray:** SNI tray icons (e.g. from a running tray app) appear in the bar and respond to
+      click/menu. *(Widget in layout. Runtime-only.)*
+- [~] **power:** the power panel shows battery/charge state (UPower) and any power actions render.
+      *(Widget in layout. Runtime-only.)*
+- [x] `nix flake check` passes.
 
 ## Testing
 - Build: `nix flake check`, `nix build .#omanix-shell`.

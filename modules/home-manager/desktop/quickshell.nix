@@ -117,12 +117,13 @@ in
             center = lib.mkOption {
               type = lib.types.listOf layoutEntry;
               default = [
+                { id = "omanix.media"; }
                 {
                   id = "omanix.clock";
                   format = cfg.bar.clockFormat;
                 }
               ];
-              defaultText = lib.literalExpression ''[ { id = "omanix.clock"; format = cfg.bar.clockFormat; } ]'';
+              defaultText = lib.literalExpression ''[ { id = "omanix.media"; } { id = "omanix.clock"; format = cfg.bar.clockFormat; } ]'';
               description = "Widget entries in the bar's center section.";
             };
             right = lib.mkOption {
@@ -138,6 +139,9 @@ in
                 }
                 { id = "omanix.tray"; }
                 { id = "omanix.bluetooth"; }
+                # The network panel drives its list/connect actions through
+                # NetworkManager (Quickshell.Networking + nmcli); the host must
+                # enable networking.networkmanager for it to be functional.
                 { id = "omanix.network"; }
                 { id = "omanix.audio"; }
                 { id = "omanix.power"; }

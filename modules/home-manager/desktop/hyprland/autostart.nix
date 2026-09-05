@@ -30,8 +30,8 @@ in
         hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE GDK_SCALE HYPRCURSOR_THEME HYPRCURSOR_SIZE OMANIX_PATH")
 ${lib.optionalString cfg.quickshell.enable ''        hl.exec_cmd("${pkgs.quickshell}/bin/quickshell -n -p $OMANIX_PATH/shell")
 ''}        hl.exec_cmd("swayosd-server")
-        hl.exec_cmd("systemctl --user start hyprpolkitagent")
-        hl.exec_cmd("wl-paste --type text --watch cliphist store")
+${lib.optionalString (!cfg.quickshell.enable) ''        hl.exec_cmd("systemctl --user start hyprpolkitagent")
+''}        hl.exec_cmd("wl-paste --type text --watch cliphist store")
         hl.exec_cmd("wl-paste --type image --watch cliphist store")
         hl.exec_cmd("${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill")
 ${extraExecLines}

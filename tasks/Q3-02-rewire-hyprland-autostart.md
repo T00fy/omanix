@@ -7,7 +7,10 @@
 - **Size:** S
 
 > **Partial:** the `mako` autostart (`hl.exec_cmd("mako")`) was removed in **Q1-06** when mako
-> was retired. Remaining daemons (swayosd-server, hyprpolkitagent, swaybg, cliphist, …) stay here.
+> was retired. The `hyprpolkitagent` autostart was **gated on `!omanix.quickshell.enable` in
+> Q1-13** (so `omanix.polkit` is the sole agent when the shell runs) — this ticket should finish
+> that (either drop the line entirely, or keep the gated form once the shell is the only path).
+> Remaining daemons (swayosd-server, swaybg, cliphist, …) stay here.
 
 ## Context
 Omanix starts the old desktop daemons from `modules/home-manager/desktop/hyprland/
