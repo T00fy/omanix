@@ -105,6 +105,15 @@ let
       ];
     }
     {
+      name = "omanix-osd";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+      selfPath = true;
+    }
+    {
       name = "omanix-launch-or-focus";
       deps = [
         bash

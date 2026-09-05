@@ -1,7 +1,7 @@
 # Q1-07: OSD plugin + `omanix-osd`
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q3-01, Q3-02, Q3-03
 - **Size:** M
@@ -33,10 +33,19 @@ keys in Hyprland (Q3-01); removing the SwayOSD module (Q3-03); OSD theming (Q2-0
 - **D1:** plugin id/IPC target and command name renamed via Q0-03 patch.
 
 ## Acceptance criteria
-- [ ] `omanix.osd` plugin loads (`omanix-shell shell listPlugins`).
-- [ ] `omanix-osd` is on PATH (from `pkgs/omanix-scripts`) and, when invoked, shows an OSD overlay in the running shell.
-- [ ] A volume or brightness change (via `wpctl`/`brightnessctl` + `omanix-osd`) displays the corresponding overlay with the current level.
-- [ ] `nix flake check` passes; `pkgs/omanix-scripts` builds with `omanix-osd` present.
+- [~] `omanix.osd` plugin loads (`omanix-shell shell listPlugins`). *(Plugin vendored + D1-renamed with `keepLoaded: true`, not in `disabledPlugins` — loads by default. Runtime listing needs a live session.)*
+- [~] `omanix-osd` is on PATH (from `pkgs/omanix-scripts`) and, when invoked, shows an OSD overlay in the running shell. *(Shipped: `omanix-osd` builds the JSON payload and calls `omanix-shell -q osd show`. Overlay render is runtime-only.)*
+- [~] A volume or brightness change (via `wpctl`/`brightnessctl` + `omanix-osd`) displays the corresponding overlay with the current level. *(Runtime-only; producers are Q4-03.)*
+- [x] `nix flake check` passes; `pkgs/omanix-scripts` builds with `omanix-osd` present.
+
+## Implementation outcome
+No QML changes — the vendored `omanix.osd` plugin already loads (`keepLoaded: true`). Ported
+`bin/omarchy-osd` → `pkgs/omanix-scripts/src/omanix-osd.sh` (D1 rename; upstream's `omarchy osd
+--help` dispatcher call replaced with an inline `usage()` since omanix has no `omanix`
+dispatcher; `omanix:summary/args/examples` headers kept). Registered in
+`pkgs/omanix-scripts/default.nix` (`deps = [bash coreutils jq]`, `selfPath = true` to reach the
+sibling `omanix-shell`). It forwards `osd show '<json>'` best-effort (`-q`), so a down shell
+no-ops (exit 0). No new option surface; no HM-module change (package already in `home.packages`).
 
 ## Testing
 - Build: `nix build .#omanix-scripts` (or the attr that exposes scripts); `omanix-osd --help`/no-arg runs without error.
