@@ -93,6 +93,7 @@ in
             left = lib.mkOption {
               type = lib.types.listOf layoutEntry;
               default = [
+                { id = "omanix.menu"; }
                 { id = "omanix.workspaces"; }
                 { id = "omanix.active-window"; }
               ];
@@ -145,6 +146,9 @@ in
     home.packages = [
       pkgs.quickshell
       pkgs.jq
+      # gtk-launch: how the menu/launcher (AppLibrary.qml) starts desktop
+      # entries. Not guaranteed on PATH by gtk.enable's theming integration.
+      pkgs.gtk3
     ];
 
     # Reconcile the declared base onto the user-writable shell.json. The shell

@@ -389,36 +389,21 @@ var GUARD_READERS = [
   "omanix-dns"
 ]
 
-// Package and command presence account for most of what the guards ask, and
-// asked one at a time they are almost all fork: the shipped menu spends over
-// a second on them. Answer them inside the guard process instead. These
-// shadow the real commands for the batch only, so they have to agree with
-// them everywhere, including for no arguments at all (present is true of
-// nothing, missing is not).
+// Command presence accounts for most of what the guards ask, and asked one at
+// a time they are almost all fork: the shipped menu spends over a second on
+// them. Answer them inside the guard process instead. These shadow the real
+// commands for the batch only, so they have to agree with them everywhere,
+// including for no arguments at all (present is true of nothing, missing is
+// not).
 //
-// `pacman -Q` resolves a name through what installed packages provide, not
-// just what they are called -- with gvim installed it reports `vim` as
-// present -- so the set has to carry provides too, or `install.editor.vim`
-// comes back and offers to install what is already there. A version
-// constraint (`bash>=1`) is not a name any set can answer, so it goes to
-// pacman itself; no shipped guard writes one.
-//
-// `pacman -Qi` wraps a long list across continuation lines whenever COLUMNS
-// is set in the environment, which a login shell may well have done, so the
-// parser follows the indented lines rather than reading the first one and
-// dropping half of what is installed.
+// Upstream also backed omanix-pkg-present/omanix-pkg-missing with `pacman -Q`.
+// NixOS has no equivalent global installed-package query, and package-install
+// menu rows are out of scope, so the pacman machinery is dropped: a package
+// guard in a user extension resolves to an undefined command (guard false,
+// row hidden) rather than answering wrong. The portable command predicates
+// stay.
 function guardHelpers() {
-  return 'declare -A __omanix_pkgs=()\n'
-    + 'mapfile -t __omanix_pkg_names < <({ pacman -Qq; LC_ALL=C pacman -Qi'
-    + " | awk '/^[A-Za-z]/ { provides = ($0 ~ /^Provides/); sub(/^[^:]*: /, \"\") }"
-    + ' provides && $0 != "None" { n = split($0, p, " ");'
-    + ' for (i = 1; i <= n; i++) { sub(/[<>=].*/, "", p[i]); print p[i] } }\'; } 2>/dev/null)\n'
-    + 'for __omanix_pkg in "${__omanix_pkg_names[@]}"; do __omanix_pkgs[$__omanix_pkg]=1; done\n'
-    + '__omanix_pkg_has() { [[ -n ${__omanix_pkgs[$1]-} ]] && return 0; '
-    + '[[ $1 == *[\\<\\>=]* ]] && { pacman -Q "$1" &>/dev/null; return; }; return 1; }\n'
-    + 'omanix-pkg-present() { local p; for p in "$@"; do __omanix_pkg_has "$p" || return 1; done; return 0; }\n'
-    + 'omanix-pkg-missing() { local p; for p in "$@"; do __omanix_pkg_has "$p" || return 0; done; return 1; }\n'
-    + 'omanix-cmd-present() { local c; for c in "$@"; do command -v "$c" &>/dev/null || return 1; done; return 0; }\n'
+  return 'omanix-cmd-present() { local c; for c in "$@"; do command -v "$c" &>/dev/null || return 1; done; return 0; }\n'
     + 'omanix-cmd-missing() { local c; for c in "$@"; do command -v "$c" &>/dev/null || return 0; done; return 1; }\n'
 }
 

@@ -1,146 +1,56 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-menu_cmd() {
-  local placeholder="$1"
-  local options="$2"
-  echo -e "$options" | "$WALKER_BIN" --dmenu --width "$OMANIX_MENU_WIDTH" --minheight 1 --maxheight "$OMANIX_MENU_MAX_HEIGHT" --placeholder "$placeholder…"
+# omanix:summary=Open the Omanix Quickshell menu / app launcher
+# omanix:args=[toggle|show|hide] [<menu-id>]
+# omanix:examples=omanix-menu | omanix-menu show system | omanix-menu toggle trigger.capture.screenrecord
+
+set -euo pipefail
+
+usage() {
+  cat <<USAGE
+Usage: omanix-menu [toggle|show|hide] [<menu-id>]
+
+Drives the omanix.menu Quickshell plugin over IPC. With no menu id the root
+menu opens, which doubles as the app launcher (typing there fuzzy-matches
+installed apps). A dotted <menu-id> (e.g. system, trigger.capture) opens that
+route directly.
+
+Verbs:
+  toggle [<menu-id>]  Show the menu, or hide it if already open (default).
+  show   [<menu-id>]  Always open (summon) the menu.
+  hide                Close the menu.
+
+Examples:
+  omanix-menu
+  omanix-menu show system
+  omanix-menu toggle trigger.capture.screenrecord
+USAGE
 }
 
-back_to() { "$1"; }
+verb="toggle"
+menu=""
 
-show_main_menu() {
-  CHOICE=$(menu_cmd "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n󰏘  Style\n󰒓  Setup\n󰍛  System")
-  go_to_menu "$CHOICE"
-}
+case "${1:-}" in
+  toggle | show) verb="$1"; menu="${2:-}" ;;
+  hide) verb="hide"; menu="" ;;
+  -h | --help) usage; exit 0 ;;
+  "") ;;
+  # A bare dotted id (omanix-menu system) toggles that route directly.
+  *) menu="$1" ;;
+esac
 
-go_to_menu() {
-  case "${1,,}" in
-    *apps*)    omanix-launch-walker ;;
-    *learn*)   show_learn_menu ;;
-    *trigger*) show_trigger_menu ;;
-    *style*)   show_style_menu ;;
-    *setup*)   show_setup_menu ;;
-    *system*)  show_system_menu ;;
-    *) ;;
-  esac
-}
+if [[ $verb == hide ]]; then
+  omanix-shell shell hide omanix.menu
+  exit 0
+fi
 
-show_learn_menu() {
-  CHOICE=$(menu_cmd "Learn" "󰌌  Keybindings\n󰖟  Hyprland\n󱄅  NixOS Wiki\n󰊠  Neovim\n󱆃  Bash")
-  case "$CHOICE" in
-    *Keybindings*) omanix-menu-keybindings ;;
-    *Hyprland*)    xdg-open "https://wiki.hyprland.org" ;;
-    *NixOS*)       xdg-open "https://wiki.nixos.org" ;;
-    *Neovim*)      xdg-open "https://neovim.io/doc/" ;;
-    *Bash*)        xdg-open "https://www.gnu.org/software/bash/manual/" ;;
-    *) back_to show_main_menu ;;
-  esac
-}
+# "show" maps to the shell's summon (always open); "toggle" is show-or-hide.
+method="toggle"
+[[ $verb == show ]] && method="summon"
 
-show_trigger_menu() {
-  CHOICE=$(menu_cmd "Trigger" "󰄀  Capture\n󰤲  Share\n󰃉  Color Picker")
-  case "$CHOICE" in
-    *Capture*) show_capture_menu ;;
-    *Share*)   show_share_menu ;;
-    *Color*)   hyprpicker -a ;;
-    *) back_to show_main_menu ;;
-  esac
-}
-
-show_capture_menu() {
-  CHOICE=$(menu_cmd "Capture" "󰹑  Screenshot\n󰻃  Screenrecord")
-  case "$CHOICE" in
-    *Screenshot*)   show_screenshot_menu ;;
-    *Screenrecord*) show_screenrecord_menu ;;
-    *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_screenshot_menu() {
-  CHOICE=$(menu_cmd "Screenshot" "󰏫  Snap with Editing\n󰅍  Straight to Clipboard")
-  case "$CHOICE" in
-    *Editing*)   omanix-cmd-screenshot smart ;;
-    *Clipboard*) omanix-cmd-screenshot smart clipboard ;;
-    *) back_to show_capture_menu ;;
-  esac
-}
-
-show_screenrecord_menu() {
-  CHOICE=$(menu_cmd "Screenrecord" "󰍹  Record Screen\n󰍹  Record + Desktop Audio\n󰍹  Record + Microphone\n󰍹  Record + All Audio\n󰓛  Stop Recording")
-  case "$CHOICE" in
-    *"All Audio"*)    omanix-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
-    *"Desktop Audio"*) omanix-cmd-screenrecord --with-desktop-audio ;;
-    *Microphone*)     omanix-cmd-screenrecord --with-microphone-audio ;;
-    *"Record Screen"*) omanix-cmd-screenrecord ;;
-    *Stop*)           omanix-cmd-screenrecord --stop-recording ;;
-    *) back_to show_capture_menu ;;
-  esac
-}
-show_share_menu() {
-  CHOICE=$(menu_cmd "Share" "󰅍  Clipboard\n󰈔  File\n󰉋  Folder")
-  case "$CHOICE" in
-    *Clipboard*) omanix-cmd-share clipboard ;;
-    *File*)      omanix-term --class="org.omanix.bash" -- bash -c "omanix-cmd-share file" ;;
-    *Folder*)    omanix-term --class="org.omanix.bash" -- bash -c "omanix-cmd-share folder" ;;
-    *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_style_menu() {
-  CHOICE=$(menu_cmd "Style" "󰏘  Change Theme & Wallpaper\n󰈮  Read Style Guide")
-  case "$CHOICE" in
-    *Change*) omanix-menu-style ;;
-    *Read*)   omanix-show-style-help ;;
-    *) back_to show_main_menu ;;
-  esac
-}
-
-show_setup_menu() {
-  CHOICE=$(menu_cmd "Setup" "󰕾  Audio\n󰖩  Wifi\n󰂯  Bluetooth\n󰋁  Hyprland\n󰒲  Hypridle\n󰌾  Hyprlock\n󰍜  Waybar\n󰌧  Walker")
-  case "$CHOICE" in
-    *Audio*)     pavucontrol & ;;
-    *Wifi*)      omanix-launch-or-focus-tui wlctl ;;
-    *Bluetooth*) omanix-launch-or-focus-tui bluetui ;;
-    *Hyprland*)  omanix-show-setup-help hyprland ;;
-    *Hypridle*)  omanix-show-setup-help hypridle ;;
-    *Hyprlock*)  omanix-show-setup-help hyprlock ;;
-    *Waybar*)    omanix-show-setup-help waybar ;;
-    *Walker*)    omanix-show-setup-help walker ;;
-    *) back_to show_main_menu ;;
-  esac
-}
-
-show_system_menu() {
-  if pgrep -x hypridle >/dev/null; then
-    IDLE_LABEL="󰒳  Inhibit Hypridle"
-  else
-    IDLE_LABEL="󰒲  Enable Hypridle"
-  fi
-
-  if [[ -f "${XDG_RUNTIME_DIR:-/tmp}/omanix-scale-active" ]]; then
-    SCALE_LABEL="󰆓  Disable UI Scale"
-  else
-    SCALE_LABEL="󰍹  Enable UI Scale"
-  fi
-
-  CHOICE=$(menu_cmd "System" "󰌾  Lock\n󱄄  Screensaver\n$IDLE_LABEL\n$SCALE_LABEL\n󰗽  Logout\n󰒲  Suspend\n󰜉  Restart\n󰐥  Shutdown")
-  case "$CHOICE" in
-    *"Inhibit"*)              omanix-toggle-idle --off ;;
-    *"Enable H"*)             omanix-toggle-idle --on ;;
-    *"Disable UI Scale"*)     omanix-scale --off ;;
-    *"Enable UI Scale"*)      omanix-scale --on ;;
-    *Lock*)             omanix-lock-screen ;;
-    *Screensaver*)      omanix-screensaver ${OMANIX_SCREENSAVER_LOGO:+--logo "$OMANIX_SCREENSAVER_LOGO"} ;;
-    *Logout*)           omanix-cmd-logout ;;
-    *Suspend*)          systemctl suspend ;;
-    *Restart*)          omanix-cmd-reboot ;;
-    *Shutdown*)         omanix-cmd-shutdown ;;
-    *) back_to show_main_menu ;;
-  esac
-}
-
-if [[ -n "$1" ]]; then
-  go_to_menu "$1"
+if [[ -n $menu ]]; then
+  payload=$(jq -cn --arg menu "$menu" '{menu:$menu}')
+  omanix-shell shell "$method" omanix.menu "$payload"
 else
-  show_main_menu
+  omanix-shell shell "$method" omanix.menu
 fi

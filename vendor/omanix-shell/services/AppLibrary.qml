@@ -78,11 +78,11 @@ Item {
     var id = String(desktopId || "")
     if (!id) return
     root.beginLaunchFeedback(name)
-    // Start gtk-launch inside a scope under app-graphical.slice so apps do not
-    // inherit wayland-wm@.service. Keeping gtk-launch as the desktop-entry
-    // resolver supports IDs with spaces and entries that UWSM rejects.
+    // gtk-launch resolves the desktop entry, which supports IDs with spaces.
+    // (Upstream wrapped this in uwsm-app for its systemd-managed session;
+    // omanix runs Hyprland without uwsm, so gtk-launch is invoked directly.)
     // Keep the .desktop suffix or ids like org.telegram.desktop won't resolve.
-    Util.execDetached("uwsm-app -- gtk-launch " + Util.shellQuote(id + ".desktop"))
+    Util.execDetached("gtk-launch " + Util.shellQuote(id + ".desktop"))
   }
 
   function remove(desktopId, name) {

@@ -1,0 +1,57 @@
+// Omanix default menu tree, consumed by the omanix.menu Quickshell plugin
+// (vendor/omanix-shell/plugins/menu, Menu.qml:defaultMenuPath). Shipped into
+// the store at $OMANIX_PATH/shell/defaults/omanix-menu.jsonc; user overrides
+// merge on top from ~/.config/omanix/extensions/omanix-menu.jsonc.
+//
+// Each key is a dotted id; the parent is the id minus its last segment (root
+// is implicit). `kind` is inferred: `action` present => action; else `target`
+// present => link; else submenu. Every action points at a command that ships
+// on PATH today (pkgs/omanix-scripts + hyprpicker/pavucontrol/systemctl). No
+// `when`/`checked` guards in v1 — package guards have no NixOS backing.
+{
+  // The app launcher. QML-native provider over DesktopEntries; typing at the
+  // root menu also searches these, so root doubles as the launcher.
+  "apps": { "icon": "󰀻", "label": "Apps", "provider": "apps" },
+
+  "learn": { "icon": "󰧑", "label": "Learn" },
+  "learn.keybindings": { "icon": "󰌌", "label": "Keybindings", "action": "omanix-menu-keybindings" },
+  "learn.hyprland": { "icon": "󰖟", "label": "Hyprland Wiki", "target": "https://wiki.hyprland.org" },
+  "learn.nixos": { "icon": "󱄅", "label": "NixOS Wiki", "target": "https://wiki.nixos.org" },
+  "learn.neovim": { "icon": "󰊠", "label": "Neovim Docs", "target": "https://neovim.io/doc/" },
+  "learn.bash": { "icon": "󱆃", "label": "Bash Manual", "target": "https://www.gnu.org/software/bash/manual/" },
+
+  "trigger": { "icon": "󱓞", "label": "Trigger" },
+  "trigger.capture": { "icon": "󰄀", "label": "Capture" },
+  "trigger.capture.screenshot": { "icon": "󰹑", "label": "Screenshot" },
+  "trigger.capture.screenshot.edit": { "icon": "󰏫", "label": "Snap with Editing", "action": "omanix-cmd-screenshot smart" },
+  "trigger.capture.screenshot.clipboard": { "icon": "󰅍", "label": "Straight to Clipboard", "action": "omanix-cmd-screenshot smart clipboard" },
+  "trigger.capture.screenrecord": { "icon": "󰻃", "label": "Screenrecord" },
+  "trigger.capture.screenrecord.screen": { "icon": "󰍹", "label": "Record Screen", "action": "omanix-cmd-screenrecord" },
+  "trigger.capture.screenrecord.desktop": { "icon": "󰍹", "label": "Record + Desktop Audio", "action": "omanix-cmd-screenrecord --with-desktop-audio" },
+  "trigger.capture.screenrecord.mic": { "icon": "󰍹", "label": "Record + Microphone", "action": "omanix-cmd-screenrecord --with-microphone-audio" },
+  "trigger.capture.screenrecord.all": { "icon": "󰍹", "label": "Record + All Audio", "action": "omanix-cmd-screenrecord --with-desktop-audio --with-microphone-audio" },
+  "trigger.capture.screenrecord.stop": { "icon": "󰓛", "label": "Stop Recording", "action": "omanix-cmd-screenrecord --stop-recording" },
+  "trigger.share": { "icon": "󰤲", "label": "Share" },
+  "trigger.share.clipboard": { "icon": "󰅍", "label": "Clipboard", "action": "omanix-cmd-share clipboard" },
+  "trigger.colorpicker": { "icon": "󰃉", "label": "Color Picker", "action": "hyprpicker -a" },
+
+  "style": { "icon": "󰏘", "label": "Style" },
+  "style.theme": { "icon": "󰏘", "label": "Change Theme & Wallpaper", "action": "omanix-menu-style" },
+  "style.guide": { "icon": "󰈮", "label": "Read Style Guide", "action": "omanix-show-style-help" },
+
+  "setup": { "icon": "󰒓", "label": "Setup" },
+  "setup.audio": { "icon": "󰕾", "label": "Audio", "action": "pavucontrol" },
+  "setup.wifi": { "icon": "󰖩", "label": "Wifi", "action": "omanix-launch-or-focus-tui wlctl" },
+  "setup.bluetooth": { "icon": "󰂯", "label": "Bluetooth", "action": "omanix-launch-or-focus-tui bluetui" },
+  "setup.hyprland": { "icon": "󰋁", "label": "Hyprland", "action": "omanix-show-setup-help hyprland" },
+
+  "system": { "icon": "󰍛", "label": "System" },
+  "system.lock": { "icon": "󰌾", "label": "Lock", "action": "omanix-lock-screen" },
+  "system.screensaver": { "icon": "󱄄", "label": "Screensaver", "action": "omanix-screensaver" },
+  "system.idle": { "icon": "󰒲", "label": "Toggle Idle Lock", "action": "omanix-toggle-idle" },
+  "system.scale": { "icon": "󰍹", "label": "Toggle UI Scale", "action": "omanix-scale" },
+  "system.logout": { "icon": "󰗽", "label": "Logout", "action": "omanix-cmd-logout" },
+  "system.suspend": { "icon": "󰒲", "label": "Suspend", "action": "systemctl suspend" },
+  "system.restart": { "icon": "󰜉", "label": "Restart", "action": "omanix-cmd-reboot" },
+  "system.shutdown": { "icon": "󰐥", "label": "Shutdown", "action": "omanix-cmd-shutdown" }
+}

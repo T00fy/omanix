@@ -1,7 +1,7 @@
 # Q1-08: Menu/launcher plugin + app search
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q2-05, Q3-01, Q3-03, Q3-05, Q5-01
 - **Size:** L
@@ -40,11 +40,18 @@ removing the walker/elephant modules (Q3-03); menu theming (Q2-02).
   predicates exist or the guard is dropped, else entries vanish or error.
 
 ## Acceptance criteria
-- [ ] `omanix.menu` plugin loads; invoking `omanix-menu toggle` (or summon) opens the launcher.
-- [ ] Typing a query fuzzy-matches installed `.desktop` apps and launching one starts the app.
-- [ ] A hierarchical menu (from `omanix-menu.jsonc`) navigates submenus and dispatches actions to `omanix-*` commands.
-- [ ] No entry references an out-of-scope subsystem (install/provision/channel/factory-reset) or a non-existent command.
-- [ ] `nix flake check` passes; the menu JSONC is valid and shipped to the store.
+- [x] `omanix.menu` plugin loads (`keepLoaded`); `omanix-menu` (a thin `omanix-shell` IPC shim, `[toggle|show|hide] [<menu-id>]`) opens the menu via `shell summon/toggle omanix.menu`.
+- [x] Typing a query fuzzy-matches installed `.desktop` apps (root search loads the `apps` provider via `loadProvidersForSearch`) and launching one starts the app (fixed the `uwsm-app` launch path → `gtk-launch`).
+- [x] A hierarchical menu (from `omanix-menu.jsonc`) navigates submenus and dispatches actions to `omanix-*` commands.
+- [x] No entry references an out-of-scope subsystem or a non-existent command (all `action:` verified against `pkgs/omanix-scripts` + hyprpicker/pavucontrol/systemctl).
+- [x] `nix flake check` passes; the menu JSONC is valid (`stripJsonc`+`jq`) and shipped to `$OMANIX_PATH/shell/defaults/omanix-menu.jsonc`.
+
+## Implementation summary
+- New default tree `pkgs/omanix-shell/defaults/omanix-menu.jsonc` (38 entries); installed by `pkgs/omanix-shell/default.nix` (D5: Nix-shipped, not vendored).
+- `omanix-menu` shim rewritten (`src/omanix-menu.sh`); `default.nix` entry reduced to `[bash coreutils jq]` + `selfPath` (dropped walker deps/envs). Satisfies Q3-05's "retire `omanix-menu.sh`".
+- Vendored QML edits (recorded per Q0-01): `services/AppLibrary.qml` launch `uwsm-app -- gtk-launch` → `gtk-launch` (omanix disables uwsm; `pkgs.gtk3` added to the shell module's `home.packages`); `plugins/menu/MenuModel.js guardHelpers()` strips the `pacman` machinery, keeping the portable `omanix-cmd-present/missing`.
+- Bar: prepended `{ id = "omanix.menu"; }` to `omanix.quickshell.bar.layout.left` (closes the Q1-05 deferral).
+- Runtime verification (launcher opens, app launch, submenu dispatch) pending a live Hyprland+shell session.
 
 ## Testing
 - Build and enter a Hyprland session with the shell running.

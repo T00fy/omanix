@@ -217,19 +217,8 @@ let
       deps = [
         bash
         coreutils
-        hyprpicker
-        libnotify
-        systemd
-        xdg-utils
-        pavucontrol
-        terminalWrapper
+        jq
       ];
-      envs = {
-        WALKER_BIN = "${walker}/bin/walker";
-        OMANIX_SCREENSAVER_LOGO = screensaverLogo;
-        OMANIX_MENU_WIDTH = menuWidth;
-        OMANIX_MENU_MAX_HEIGHT = menuMaxHeight;
-      };
       selfPath = true;
     }
     {
