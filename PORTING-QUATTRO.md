@@ -133,6 +133,25 @@ package only; out-of-tree references are repointed to Nix-native locations. The 
 **Consequence:** Q0-03's rename is no longer pure token-substitution — it also performs the structural
 path rewrites in (4). See the Q0-03 and Phase 1 bullets below.
 
+### D6 — Namespace: shell plugin ids vs Nix options (avoid conflation)
+
+Two `omanix.*` namespaces coexist and must not be confused:
+
+- **Shell plugin ids / IPC targets** — `omanix.<component>` (`omanix.bar`, `omanix.menu`,
+  `omanix.notifications`, `omanix.osd`, `omanix.clipboard`, `omanix.background`, `omanix.lock`,
+  `omanix.idle`, …). These come from the D1 rename of the vendored QML tree; they are what
+  `omanix-shell shell listPlugins` reports and what IPC calls address. They are **immutable** — do
+  not rename them. The `omanix.<x>` entries in the §3 component table below are these plugin ids.
+- **Nix Home-Manager options** that *configure* a shell component nest under
+  **`omanix.quickshell.<component>.*`** (e.g. `omanix.quickshell.bar.{position,transparent,layout,…}`),
+  consistent with Q1-03's `omanix.quickshell.*` shell namespace (chosen to avoid the pre-existing
+  `omanix.shell` zsh collision). New Phase-1/2 component tickets follow this when they add options.
+
+**Legacy exceptions (predate the shell):** `omanix.waybar.*` and `omanix.idle.*`
+(`modules/home-manager/desktop/hypridle.nix`) are top-level option namespaces from the old stack.
+Whether idle migrates to `omanix.quickshell.idle.*` or keeps `omanix.idle.*` for back-compat is
+**Q1-12's** call — recorded here so it is a known decision, not a silent contradiction.
+
 ---
 
 ## 3. Current omanix baseline (what we're changing)
@@ -182,6 +201,7 @@ everything" lives. Phase 5 is optional and depends on Phase 1.
 - [x] ✅ New pkg `pkgs/omanix-shell/` — install the committed, already-renamed `vendor/omanix-shell/` QML tree (~175 files) into the store (no fetch, no build-time rename), ship plugin assets (emojis.json, agent SVGs, per-plugin helper scripts) alongside. **Done (Q1-02):** `stdenv.mkDerivation` with `dontBuild` + plain `cp -r` (no text mutation) installs the tree at `$out/share/omanix/shell/`, so `OMANIX_PATH = ${pkgs.omanix-shell}/share/omanix` and launch is `quickshell -n -p $OMANIX_PATH/shell` (task-spec layout, consistent across Q0-02/Q1-02/Q1-03 — supersedes D5's earlier `$out/shell` wording). Nothing synthetic glued alongside. Exposed via `overlays.default` + a `packages.x86_64-linux.omanix-shell` output. Verified: 175/175 files, all assets, no `OMARCHY_PATH`, `nix flake check` passes.
 - [x] ✅ New HM module `modules/home-manager/desktop/quickshell.nix`: export `OMANIX_PATH`, autostart `quickshell -n -p $OMANIX_PATH/shell` from Hyprland, seed a default `shell.json` to `~/.config/omanix/shell.json` (activation **copy**, not symlink — it's user-mutable + IPC-written). **Done (Q1-03):** options under `omanix.quickshell.*` (namespaced away from the pre-existing zsh `omanix.shell.*`); declared base is minimal (`version` + Q0-05 `disabledPlugins`), deep-merged over the user file each activation (declared wins, runtime-only keys preserved). **Per D5:** `OMANIX_PATH` exported via the gated `env` entry in `desktop/hyprland/envs.nix` **plus** appended to the `dbus-update-activation-environment` allowlist in `desktop/hyprland/autostart.nix` — explicitly **not** uwsm. Old stack coexists (no removal — Q3-02).
 - [ ] Get built-in plugins loading: bar, notifications, osd, menu, clipboard, background, lock, idle, polkit, media, network, bluetooth, tray, power.
+  - [x] ✅ **bar** (Q1-05): `omanix.quickshell.bar.*` options generate the full `bar` block into Q1-03's `declaredBase` — position/transparent/centerAnchor + a `layout` reproducing the Waybar content set (`omanix.workspaces`, `omanix.active-window`, `omanix.clock`, `omanix.indicators` [ScreenRecording, StayAwake], `omanix.tray`, `omanix.bluetooth`, `omanix.network`, `omanix.audio`, `omanix.power`). SystemUpdate/NightLight/Dictation omitted per Q0-05; media (Q1-13) and menu (Q1-08) deferred. Options nest under `omanix.quickshell.*` per **D6**. Runtime render pending a live session.
 - [ ] Port the `omanix-shell` IPC CLI (`quickshell ipc` wrapper) + `omanix-bar`, `omanix-osd`, `omanix-restart-shell`, `omanix-refresh-shell`, `omanix-shell-config`.
 
 ### Phase 2 — Theming → shell (hybrid, D2) ⬜

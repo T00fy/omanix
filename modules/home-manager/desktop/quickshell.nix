@@ -7,13 +7,22 @@
 let
   cfg = config.omanix.quickshell;
 
+  # A bar layout entry is either a bare widget id ("omanix.clock") or an object
+  # carrying inline per-widget settings ({ id = "omanix.clock"; format = ...; }).
+  layoutEntry = lib.types.either lib.types.str (lib.types.attrsOf lib.types.anything);
+
   # Declarative base merged over the user's shell.json on every activation
-  # (declared keys win). Kept minimal here: only the required version marker
-  # and the disabled first-party plugins. Bar layout and the idle block become
-  # option-driven in later work and join this base then.
+  # (declared keys win). Carries the required version marker, the disabled
+  # first-party plugins, and the bar block driven by omanix.quickshell.bar.*.
+  # The idle block joins this base in later work.
   declaredBase = pkgs.writeText "omanix-shell.json" (builtins.toJSON {
     version = 1;
     disabledPlugins = cfg.disabledPlugins;
+    bar = {
+      id = "omanix.bar";
+      inherit (cfg.bar) position transparent centerAnchor;
+      inherit (cfg.bar) layout;
+    };
   });
 in
 {
@@ -40,6 +49,94 @@ in
         list is reconciled onto the user's config on every rebuild (declared
         config wins).
       '';
+    };
+
+    bar = {
+      position = lib.mkOption {
+        type = lib.types.enum [
+          "top"
+          "bottom"
+          "left"
+          "right"
+        ];
+        default = "top";
+        description = "Screen edge the bar is anchored to.";
+      };
+
+      transparent = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Whether the bar background is transparent.";
+      };
+
+      centerAnchor = lib.mkOption {
+        type = lib.types.str;
+        default = "omanix.clock";
+        description = ''
+          Widget id in the center section pinned to the exact screen center;
+          other center entries flank it. Empty string disables anchoring.
+        '';
+      };
+
+      clockFormat = lib.mkOption {
+        type = lib.types.str;
+        default = "dddd HH:mm";
+        description = ''
+          Clock widget format, using Qt date-format tokens (not strftime).
+          Consumed inline by the omanix.clock entry in the default layout.
+        '';
+      };
+
+      layout = lib.mkOption {
+        type = lib.types.submodule {
+          options = {
+            left = lib.mkOption {
+              type = lib.types.listOf layoutEntry;
+              default = [
+                { id = "omanix.workspaces"; }
+                { id = "omanix.active-window"; }
+              ];
+              description = "Widget entries in the bar's left section.";
+            };
+            center = lib.mkOption {
+              type = lib.types.listOf layoutEntry;
+              default = [
+                {
+                  id = "omanix.clock";
+                  format = cfg.bar.clockFormat;
+                }
+              ];
+              defaultText = lib.literalExpression ''[ { id = "omanix.clock"; format = cfg.bar.clockFormat; } ]'';
+              description = "Widget entries in the bar's center section.";
+            };
+            right = lib.mkOption {
+              type = lib.types.listOf layoutEntry;
+              default = [
+                {
+                  id = "omanix.indicators";
+                  items = [
+                    "ScreenRecording"
+                    "StayAwake"
+                  ];
+                }
+                { id = "omanix.tray"; }
+                { id = "omanix.bluetooth"; }
+                { id = "omanix.network"; }
+                { id = "omanix.audio"; }
+                { id = "omanix.power"; }
+              ];
+              description = "Widget entries in the bar's right section.";
+            };
+          };
+        };
+        default = { };
+        description = ''
+          Bar widget layout by section. Each entry is a widget id string or an
+          object of { id, ...inline-settings }. Arrays are replaced wholesale on
+          reconcile (declared config wins over runtime IPC edits). The default
+          reproduces omanix's Waybar content set.
+        '';
+      };
     };
   };
 
