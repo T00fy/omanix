@@ -97,6 +97,42 @@ ai.nix` for claude-code + opencode). No mise. Fewer agents available than upstre
 but pure and Nix-idiomatic. The agent *abstraction* (default-agent picker, launcher, usage
 widget) is ported; the *provisioning* mechanism (mise wrappers) is not.
 
+### D5 — `OMANIX_PATH`: decompose, no synthetic root (refines D1, D4)
+
+The vendored shell reads **one** env var, `OMARCHY_PATH` (→ `OMANIX_PATH`), and treats it as a
+*checkout root*, deriving everything as a sibling of `shell/` (`vendor/omanix-shell/shell.qml:27-31`:
+`shellPath = omarchyPath + "/shell"`, `defaultsPath = omarchyPath + "/config/omarchy/shell.json"`,
+plus `omarchyPath + "/bin/omarchy-*"` and `.../default/omarchy/*` across ~13 QML files). Upstream is
+one on-disk checkout where those siblings exist; our Q0-01 snapshot vendored **only** `shell/`, and
+Nix has no natural "project root."
+
+We do **not** reconstruct a synthetic multi-dir root. `OMANIX_PATH` points at the shell **code**
+package only; out-of-tree references are repointed to Nix-native locations. The contract:
+
+1. **Resolves to:** the store path of the `pkgs/omanix-shell` package, with the vendored (Q0-03-renamed)
+   QML tree installed at `$out/shell/`. `OMANIX_PATH = ${pkgs.omanix-shell}`; launched with
+   `quickshell -n -p $OMANIX_PATH/shell`. Nothing synthetic (`config/`/`default/`/`bin/`) is glued
+   alongside to mimic an Omarchy checkout.
+2. **Exported via** the Hyprland `env` directive in `modules/home-manager/desktop/hyprland/envs.nix`
+   (`{ _args = [ "OMANIX_PATH" "${pkgs.omanix-shell}" ]; }`) **plus** the
+   `dbus-update-activation-environment` allowlist in `autostart.nix` — explicitly **not** uwsm, which
+   omanix disables (`modules/nixos/hyprland.nix`: `programs.hyprland.withUWSM = false`).
+3. **In-tree assets — unchanged**, resolved via `$OMANIX_PATH/shell/...`: `plugins/`, `emojis.json`,
+   in-tree `.sh` helpers (`clipboard/capture.sh`, `image-picker/list.sh`, `services/hidden-entries.sh`),
+   agent SVGs (QML-relative via `Qt.resolvedUrl`).
+4. **Out-of-tree references — decomposed** (implemented by Q0-03/Q0-05):
+   - `$OMANIX_PATH/bin/omanix-*` → **bare command names on PATH** (scripts ship via `pkgs.omanix-scripts`
+     in `home.packages`; consistent with D4).
+   - `$OMANIX_PATH/config/omanix/shell.json` (`defaultsPath`) and
+     `$OMANIX_PATH/default/omanix/{omanix-menu.jsonc,launcher.hides}` → **Nix-generated files** at
+     explicit locations (not faked repo-root siblings). `shell.qml`'s `builtinShellConfig` fallback
+     covers a missing `defaultsPath`.
+5. **User config stays separate:** `~/.config/omanix/shell.json` is user-mutable/IPC-written — seeded by
+   activation **copy**, never symlinked (R3). Unaffected by `OMANIX_PATH`.
+
+**Consequence:** Q0-03's rename is no longer pure token-substitution — it also performs the structural
+path rewrites in (4). See the Q0-03 and Phase 1 bullets below.
+
 ---
 
 ## 3. Current omanix baseline (what we're changing)
@@ -135,16 +171,16 @@ everything" lives. Phase 5 is optional and depends on Phase 1.
 
 - [ ] ✅ Branch `quattro` created.
 - [ ] Vendor a committed in-repo snapshot of omarchy's `shell/` under `vendor/omanix-shell/`; record the exact upstream rev in `vendor/PROVENANCE.md` (Q0-01). No source flake input.
-- [ ] Decide the `OMANIX_PATH` mechanism: what store path the shell resolves, how it's exported into the Hyprland/uwsm session env (omarchy relies on uwsm setting `OMARCHY_PATH`).
-- [ ] Define the D1 rename ruleset as the re-runnable rename step of `scripts/vendor-omarchy.sh` (applied once at vendor time, output committed); verify its diff (Q0-03).
-- [ ] Pin the shell's external-command contract and per-command disposition (Q0-05): KEEP / ephemeral-overlay / out-of-scope-disable; derive the seeded `disabledPlugins` set and note the two non-rename landmines.
+- [x] ✅ Decide the `OMANIX_PATH` mechanism (Q0-02): **decided — see D5.** Single env var → the shell *code* package (`OMANIX_PATH = ${pkgs.omanix-shell}`, tree at `$out/shell/`); exported via the Hyprland `env` directive + dbus activation-env allowlist (omanix disables uwsm), **not** a synthetic checkout root. Out-of-tree refs decompose to PATH (`bin/`) and Nix-generated files (`config/`/`default/`).
+- [ ] Define the D1 rename ruleset as the re-runnable rename step of `scripts/vendor-omarchy.sh` (applied once at vendor time, output committed); verify its diff (Q0-03). **Per D5, this is not token-substitution alone:** also strip the `omarchyPath + "/bin/"` prefix on script calls (→ bare `omanix-*` PATH names) and repoint `omarchyPath + "/config/omarchy/shell.json"` + `.../default/omarchy/*` (`omanix-menu.jsonc`, `launcher.hides`) to their Nix-generated locations. Keep these structural rewrites auditable via `git diff vendor/`.
+- [ ] Pin the shell's external-command contract and per-command disposition (Q0-05): KEEP / ephemeral-overlay / out-of-scope-disable; derive the seeded `disabledPlugins` set and note the two non-rename landmines. **Reconcile with D5:** the `bin/omanix-*`→PATH policy means every KEEP'd command must be reachable on PATH via `pkgs.omanix-scripts`; this disposition list feeds Q0-03's prefix-strip set (the two must agree).
 - [ ] Confirm scope cuts with a one-liner in each retired area.
 
 ### Phase 1 — Quickshell bring-up (KEYSTONE) ⬜
 
 - [ ] Package Quickshell. **Verify** `pkgs.quickshell` (nixpkgs) / the upstream Quickshell flake builds with the required Qt service modules: `Quickshell.{Io,Wayland,Hyprland,Bluetooth,Networking}` and `Quickshell.Services.{Mpris,Notifications,Pam,Pipewire,Polkit,SystemTray,UPower}`. This is the single biggest technical risk — validate early.
-- [ ] New pkg `pkgs/omanix-shell/` — install the committed, already-renamed `vendor/omanix-shell/` QML tree (~175 files) into the store (no fetch, no build-time rename), ship plugin assets (emojis.json, agent SVGs, per-plugin helper scripts) alongside.
-- [ ] New HM module `modules/home-manager/desktop/shell.nix` (or `ui/quickshell.nix`): export `OMANIX_PATH`, autostart `quickshell -n -p $OMANIX_PATH/shell` from Hyprland, seed a default `shell.json` to `~/.config/omanix/shell.json` (activation **copy**, not symlink — it's user-mutable + IPC-written).
+- [ ] New pkg `pkgs/omanix-shell/` — install the committed, already-renamed `vendor/omanix-shell/` QML tree (~175 files) into the store (no fetch, no build-time rename), ship plugin assets (emojis.json, agent SVGs, per-plugin helper scripts) alongside. **Per D5:** install the tree at `$out/shell/` and set `OMANIX_PATH = $out`; do **not** synthesize `config/`/`default/`/`bin/` siblings (out-of-tree refs resolve via PATH / Nix-generated files, per Q0-03).
+- [ ] New HM module `modules/home-manager/desktop/shell.nix` (or `ui/quickshell.nix`): export `OMANIX_PATH`, autostart `quickshell -n -p $OMANIX_PATH/shell` from Hyprland, seed a default `shell.json` to `~/.config/omanix/shell.json` (activation **copy**, not symlink — it's user-mutable + IPC-written). **Per D5:** export `OMANIX_PATH` via the `env` directive in `desktop/hyprland/envs.nix` (switch its signature to `{ lib, pkgs, ... }`) **plus** the `dbus-update-activation-environment` allowlist in `desktop/hyprland/autostart.nix` — explicitly **not** uwsm.
 - [ ] Get built-in plugins loading: bar, notifications, osd, menu, clipboard, background, lock, idle, polkit, media, network, bluetooth, tray, power.
 - [ ] Port the `omanix-shell` IPC CLI (`quickshell ipc` wrapper) + `omanix-bar`, `omanix-osd`, `omanix-restart-shell`, `omanix-refresh-shell`, `omanix-shell-config`.
 
