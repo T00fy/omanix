@@ -137,7 +137,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 | Q0-02 | Define `OMANIX_PATH` session-env mechanism | Q0-01 | ⬜ |
 | Q0-03 | `omarchy`→`omanix` rename ruleset (applied at vendor time, D1) | Q0-01, Q0-05 | ⬜ |
 | Q0-04 | Runtime state dir layout (`~/.local/state/omanix`) | none | ✅ |
-| Q0-05 | Shell external-command contract & plugin scope | Q0-01 | ⬜ |
+| Q0-05 | Shell external-command contract & plugin scope | Q0-01 | ✅ |
 
 ### Phase 1 — Quickshell bring-up (keystone)
 | ID | Title | Depends on | Status |
