@@ -8,6 +8,7 @@ in
   imports = [
     ./hyprland.nix
     ./login.nix
+    ./security.nix
     ./steam.nix
     ./libreoffice.nix
     ./docker.nix

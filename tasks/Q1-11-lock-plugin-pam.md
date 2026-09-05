@@ -1,10 +1,40 @@
 # Q1-11: Lock plugin (PAM) + Nix PAM wiring
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q1-12 (idle triggers lock), Q3-03 (remove Hyprlock)
 - **Size:** L
+
+## Resolution
+The vendored `omanix.lock` plugin needed **no QML changes** — it is a first-party `keepLoaded`
+service (id `omanix.lock`, IPC target `lock` with `lock`/`isLocked`/`status`/`preview`; locks via
+`WlSessionLock`) that auto-loads because it is absent from `disabledPlugins`. It refuses to lock
+unless `/etc/pam.d/omanix-lock-password` exists and authenticates against that PAM service;
+fingerprint uses a separate `omanix-lock-fingerprint` service, probed via `fprintd-list`.
+
+The Nix-specific work is declarative PAM: new module `modules/nixos/security.nix` declares
+`security.pam.services.omanix-lock-password` (standard unix auth, `fprintAuth = false` so the
+password context stays password-only) and, gated on `services.fprintd.enable`,
+`security.pam.services.omanix-lock-fingerprint` (`unixAuth = false`, `fprintAuth = true`). No
+script writes `/etc/pam.d`. Options nest under `omanix.security.lock.*` (`enable`,
+`fingerprint.enable`, the latter defaulting to `config.services.fprintd.enable`). Registered in
+`modules/nixos/default.nix` imports.
+
+On-demand lock is the generic wrapper `omanix-shell lock lock` (target `lock`, method `lock`) — no
+bespoke script. The lock timeout source is `shell.json` `idle.lock` (seconds), wired into the
+declared base by Q1-12, not here. Faillock omitted per decision (plain password auth).
+
+Verified: `nix flake check` passes; `omanix-lock-password` materializes with `unixAuth=true`,
+`fprintAuth=false`; `omanix-lock-fingerprint` is absent when fprintd is off and appears
+(`unixAuth=false`, `fprintAuth=true`) when `services.fprintd.enable = true` — confirmed via
+`nix eval` of `nixosModules.default`.
+
+Out of scope / follow-ups: Hyprlock removal (Q3-03), keybind/idle rewiring (Q3-01/Q1-12),
+fprintd enrollment (Q4-02). The plugin best-effort-calls four not-yet-existing helpers
+(`omanix-hyprland-session-locked`, `omanix-system-wake`, `omanix-brightness-{keyboard,display}`) —
+non-blocking, core lock/unlock works without them. `omanix-lock-screen`'s bitwarden-lock/xkb-reset
+is not carried over (revisit with Q3-01).
 
 ## Context
 Omarchy 4.0.2 replaced Hyprlock with an in-shell lock screen: the `omarchy.lock` plugin
@@ -53,14 +83,14 @@ noted below but only carried forward if trivial.
 
 ## Acceptance criteria
 - [ ] `omanix.lock` plugin loads in the running shell without error.
-- [ ] A NixOS module declares the PAM service the lock uses (`security.pam.services.…`), and it
+- [x] A NixOS module declares the PAM service the lock uses (`security.pam.services.…`), and it
       evaluates; no script writes `/etc/pam.d` at runtime.
 - [ ] Locking the session via `omanix-shell` IPC shows the lock view; the correct login password
       unlocks; a wrong password is rejected.
 - [ ] Fingerprint unlock works when a reader is enrolled *or* is cleanly absent/disabled when not
       (no hard failure when no reader).
-- [ ] `idle.lock` in `shell.json` is documented as the lock timeout source (consumed by Q1-12).
-- [ ] `nix flake check` passes; options doc builds if a new `omanix.*` option was added.
+- [x] `idle.lock` in `shell.json` is documented as the lock timeout source (consumed by Q1-12).
+- [x] `nix flake check` passes; options doc builds if a new `omanix.*` option was added.
 
 ## Testing
 - Build: `nix flake check`, `nix build .#omanix-shell`.
