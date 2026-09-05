@@ -6,6 +6,7 @@
     ./core/fonts.nix
     ./core/gtk.nix
     ./core/shell.nix
+    ./core/state.nix
     ./core/git.nix
     ./core/languages.nix
     ./apps/firefox.nix

@@ -1,7 +1,7 @@
 # Q0-04: Runtime state dir layout (`~/.local/state/omanix`)
 
 - **Phase:** 0
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** Q2-03, Q2-04, Q5-03 (soft — these read/write state)
 - **Size:** S
@@ -26,8 +26,10 @@ existing omanix state.
   - `current/` — active theme + background pointers (omarchy moved `current` from `~/.config`
     to `~/.local/state`). Runtime theme switches (Q2-04) write here; the declared `omanix.theme`
     (Q2-03) rewrites it on activation.
-  - `toggles/` — flag files: `idle-*`, `dnd`, `crash-capture-off`, `stay-awake`, etc. Presence
-    = state. Toggle scripts create/remove them.
+  - `toggles/` — flag files: `bar-off`, `crash-capture-off`, `screensaver-off`, `suspend-off`,
+    `hypr/*.lua`, etc. Presence = state. Toggle scripts create/remove them. **Note:** there is
+    no `toggles/dnd` — DND is a `dnd` boolean inside `notifications.json`; and `stay-awake`
+    lives at `indicators/stay-awake`, not under `toggles/`.
   - `agents/usage/<agent>.json` — usage collector output (Q5-02).
   - `done/` — one-shot markers (only if any ported feature needs them; most provisioning
     markers are out of scope).
@@ -43,11 +45,15 @@ existing omanix state.
   needs; extend the enumerated list as tickets add state.
 
 ## Acceptance criteria
-- [ ] A documented state-dir layout exists (in this ticket and referenced from code comments).
-- [ ] The base directory is ensured writable per-user (activation `mkdir`/tmpfiles, not a store symlink).
-- [ ] A shared resolver/convention for the state root honoring `XDG_STATE_HOME` is defined.
-- [ ] The declarative-vs-runtime ownership rule is written down and points at D2.
-- [ ] `nix flake check` passes.
+- [x] A documented state-dir layout exists (`docs/state-layout.md`, referenced from
+  `lib/state.nix` and `modules/home-manager/core/state.nix` comments).
+- [x] The base directory is ensured writable per-user (`home.activation.omanixStateDir`
+  `mkdir -p`, not a store symlink) in `modules/home-manager/core/state.nix`.
+- [x] A shared resolver/convention for the state root honoring `XDG_STATE_HOME` is defined
+  (`omanixLib.state.rootExpr` in `lib/state.nix`; matching bash idiom documented).
+- [x] The declarative-vs-runtime ownership rule is written down (`docs/state-layout.md`) and
+  points at D2/R3.
+- [x] `nix flake check` passes.
 
 ## Testing
 ```bash
