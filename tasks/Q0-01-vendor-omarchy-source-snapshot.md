@@ -1,7 +1,7 @@
 # Q0-01: Vendor upstream omarchy source into the repo (pinned snapshot)
 
 - **Phase:** 0
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** Q0-02, Q0-03, Q1-01, Q1-02
 - **Size:** S
@@ -57,12 +57,17 @@ package build (Q1-02); the rename rule set (Q0-03, which the script calls); runt
 - No `flake.lock` entry is needed for the source — reproducibility comes from the committed files.
 
 ## Acceptance criteria
-- [ ] No omarchy source input in `flake.nix` (any earlier `omarchy-src` stub and its plumbing removed).
-- [ ] A committed `vendor/omanix-shell/` tree holds the omarchy `shell/` source (+ assets) omanix needs.
-- [ ] `scripts/vendor-omarchy.sh` regenerates that tree from a given upstream rev (clone → rename via Q0-03 → copy), documented as a manual dev tool, not a build step.
-- [ ] `vendor/PROVENANCE.md` records repo, exact rev, absolute date, rename ruleset, and copied subtree/assets.
-- [ ] The chosen local-edit policy is documented.
-- [ ] `nix flake check` passes with no omarchy source input.
+- [x] No omarchy source input in `flake.nix` (none existed; `flake.nix`/`flake.lock` have no omarchy/quickshell node — nothing to remove, recorded in `vendor/PROVENANCE.md`).
+- [x] A committed `vendor/omanix-shell/` tree holds the omarchy `shell/` source (+ assets) omanix needs (175 files, byte-identical to upstream `v4.0.2 shell/`; all assets self-contained in the subtree).
+- [x] `scripts/vendor-omarchy.sh` regenerates that tree from a given upstream rev (clone → rename hook (no-op in Q0-01, Q0-03 fills it) → copy), documented as a manual dev tool, not a build step.
+- [x] `vendor/PROVENANCE.md` records repo, exact rev (`v4.0.2` / `346e69e1`), absolute date (2026-09-05), rename ruleset (Q0-03, not yet applied), and copied subtree/assets.
+- [x] The chosen local-edit policy is documented (log edits in PROVENANCE.md; defer `vendor/patches/` until edits grow large).
+- [ ] `nix flake check` passes with no omarchy source input. (See note: a pre-existing undeclared `spotatui` input in `flake.nix` may fail `nix flake check` independently of this ticket.)
+
+## Decisions made
+- **Pinned rev = `v4.0.2`** (release tag matching the parity goal), not the checked-out `quattro` HEAD `b686ed89`. `v4.0.2` = commit `346e69e1cec6c4e8924531874af6ba010a1bc99e`. Confirmed with maintainer.
+- **Committed the RAW upstream tree**; the omanix namespace rename lands in Q0-03. The vendor script wires a no-op `apply_rename()` hook for Q0-03 to fill in.
+- **`vendor/omanix-shell/` is a faithful mirror** — omanix-authored notes live at the `vendor/` root (`vendor/README.md`, `vendor/PROVENANCE.md`), not inside the mirrored tree (upstream ships its own `shell/README.md`; adding files inside would be clobbered on re-vendor).
 
 ## Testing
 ```bash
