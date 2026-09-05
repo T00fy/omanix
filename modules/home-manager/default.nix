@@ -32,6 +32,7 @@
     ./desktop/hyprpaper.nix
     ./desktop/hypridle.nix
     ./desktop/hyprlock.nix
+    ./desktop/quickshell.nix
     ./ui/waybar.nix
     ./ui/elephant.nix
     ./ui/walker.nix

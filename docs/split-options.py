@@ -60,6 +60,11 @@ categories = {
         "description": "Theme selection, wallpaper, Waybar, Walker menu, and fonts.",
         "options": {},
     },
+    "quickshell": {
+        "title": "Quickshell",
+        "description": "The Quickshell desktop shell. Enable with `omanix.quickshell.enable = true`.",
+        "options": {},
+    },
     "user": {
         "title": "User",
         "description": "User identity (git name/email).",
@@ -83,6 +88,8 @@ def categorize_option(name):
         return "terminal"
     if name.startswith("omanix.browser."):
         return "browser"
+    if name.startswith("omanix.quickshell."):
+        return "quickshell"
     if name.startswith("omanix.user."):
         return "user"
     if name.startswith("omanix.theme") or name.startswith("omanix.wallpaper") or name.startswith("omanix.font") or name.startswith("omanix.waybar.") or name.startswith("omanix.walker.") or name.startswith("omanix.menu."):

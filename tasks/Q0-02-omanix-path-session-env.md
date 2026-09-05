@@ -32,9 +32,9 @@ itself (Q1-02).
   `wayland.windowManager.hyprland.settings.env` entries (`{ _args = [ "NAME" "VALUE" ]; }`,
   rendered to Lua). **Add `OMANIX_PATH` there** so every Hyprland child inherits it. Example:
   ```nix
-  { _args = [ "OMANIX_PATH" "${config.omanix.shell.package}/share/omanix" ]; }
+  { _args = [ "OMANIX_PATH" "${config.omanix.quickshell.package}/share/omanix" ]; }
   ```
-  (Reference `omanix.shell.package` or interpolate the pkg directly — align with how Q1-02/Q1-03
+  (Reference `omanix.quickshell.package` or interpolate the pkg directly — align with how Q1-02/Q1-03
   expose the package. Coordinate the exact attribute with Q1-03.)
 - Hyprland `env` entries are exported to the compositor and all spawned processes, which covers
   autostart + keybind-invoked scripts. Confirm this is sufficient vs. also needing it in the
@@ -42,7 +42,7 @@ itself (Q1-02).
   `OMANIX_PATH` — if so, add via `systemd.user.sessionVariables` or `home.sessionVariables`).
 - Do NOT re-derive fallback paths from `$HOME` inside scripts; per omarchy convention scripts
   rely solely on `OMANIX_PATH`. Keep that invariant.
-- Make the value overridable: expose an `omanix.shell.path` (or reuse `omanix.shell.package`)
+- Make the value overridable: expose an `omanix.quickshell.path` (or reuse `omanix.quickshell.package`)
   option so advanced users / the `dev` workflow can point at a checkout.
 
 ## Acceptance criteria

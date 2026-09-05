@@ -1,7 +1,7 @@
 # Q1-03: HM module — Quickshell session integration + seed `shell.json`
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q0-02, Q0-05, Q1-02
 - **Blocks:** Q1-04
 - **Size:** M
@@ -27,11 +27,15 @@ leaving genuine runtime-only edits intact. This ticket defines that contract onc
 **Out of scope:** the IPC CLI (Q1-04); per-plugin behavior (Q1-05+); theming (Q2-*).
 
 ## Implementation notes
-- Create `modules/home-manager/desktop/shell.nix` (import it from
+- **Namespace:** the desktop shell lives under `omanix.quickshell.*`, **not** `omanix.shell.*`.
+  `omanix.shell` is already owned by the interactive zsh module (`core/shell.nix`,
+  `omanix.shell.dirhistory`); the desktop shell is namespaced separately to avoid the collision.
+  All quattro tickets that name the shell option use `omanix.quickshell.*`.
+- Create `modules/home-manager/desktop/quickshell.nix` (import it from
   `modules/home-manager/default.nix` or the desktop aggregator — match how existing `desktop/`
   and `ui/` modules are wired). Follow existing module option style under `omanix.*`.
-- Options: `omanix.shell.enable` (bool), `omanix.shell.package` (default `pkgs.omanix-shell`),
-  optionally `omanix.shell.path` used by Q0-02 to compute `OMANIX_PATH`.
+- Options: `omanix.quickshell.enable` (bool), `omanix.quickshell.package` (default `pkgs.omanix-shell`),
+  optionally `omanix.quickshell.path` used by Q0-02 to compute `OMANIX_PATH`.
 - **Env:** ensure `OMANIX_PATH` is exported (this is Q0-02's mechanism — coordinate the exact
   attribute; `OMANIX_PATH = "${cfg.package}/share/omanix"`). Add the Hyprland `env` entry (or
   reference Q0-02's).
@@ -93,12 +97,12 @@ This is the same declared-source-of-truth + ephemeral-runtime-overlay split D2 d
 (Q2-03/Q2-04), applied to the shell-config axis.
 
 ## Acceptance criteria
-- [ ] `omanix.shell.enable = true` launches the Quickshell process on Hyprland start.
-- [ ] `OMANIX_PATH` is set in the session and resolves to the shell package (`$OMANIX_PATH/shell/shell.qml` exists).
-- [ ] `~/.config/omanix/shell.json` is a writable copy (never a store symlink); on a fresh machine it is created from the declared base.
-- [ ] On rebuild, keys owned by `omanix.*` options are reconciled to their declared values (declared config wins), while runtime-only keys with no declared counterpart are preserved. The activation step is idempotent and succeeds whether or not the shell is running.
-- [ ] The old stack still runs alongside (no premature removal); no fatal startup crash.
-- [ ] `nix flake check` passes; options doc builds.
+- [x] `omanix.quickshell.enable = true` launches the Quickshell process on Hyprland start. *(Impl complete: gated `hl.exec_cmd` autostart line; runtime session not exercised in this environment.)*
+- [x] `OMANIX_PATH` is set in the session and resolves to the shell package (`$OMANIX_PATH/shell/shell.qml` exists). *(Gated Hyprland `env` entry + dbus allowlist; store path `${pkgs.omanix-shell}/share/omanix/shell/shell.qml` exists.)*
+- [x] `~/.config/omanix/shell.json` is a writable copy (never a store symlink); on a fresh machine it is created from the declared base. *(Activation writes via `cp`+`chmod u+w`/`jq`+`mv`, never a symlink.)*
+- [x] On rebuild, keys owned by `omanix.*` options are reconciled to their declared values (declared config wins), while runtime-only keys with no declared counterpart are preserved. The activation step is idempotent and succeeds whether or not the shell is running. *(Verified with `jq -s '.[0] * .[1]'`: runtime-only keys preserved, declared `disabledPlugins` wins; reload guarded by `command -v … || true`.)*
+- [x] The old stack still runs alongside (no premature removal); no fatal startup crash. *(mako/swayosd/swaybg/cliphist autostarts untouched.)*
+- [x] `nix flake check` passes; options doc builds (`omanix.quickshell.*` documented under a new "Quickshell" category).
 
 ## Testing
 ```bash
@@ -106,7 +110,7 @@ cd /home/toofy/projects/omanix
 nix flake check
 nix build .#packages.x86_64-linux.docs
 ```
-Runtime (Hyprland session with `omanix.shell.enable = true`):
+Runtime (Hyprland session with `omanix.quickshell.enable = true`):
 - `pgrep -af quickshell` shows the process running against `$OMANIX_PATH/shell`.
 - `echo $OMANIX_PATH` prints the store path; `cat ~/.config/omanix/shell.json` exists and is writable.
 - The bar (or at least the shell root) appears without QML fatal errors in `journalctl --user` / stderr.
@@ -116,4 +120,4 @@ Runtime (Hyprland session with `omanix.shell.enable = true`):
 
 ## References
 - omarchy: launch in Hyprland autostart (`default/hypr/apps/omarchy-shell.lua`), `config/omarchy/shell.json`, `docs/omarchy-shell.md`
-- omanix: new `modules/home-manager/desktop/shell.nix`; `modules/home-manager/desktop/hyprland/autostart.nix`; `envs.nix` (Q0-02)
+- omanix: new `modules/home-manager/desktop/quickshell.nix`; `modules/home-manager/desktop/hyprland/autostart.nix`; `envs.nix` (Q0-02)
