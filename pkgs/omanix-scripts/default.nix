@@ -28,6 +28,7 @@
   grim,
   slurp,
   wl-clipboard,
+  wtype,
   hyprlock,
   bitwarden-cli,
   pulseaudio,
@@ -220,6 +221,52 @@ let
         jq
       ];
       selfPath = true;
+    }
+    {
+      name = "omanix-menu-emoji";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-menu-emoji-insert";
+      deps = [
+        bash
+        coreutils
+        wl-clipboard
+        wtype
+      ];
+    }
+    {
+      name = "omanix-clipboard-open";
+      deps = [
+        bash
+        coreutils
+        jq
+        xdg-utils
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-clipboard-paste-text";
+      deps = [
+        bash
+        coreutils
+        jq
+        wl-clipboard
+        wtype
+      ];
+    }
+    {
+      name = "omanix-clipboard-paste-file";
+      deps = [
+        bash
+        coreutils
+        wl-clipboard
+        wtype
+      ];
     }
     {
       name = "omanix-menu-style";

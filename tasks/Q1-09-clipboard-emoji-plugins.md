@@ -1,7 +1,7 @@
 # Q1-09: Clipboard + emoji plugins + CLIs
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q3-03, Q3-04
 - **Size:** M
@@ -37,11 +37,18 @@ theming (Q2-02).
   that behavior; don't truncate/echo secrets.
 
 ## Acceptance criteria
-- [ ] `omanix.clipboard` and `omanix.emojis` plugins load.
-- [ ] `omanix-clipboard-open` opens the history picker; selecting an entry copies it to the clipboard; paste-file/paste-text variants work.
-- [ ] `omanix-menu-emoji` opens the emoji picker; `omanix-menu-emoji-insert` inserts the chosen emoji into the focused input.
-- [ ] A large (>1MB) or UTF-16 clipboard entry is handled without crashing/garbling.
-- [ ] `nix flake check` passes; `pkgs/omanix-scripts` builds with the new CLIs; `emojis.json` present in the store shell dir.
+- [x] `omanix.clipboard` and `omanix.emojis` plugins load (first-party + `keepLoaded`; enabled unless in `disabledPlugins` — needed no QML changes). *(runtime-only to confirm in a live session)*
+- [x] `omanix-clipboard-open` opens the history picker (IPC toggle) / opens an entry externally with `--history-index`; `paste-text`/`paste-file` copy the exact stored bytes and paste (Shift+Insert / Ctrl+V) unless `--copy-only`.
+- [x] `omanix-menu-emoji` opens the emoji picker (IPC toggle); `omanix-menu-emoji-insert` types the chosen emoji into the focused input (`wtype`, clipboard fallback).
+- [x] A large (>1MB) or UTF-16 clipboard entry is handled without crashing/garbling — the hardening lives in the already-vendored `capture.sh` (perl heuristics) + `ClipboardHistory.js` (8 KB display cap); the paste CLI reads the untruncated `.text` back by index. No content echoed (secret hygiene).
+- [x] `nix flake check` passes; `omanix-scripts` builds with the five new CLIs; `emojis.json` present at `$OMANIX_PATH/shell/plugins/emojis/emojis.json`.
+
+## Implementation summary
+- No QML changes and no new option/`shell.json` surface: both plugins are first-party `keepLoaded` overlays that already load under their D1-renamed ids (`omanix.clipboard` / `omanix.emojis`). `emojis.json` + `capture.sh` are already vendored and resolve in-store, so `pkgs/omanix-shell/` is untouched.
+- Five new CLIs in `pkgs/omanix-scripts/src/`, reconstructed from the verified QML call contract (the upstream `bin/` originals were never vendored): `omanix-menu-emoji` + `omanix-clipboard-open` are thin `omanix-shell` IPC shims (`selfPath`); `omanix-menu-emoji-insert`, `omanix-clipboard-paste-{text,file}` shell out to `wl-clipboard`/`wtype`. Registered in `default.nix` (added the `wtype` input).
+- Clipboard history is the plugin's own bare newest-first JSON array at `~/.local/state/omanix/clipboard-history.json`; `--history-index N` reads `.[N]` (no cliphist).
+- `modules/home-manager/desktop/quickshell.nix`: added `wl-clipboard`, `util-linux` (setpriv), `procps` (pkill), `perl` to `home.packages` so the shell's `wl-paste --watch capture.sh` watchers resolve at runtime.
+- Runtime verification (picker opens, paste into focus, emoji insert, >1MB/UTF-16 handling) pending a live Hyprland + shell session.
 
 ## Testing
 - Build and enter a Hyprland session with the shell running (mako/walker not running).

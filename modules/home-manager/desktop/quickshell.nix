@@ -149,6 +149,13 @@ in
       # gtk-launch: how the menu/launcher (AppLibrary.qml) starts desktop
       # entries. Not guaranteed on PATH by gtk.enable's theming integration.
       pkgs.gtk3
+      # Runtime deps of the clipboard plugin's capture.sh, which the shell
+      # spawns as wl-paste --watch: wl-paste, setpriv, pkill, plus the perl
+      # UTF-16 decoder.
+      pkgs.wl-clipboard
+      pkgs.util-linux
+      pkgs.procps
+      pkgs.perl
     ];
 
     # Reconcile the declared base onto the user-writable shell.json. The shell
