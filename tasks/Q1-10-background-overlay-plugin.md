@@ -1,10 +1,23 @@
 # Q1-10: Background overlay plugin
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q3-02
 - **Size:** S
+
+## Resolution
+Enabled by seeding `~/.local/state/omanix/current/background` as a writable symlink to the
+declared `config.omanix.activeTheme.assets.wallpaper` via a new `home.activation.omanixBackgroundState`
+step in `modules/home-manager/desktop/quickshell.nix`. `Background.qml` resolves its image with
+`readlink -f` on that link at startup. The plugin auto-loads as a first-party `service` (kind
+`service`, id `omanix.background`, IPC target `background`, layershell namespace `omanix-background`)
+because it is absent from `disabledPlugins[]` — so no QML edit, no new option, and no `shell.json`
+config block were needed. Chosen approach = ticket option (a) (point at the store wallpaper),
+adapted to the plugin's real mechanism (state symlink, not a config key); D2-aligned since a
+runtime switcher may repoint the link ephemerally and each rebuild reasserts the declared theme.
+swaybg autostart + `hyprpaper.nix` left in place — their removal is Q3-02. `nix flake check` and
+`nix build .#omanix-shell` pass.
 
 ## Context
 Omarchy 4.0.2 draws the desktop wallpaper from inside the Quickshell process via the

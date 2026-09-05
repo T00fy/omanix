@@ -176,5 +176,17 @@ in
       # fail activation whether or not the shell is running.
       run sh -c 'command -v omanix-refresh-shell >/dev/null 2>&1 && omanix-refresh-shell || true'
     '';
+
+    # Point the shell's background overlay (omanix.background) at the declared
+    # theme wallpaper. Background.qml resolves its image via
+    # `readlink -f ~/.local/state/omanix/current/background` on startup. Seeded
+    # as a writable symlink (not a store symlink): the declared theme is
+    # reasserted each rebuild, and a runtime switcher may repoint it as an
+    # ephemeral overlay.
+    home.activation.omanixBackgroundState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run mkdir -p "$HOME/.local/state/omanix/current"
+      run ln -sfn "${config.omanix.activeTheme.assets.wallpaper}" \
+        "$HOME/.local/state/omanix/current/background"
+    '';
   };
 }
