@@ -78,6 +78,7 @@ let
   omanixScripts = pkgs.omanix-scripts.override {
     walker = inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default;
     terminalWrapper = config.omanix.terminal.wrapper;
+    shellDefaults = config.omanix.quickshell.declaredBaseFile;
     inherit
       themesJson
       docStylePreview

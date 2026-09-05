@@ -159,6 +159,17 @@ in
         '';
       };
     };
+
+    # Internal: the store path of the declarative shell.json base, exposed so
+    # the shell-management CLIs (omanix-refresh-shell, omanix-bar) reconcile
+    # against the exact same base as activation.
+    declaredBaseFile = lib.mkOption {
+      type = lib.types.path;
+      internal = true;
+      readOnly = true;
+      default = declaredBase;
+      description = "Store path of the Nix-generated declarative shell.json base.";
+    };
   };
 
   config = lib.mkIf cfg.enable {

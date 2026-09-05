@@ -1,7 +1,7 @@
 # Q1-14: `omanix-bar` + `omanix-restart/refresh-shell` + `omanix-shell-config`
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q3-01 (bindings use these), Q2-05
 - **Size:** M
@@ -54,17 +54,25 @@ requires it, or stub the catalog lookup and note the follow-up; the clipboard/em
   set of scripts is the replacement.
 
 ## Acceptance criteria
-- [ ] `omanix-bar`, `omanix-bar-text-color`, `omanix-restart-shell`, `omanix-refresh-shell`,
+- [x] `omanix-bar`, `omanix-bar-text-color`, `omanix-restart-shell`, `omanix-refresh-shell`,
       `omanix-shell-config`, `omanix-toggle-bar` are built, on PATH, and wrapped with their deps.
+      *(Also ships supporting helper `omanix-hyprland-session-locked` for restart lock-safety.)*
 - [ ] `omanix-bar position top|bottom`, `omanix-bar transparent on|off`, and
       `omanix-bar use <id>` change the running bar (verified visually) and persist to
-      `~/.config/omanix/shell.json`.
-- [ ] `omanix-toggle-bar` shows/hides the bar.
+      `~/.config/omanix/shell.json`. *(Needs a live session; note D2 — `position`/`transparent`/`use`
+      edit the declared bar block, so a rebuild re-applies the Nix-declared values over them.)*
+- [ ] `omanix-toggle-bar` shows/hides the bar. *(Needs a live session; flag file +
+      `omanix-shell -q omanix.bar syncHidden`.)*
 - [ ] `omanix-restart-shell` restarts the shell process cleanly (bar/plugins come back).
-- [ ] `omanix-refresh-shell` re-applies the declarative base over `shell.json` (declared keys win, runtime-only keys preserved — same reconcile as activation) and reloads the shell.
-- [ ] `omanix-shell-config` reports current shell config.
-- [ ] All scripts use `omanix-*` naming and the `~/.config/omanix/` path (no `omarchy` leakage).
-- [ ] `nix flake check` passes; `nix build .#omanix-scripts` succeeds.
+      *(Needs a live session. Relaunches via `hyprctl dispatch exec "quickshell -n -p $OMANIX_PATH/shell"`;
+      full lock-preservation dance ported.)*
+- [x] `omanix-refresh-shell` re-applies the declarative base over `shell.json` (declared keys win, runtime-only keys preserved — same reconcile as activation) and reloads the shell. *(Uses the same `jq -s '.[0] * .[1]'` + declared base as `home.activation.omanixShellConfig`.)*
+- [x] `omanix-shell-config` reports current shell config. *(Sourced helper library; run directly it prints the resolved config.)*
+- [x] All scripts use `omanix-*` naming and the `~/.config/omanix/` path (no `omarchy` leakage).
+- [x] `nix flake check` passes; `nix build .#omanix-scripts` succeeds.
+
+**Deferred:** `omanix-bar use`/`defaults` skip catalog validation when `omanix-plugin-catalog`
+(Q4-01) is absent; dropbox/tailscale `defaults` widgets await `omanix-installed-service-*` (Q4-07).
 
 ## Testing
 - Build: `nix build .#omanix-scripts`, `nix flake check`.

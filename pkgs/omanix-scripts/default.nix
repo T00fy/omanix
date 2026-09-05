@@ -15,6 +15,8 @@
   gawk,
   gnugrep,
   gnused,
+  findutils,
+  imagemagick,
   quickshell,
   libxkbcommon,
   libnotify,
@@ -81,6 +83,9 @@
   # Newline-separated "name|mode|position|scale" lines for the real monitors
   # to disable/re-enable around the dummy display, empty when unset
   dummyDisplayRealMonitors ? "",
+  # Store path of the Nix-generated declarative shell.json base (quickshell.nix).
+  # Null when the desktop shell module is disabled.
+  shellDefaults ? null,
 }:
 
 let
@@ -105,6 +110,88 @@ let
         gnugrep
         quickshell
       ];
+    }
+    {
+      # Sourced helper library for the shell-management CLIs; run directly it
+      # prints the current resolved shell config. DEFAULTS_FILE = the declared
+      # base rendered by quickshell.nix.
+      name = "omanix-shell-config";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+      selfPath = true;
+      envs = {
+        OMANIX_SHELL_DEFAULTS = shellDefaults;
+      };
+    }
+    {
+      name = "omanix-bar";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+      selfPath = true;
+      envs = {
+        OMANIX_SHELL_DEFAULTS = shellDefaults;
+      };
+    }
+    {
+      # Invoked by the bar QML to pick a legible transparent-bar text color.
+      name = "omanix-bar-text-color";
+      deps = [
+        bash
+        coreutils
+        gawk
+        jq
+        imagemagick
+        hyprland
+      ];
+    }
+    {
+      name = "omanix-hyprland-session-locked";
+      deps = [
+        bash
+        hyprland
+        jq
+      ];
+    }
+    {
+      name = "omanix-restart-shell";
+      deps = [
+        bash
+        coreutils
+        findutils
+        gnused
+        jq
+        systemd
+        hyprland
+        quickshell
+      ];
+      selfPath = true;
+    }
+    {
+      # Manual trigger of the activation-time shell.json reconcile.
+      name = "omanix-refresh-shell";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+      selfPath = true;
+      envs = {
+        OMANIX_SHELL_DEFAULTS = shellDefaults;
+      };
+    }
+    {
+      name = "omanix-toggle-bar";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
     }
     {
       name = "omanix-osd";
