@@ -220,11 +220,11 @@ in
           # ─────────────────────────────────────────────────────────────────
           # Notifications
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + COMMA"'' "makoctl dismiss" "Dismiss Notification")
-          (mkExec ''mod .. " + SHIFT + COMMA"'' "makoctl dismiss --all" "Dismiss All Notifs")
-          (mkExec ''mod .. " + CTRL + COMMA"'' "makoctl mode -t do-not-disturb && makoctl mode | grep -q 'do-not-disturb' && notify-send 'Silenced notifications' || notify-send 'Enabled notifications'" "Toggle Do Not Disturb")
-          (mkExec ''mod .. " + ALT + COMMA"'' "makoctl invoke" "Action on Notif")
-          (mkExec ''mod .. " + SHIFT + ALT + COMMA"'' "makoctl restore" "Restore Last Notif")
+          (mkExec ''mod .. " + COMMA"'' "omanix-shell notifications dismissOne" "Dismiss Notification")
+          (mkExec ''mod .. " + SHIFT + COMMA"'' "omanix-shell notifications dismissAll" "Dismiss All Notifs")
+          (mkExec ''mod .. " + CTRL + COMMA"'' "omanix-shell notifications toggleDnd" "Toggle Do Not Disturb")
+          (mkExec ''mod .. " + ALT + COMMA"'' "omanix-shell notifications invokeLast" "Action on Notif")
+          (mkExec ''mod .. " + SHIFT + ALT + COMMA"'' "omanix-shell notifications showHistory" "Notification History")
 
           # ─────────────────────────────────────────────────────────────────
           # System Toggles

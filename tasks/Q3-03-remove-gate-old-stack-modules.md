@@ -6,6 +6,10 @@
 - **Blocks:** none
 - **Size:** M
 
+> **Partial:** the **mako** module (`ui/mako.nix` + its import) was removed in **Q1-06** — omarchy
+> 4.0.2 dropped mako and its notifications plugin fully replaces it. Remaining modules
+> (waybar/walker/elephant/swayosd/hyprlock/hypridle) stay here.
+
 ## Context
 Once the Quickshell shell provides the bar, launcher, notifications, OSD, lock, and idle
 (Phase 1) and keybinds/autostart drive it (Q3-01, Q3-02), the discrete-tool modules are

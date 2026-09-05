@@ -114,6 +114,15 @@ let
       ];
     }
     {
+      name = "omanix-hyprland-focus-app";
+      deps = [
+        bash
+        hyprland
+        jq
+        coreutils
+      ];
+    }
+    {
       name = "omanix-launch-tui";
       deps = [
         bash

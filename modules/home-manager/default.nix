@@ -38,7 +38,6 @@
     ./ui/walker.nix
     ./ui/hidden-apps.nix
     ./ui/swayosd.nix
-    ./ui/mako.nix
     ./terminal
     ./core/bat.nix
   ];

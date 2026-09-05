@@ -6,6 +6,10 @@
 - **Blocks:** Q3-03, Q3-05
 - **Size:** M
 
+> **Partial:** the 5 notification keybinds (`makoctl …` → `omanix-shell notifications
+> {dismissOne,dismissAll,toggleDnd,invokeLast,showHistory}`) were rewired in **Q1-06** when mako
+> was removed. Remaining scope (menu/launcher/clipboard/emoji/lock/etc. binds) stays here.
+
 ## Context
 In omarchy 4.0.2 the desktop is a single Quickshell process; keybindings no longer launch
 discrete tools (walker/swayosd/mako) but instead drive the shell over IPC

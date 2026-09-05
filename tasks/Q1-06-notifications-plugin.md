@@ -1,7 +1,7 @@
 # Q1-06: Notifications plugin
 
 - **Phase:** 1
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-04
 - **Blocks:** Q3-02, Q3-03
 - **Size:** M
@@ -35,11 +35,22 @@ notifications; persisted history with avatars; DND toggle wired to the bar DND i
   (mako) is running in the test session or they will conflict for the DBus name.
 
 ## Acceptance criteria
-- [ ] `omanix.notifications` loads and a test notification (`notify-send "hi" "there"`) renders a popup.
-- [ ] Notification history persists across shell restart and shows sender avatars where available; stored under `~/.local/state/omanix/`.
-- [ ] DND can be toggled via `omanix-shell omanix.notifications <toggle-dnd or equivalent>` and popups are suppressed while active; the bar DND indicator reflects state.
-- [ ] A notification with an action, when clicked, runs the action as argv (no shell injection).
-- [ ] `nix flake check` passes.
+- [~] `omanix.notifications` loads and a test notification (`notify-send "hi" "there"`) renders a popup. *(Impl complete: plugin is vendored + renamed, loads by default (not in `disabledPlugins`), and mako — which grabbed the freedesktop DBus name — is now fully removed. Popup render is runtime-only, not exercisable here.)*
+- [~] Notification history persists across shell restart and shows sender avatars where available; stored under `~/.local/state/omanix/`. *(Plugin persists to `~/.local/state/omanix/notifications/{history,images}/` and `mkdir -p`s them itself; avatars copied via size/time-bounded `copyImagesScript`. Runtime-only to verify.)*
+- [~] DND can be toggled via `omanix-shell notifications toggleDnd` and popups are suppressed while active; the bar DND indicator reflects state. *(IPC target is `notifications` (not `omanix.notifications`): `toggleDnd`/`setDnd`/`isDnd`/`dndState`. `Dnd` added to the `omanix.indicators` bar composite so the `󰂛` glyph reflects `notifications.json`'s `dnd`. `mod+CTRL+COMMA` rewired to `omanix-shell notifications toggleDnd`. Runtime-only to verify suppression.)*
+- [x] A notification with an action, when clicked, runs the action as argv (no shell injection). *(Verified in source: `Util.execArgv` runs `bash -lc 'exec "$@"'` with the argv only in positional params; validated by `parseExecArgv`. No-action clicks fall back to `omanix-hyprland-focus-app`, now shipped in `omanix-scripts`.)*
+- [x] `nix flake check` passes. *(Verified: all checks pass; `omanix-scripts` builds with the new `omanix-hyprland-focus-app` wrapper.)*
+
+## Implementation outcome
+The vendored plugin needed **no QML changes** (already ported + renamed). Work done:
+- Removed mako entirely (module + import + autostart) — omarchy 4.0.2 dropped it; this pulls the
+  mako slices of Q3-01/Q3-02/Q3-03 forward (their remaining scope stays open).
+- Rewired the 5 notification keybinds (`bindings.nix`) from `makoctl` to `omanix-shell notifications
+  {dismissOne,dismissAll,toggleDnd,invokeLast,showHistory}`.
+- Added `"Dnd"` to the `omanix.indicators` bar composite (`quickshell.nix`).
+- Ported `omanix-hyprland-focus-app` (`omanix-scripts`) for the click-without-action fallback.
+No new `shell.json`/`omanix.quickshell.notifications.*` surface: DND is runtime-ephemeral state
+(`notifications.json`, per D2), plugin has no manifest config keys, history limit is hardcoded.
 
 ## Testing
 - In a Hyprland session with the shell running and mako NOT running: `notify-send -a TestApp "Title" "Body"` → popup appears.

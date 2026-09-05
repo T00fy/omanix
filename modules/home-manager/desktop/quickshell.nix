@@ -116,6 +116,7 @@ in
                   id = "omanix.indicators";
                   items = [
                     "ScreenRecording"
+                    "Dnd"
                     "StayAwake"
                   ];
                 }

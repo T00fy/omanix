@@ -6,6 +6,9 @@
 - **Blocks:** Q3-03
 - **Size:** S
 
+> **Partial:** the `mako` autostart (`hl.exec_cmd("mako")`) was removed in **Q1-06** when mako
+> was retired. Remaining daemons (swayosd-server, hyprpolkitagent, swaybg, cliphist, …) stay here.
+
 ## Context
 Omanix starts the old desktop daemons from `modules/home-manager/desktop/hyprland/
 autostart.nix` via `hl.on("hyprland.start", ...)` + `hl.exec_cmd(...)`: currently mako,
