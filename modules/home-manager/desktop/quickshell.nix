@@ -13,18 +13,29 @@ let
   # baseline: the declared omanix.theme is seeded from here on activation, and
   # omanix-theme-set (Q2-04) resolves runtime switches against the same tree.
   # Both attrsets are keyed by theme slug (see lib/themes.nix, lib/default.nix).
+  #
+  # Each slug also gets a backgrounds/ subdir symlinking that theme's declared
+  # assets.wallpapers. Since current/theme -> ${themesStore}/<slug>, the picker
+  # resolves current/theme/backgrounds for whichever theme is active (Q2-05).
   themesStore = pkgs.linkFarm "omanix-themes" (
     lib.concatLists (
-      lib.mapAttrsToList (slug: colorsToml: [
-        {
-          name = "${slug}/colors.toml";
-          path = pkgs.writeText "${slug}-colors.toml" colorsToml;
-        }
-        {
-          name = "${slug}/shell.toml";
-          path = pkgs.writeText "${slug}-shell.toml" omanixLib.themesShellToml.${slug};
-        }
-      ]) omanixLib.themesColorsToml
+      lib.mapAttrsToList (
+        slug: colorsToml:
+        [
+          {
+            name = "${slug}/colors.toml";
+            path = pkgs.writeText "${slug}-colors.toml" colorsToml;
+          }
+          {
+            name = "${slug}/shell.toml";
+            path = pkgs.writeText "${slug}-shell.toml" omanixLib.themesShellToml.${slug};
+          }
+        ]
+        ++ map (wp: {
+          name = "${slug}/backgrounds/${builtins.baseNameOf wp}";
+          path = wp;
+        }) omanixLib.themes.${slug}.assets.wallpapers
+      ) omanixLib.themesColorsToml
     )
   );
   # Idle knobs keep their legacy top-level namespace (omanix.idle.*, defined in

@@ -68,9 +68,6 @@ let
   gapsInner = toString config.omanix.hyprland.gaps.inner;
   borderSize = toString config.omanix.hyprland.border.size;
 
-  activeTheme = config.omanix.activeTheme;
-  wallpaperList = builtins.concatStringsSep "\n" (map toString activeTheme.assets.wallpapers);
-
   monitorMap = lib.concatStringsSep ":" (
     lib.imap0 (idx: mon: "${mon.name}=${toString (idx * 10)}") config.omanix.monitors
   );
@@ -93,7 +90,6 @@ let
       gapsOuter
       gapsInner
       borderSize
-      wallpaperList
       monitorMap
       ;
     walkerWidth = toString config.omanix.walker.width;

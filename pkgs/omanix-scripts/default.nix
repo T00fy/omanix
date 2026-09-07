@@ -17,11 +17,14 @@
   gnused,
   util-linux,
   findutils,
+  diffutils,
+  perl,
   imagemagick,
   quickshell,
   libxkbcommon,
   libnotify,
   swaybg,
+  vips,
   envsubst,
   glow,
   pavucontrol,
@@ -53,8 +56,6 @@
   gapsOuter ? "10",
   gapsInner ? "5",
   borderSize ? "2",
-  # Newline-separated wallpaper paths for cycling
-  wallpaperList ? "",
   monitorMap ? "",
   walkerWidth ? "644",
   walkerHeight ? "300",
@@ -551,17 +552,63 @@ let
       };
     }
     {
+      # Cycle the active theme's declared wallpapers via the current/background
+      # symlink (delegates to omanix-theme-bg-set; no swaybg / separate state).
       name = "omanix-theme-bg-next";
       deps = [
         bash
         coreutils
-        swaybg
-        libnotify
-        procps
+        findutils
       ];
-      envs = {
-        OMANIX_WALLPAPERS = wallpaperList;
-      };
+      selfPath = true;
+    }
+    {
+      # Shared image-picker CLI: drives the omanix.image-picker plugin over the
+      # image-selector IPC (thumbnail cache via vips). Used by the bg helpers.
+      name = "omanix-menu-images";
+      deps = [
+        bash
+        coreutils
+        findutils
+        gawk
+        util-linux
+        diffutils
+        vips
+      ];
+      selfPath = true;
+    }
+    {
+      # Set the current background: repoint current/background + live IPC push.
+      name = "omanix-theme-bg-set";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
+    }
+    {
+      # Open the wallpaper picker for the active theme's backgrounds.
+      name = "omanix-theme-bg-switcher";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
+    }
+    {
+      # Pretty-print the current background's name.
+      name = "omanix-theme-bg-current";
+      deps = [
+        bash
+        coreutils
+        perl
+      ];
+    }
+    {
+      # Pre-warm the picker's thumbnail cache for the active theme.
+      name = "omanix-theme-bg-cache";
+      deps = [ bash ];
+      selfPath = true;
     }
     {
       # Shared colors.toml palette resolver (alias/fallback cascade + mode

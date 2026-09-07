@@ -1,7 +1,7 @@
 # Q2-05: `omanix-theme-switcher` + background helpers
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done (background helpers; `omanix-theme-switcher` deferred)
 - **Depends on:** Q2-04, Q1-08
 - **Blocks:** none
 - **Size:** M
@@ -45,12 +45,31 @@ gives omanix a real graphical theme/background switcher backed by the shell — 
   options in `modules/home-manager/theme/default.nix` — don't create two competing sources of truth.
 - Depends on the shell image-picker/menu being available (Q1-08). Apply **D1** to vendored code.
 
+## Resolution
+Ported the background helpers only; `omanix-theme-switcher` (theme picker) is **deferred** — the
+vendored `Background.qml` right-click (`theme=$(omanix-theme-switcher)`) degrades to a no-op when
+the command is absent, so nothing breaks. No per-theme previews store was built. The user
+backgrounds dir (`~/.config/omanix/backgrounds/<slug>`) was **not** ported — the picker/cycler
+scan only the theme's declared wallpapers (declared-only decision).
+
+- New shared image-picker CLI `omanix-menu-images` (near-verbatim port of `omarchy-menu-images`;
+  vips thumbnail cache under `$XDG_CACHE_HOME/omanix/image-selector`; drives the shell's
+  `image-selector` IPC). This also lands the Phase 3 / Q3-04 `omanix-menu-images` item.
+- `omanix-theme-bg-set` (repoint `current/background` + `omanix-shell -q background set`),
+  `omanix-theme-bg-switcher`, `omanix-theme-bg-current`, `omanix-theme-bg-cache`.
+- Rewrote `omanix-theme-bg-next` off swaybg/`OMANIX_WALLPAPERS`/`$XDG_RUNTIME_DIR` onto the
+  `current/background` symlink model (delegates to `omanix-theme-bg-set`) — one source of truth.
+  Dropped the now-unused `wallpaperList` wiring.
+- `modules/home-manager/desktop/quickshell.nix`: extended the `themesStore` linkFarm so each slug
+  gets a `backgrounds/` subdir symlinking that theme's declared `assets.wallpapers`, so the picker
+  resolves `current/theme/backgrounds` for the active theme with no new state link or env var.
+
 ## Acceptance criteria
-- [ ] `omanix-theme-switcher` shows a graphical picker of all declared themes and switches on select (via Q2-04).
-- [ ] `omanix-theme-bg-switcher` shows the current theme's wallpapers and sets the selected one live.
-- [ ] `omanix-theme-bg-cache` produces cached thumbnails; `omanix-theme-bg-current` prints the current bg name.
-- [ ] Declared `omanix.theme` / wallpaper settings win on activation: after a runtime background pick, a rebuild reverts to the declared `wallpaperIndex`/`wallpaperOverride` (runtime pick is an ephemeral overlay in `~/.local/state/omanix/`).
-- [ ] No duplicate/conflicting wallpaper source-of-truth with existing options; the declared option is the single source of truth, the runtime pick is only an overlay.
+- [~] `omanix-theme-switcher` shows a graphical picker of all declared themes and switches on select (via Q2-04). — **deferred** (see Resolution).
+- [x] `omanix-theme-bg-switcher` shows the current theme's wallpapers and sets the selected one live.
+- [x] `omanix-theme-bg-cache` produces cached thumbnails; `omanix-theme-bg-current` prints the current bg name.
+- [x] Declared `omanix.theme` / wallpaper settings win on activation: after a runtime background pick, a rebuild reverts to the declared `wallpaperIndex`/`wallpaperOverride` (runtime pick is an ephemeral overlay in `~/.local/state/omanix/`).
+- [x] No duplicate/conflicting wallpaper source-of-truth with existing options; the declared option is the single source of truth, the runtime pick is only an overlay.
 
 ## Testing
 - Runtime (Hyprland session): invoke `omanix-theme-switcher`, pick a theme, confirm shell re-themes; invoke `omanix-theme-bg-switcher`, pick a wallpaper, confirm it changes; `omanix-theme-bg-current` prints it.
