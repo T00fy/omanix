@@ -106,7 +106,7 @@ in
           (mkBind ''mod .. " + C"'' ''hl.dsp.send_shortcut({ mods = "CTRL", key = "Insert" })'' { description = "Copy"; })
           (mkBind ''mod .. " + V"'' ''hl.dsp.send_shortcut({ mods = "SHIFT", key = "Insert" })'' { description = "Paste"; })
           (mkBind ''mod .. " + X"'' ''hl.dsp.send_shortcut({ mods = "CTRL", key = "X" })'' { description = "Cut"; })
-          (mkExec ''mod .. " + CTRL + V"'' "omanix-launch-walker -m clipboard" "Clipboard History")
+          (mkExec ''mod .. " + CTRL + V"'' "omanix-clipboard-open" "Clipboard History")
 
           # ─────────────────────────────────────────────────────────────────
           # Window Management
@@ -202,16 +202,16 @@ in
           # ─────────────────────────────────────────────────────────────────
           # Launchers & Menus
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + SPACE"'' "omanix-launch-walker" "App Launcher")
-          (mkExec ''mod .. " + CTRL + E"'' "omanix-launch-walker -m symbols" "Symbol Picker")
-          (mkExec ''mod .. " + ALT + SPACE"'' "omanix-menu" "Main Menu")
+          (mkExec ''mod .. " + SPACE"'' "omanix-menu" "App Launcher")
+          (mkExec ''mod .. " + CTRL + E"'' "omanix-menu-emoji" "Emoji Picker")
+          (mkExec ''mod .. " + ALT + SPACE"'' "omanix-menu apps" "Apps Menu")
           (mkExec ''mod .. " + ESCAPE"'' "omanix-menu system" "System Menu")
           (mkExec ''mod .. " + K"'' "omanix-menu-keybindings" "Show Keybindings")
 
           # ─────────────────────────────────────────────────────────────────
           # Aesthetics
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + SHIFT + SPACE"'' "bash -c 'systemctl --user is-active --quiet waybar && systemctl --user stop waybar || systemctl --user start waybar'" "Toggle Waybar")
+          (mkExec ''mod .. " + SHIFT + SPACE"'' "omanix-toggle-bar" "Toggle Bar")
           (mkExec ''mod .. " + CTRL + SPACE"'' "omanix-theme-bg-next" "Next Wallpaper")
           (mkExec ''mod .. " + BACKSPACE"'' "omanix-smart-delete" "Smart Delete Line")
           (mkBind ''mod .. " + CTRL + N"'' ''hl.dsp.window.set_prop({prop = "opaque", value = "toggle"})'' { description = "Toggle Opacity"; })
@@ -242,7 +242,7 @@ in
           # ─────────────────────────────────────────────────────────────────
           # File Sharing
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + S"'' "omanix-menu share" "Share Menu")
+          (mkExec ''mod .. " + CTRL + S"'' "omanix-menu trigger.share" "Share Menu")
 
           # ─────────────────────────────────────────────────────────────────
           # Quick Info (No Waybar)
@@ -253,15 +253,17 @@ in
           # ─────────────────────────────────────────────────────────────────
           # Control Panels
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + A"'' "pavucontrol" "Audio Settings")
-          (mkExec ''mod .. " + CTRL + B"'' "omanix-launch-or-focus-tui bluetui" "Bluetooth Settings")
-          (mkExec ''mod .. " + CTRL + W"'' "omanix-launch-or-focus-tui wlctl" "WiFi Settings")
+          (mkExec ''mod .. " + CTRL + A"'' "omanix-shell shell toggle omanix.audio" "Audio Panel")
+          (mkExec ''mod .. " + CTRL + B"'' "omanix-shell shell toggle omanix.bluetooth" "Bluetooth Panel")
+          (mkExec ''mod .. " + CTRL + W"'' "omanix-shell shell toggle omanix.network" "Network Panel")
+          (mkExec ''mod .. " + CTRL + D"'' "omanix-shell shell toggle omanix.monitor" "Display Panel")
+          (mkExec ''mod .. " + CTRL + P"'' "omanix-shell shell toggle omanix.power" "Power Panel")
           (mkExec ''mod .. " + CTRL + T"'' "omanix-launch-tui btop" "System Monitor")
 
           # ─────────────────────────────────────────────────────────────────
           # Lock & Power
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + L"'' "omanix-lock-screen" "Lock Screen")
+          (mkExec ''mod .. " + CTRL + L"'' "omanix-system-lock" "Lock Screen")
         ]
         ++ (
           if cfg.apps.spotify.enable then

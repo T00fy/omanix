@@ -47,6 +47,16 @@ sink-resolution awareness.
   false), and only wire the service + `lsp-plugins-lv2` when enabled.
 - `omanix-audio-output-volume` shows the OSD — call `omanix-osd` (Q1-07) if present, else
   degrade to swayosd during the transition.
+- **Media-key rewire owed here (deferred from Q3-01):** Q3-01 rewired the launcher/menu/
+  clipboard/panel/lock binds to shell IPC but left the media section of
+  `modules/home-manager/desktop/hyprland/bindings.nix` on `swayosd-client`, because
+  `omanix-osd` only *displays* — there is no volume/brightness producer yet. Once
+  `omanix-audio-output-volume`/`set-default`/`source-switch` land here, repoint the volume/
+  mute/audio-switch keys (`XF86Audio{Raise,Lower}Volume,Mute,MicMute}`, `SUPER+XF86AudioMute
+  → omanix-cmd-audio-switch`) at them (+`omanix-osd` for display) and drop `swayosd-client`
+  from `bindings.nix`. Brightness keys (`XF86MonBrightness{Up,Down}`) and the playerctl
+  media keys likewise wait on their producers (brightness → display/monitor helper; playerctl
+  → Mpris). This unblocks Q3-03's swayosd removal.
 
 ## Acceptance criteria
 - [ ] `omanix-audio-tuning {on,off,status,match,fronted-sink}` ported (D1) and registered in `default.nix`.

@@ -227,7 +227,7 @@ everything" lives. Phase 5 is optional and depends on Phase 1.
 ### Phase 3 — Retire the old stack ⬜
 
 - [ ] Once shell equivalents work, remove/disable `ui/{waybar,walker,elephant,mako,swayosd}.nix` and `desktop/{hyprlock,hypridle}.nix` (gate behind an option during transition if useful).
-- [ ] Rewire `desktop/hyprland/bindings.nix`: replace `omanix-*`/walker calls with `omanix-shell` IPC (SUPER+SPACE → menu toggle, clipboard, emoji, panel toggles, lock).
+- [x] ✅ **Rewire `desktop/hyprland/bindings.nix`** (Q3-01): repointed launcher (`SUPER+SPACE → omanix-menu`), apps (`SUPER+ALT+SPACE → omanix-menu apps`), emoji (`SUPER+CTRL+E`), clipboard (`SUPER+CTRL+V → omanix-clipboard-open`), share (`SUPER+CTRL+S → trigger.share`), bar toggle (`SUPER+SHIFT+SPACE → omanix-toggle-bar`), lock (`SUPER+CTRL+L → omanix-system-lock`), and system panels `SUPER+CTRL+{A,B,W}` → `omanix.{audio,bluetooth,network}` + new `{D,P}` → `omanix.{monitor,power}` (retiring the pavucontrol/bluetui/wlctl TUI binds). **Media carve-out:** volume/brightness/mute/playerctl/audio-switch keys stay on `swayosd-client` and move to **Q4-03** (no producer CLI yet; `omanix-osd` displays only) — Q3-03's swayosd removal waits on it. `SUPER+K` (walker keybindings viewer → Q3-03) and `SUPER+CTRL+ALT+B` (`omanix-battery-remaining` dangling → Q3-05) left as-is.
 - [ ] Rewire `desktop/hyprland/autostart.nix`: drop mako/swayosd-server/hyprpolkitagent/swaybg autostarts now hosted in the shell.
 - [ ] Port clipboard/menu helper CLIs: `omanix-clipboard-{open,paste-file,paste-text}`, `omanix-menu-{clipboard,emoji,emoji-insert,images,timezone,plugin}`.
 - [ ] Retire `omanix-menu.sh` bash surface in favor of the shell menu (or keep as fallback).
