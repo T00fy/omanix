@@ -79,6 +79,7 @@ let
     walker = inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default;
     terminalWrapper = config.omanix.terminal.wrapper;
     shellDefaults = config.omanix.quickshell.declaredBaseFile;
+    quickshellThemesDir = config.omanix.quickshell.themesDir;
     inherit
       themesJson
       docStylePreview

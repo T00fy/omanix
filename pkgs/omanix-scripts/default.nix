@@ -15,6 +15,7 @@
   gawk,
   gnugrep,
   gnused,
+  util-linux,
   findutils,
   imagemagick,
   quickshell,
@@ -86,6 +87,10 @@
   # Store path of the Nix-generated declarative shell.json base (quickshell.nix).
   # Null when the desktop shell module is disabled.
   shellDefaults ? null,
+  # Store path of all themes' rendered colors.toml + shell.toml, per-slug
+  # (quickshell.nix themesDir). omanix-theme-set resolves runtime switches
+  # against it. Null when the desktop shell module is disabled.
+  quickshellThemesDir ? null,
 }:
 
 let
@@ -556,6 +561,31 @@ let
       ];
       envs = {
         OMANIX_WALLPAPERS = wallpaperList;
+      };
+    }
+    {
+      # Shared colors.toml palette resolver (alias/fallback cascade + mode
+      # detection). Consumed by palette-only theme targets.
+      name = "omanix-theme-color";
+      deps = [
+        bash
+        coreutils
+        gawk
+      ];
+    }
+    {
+      # Ephemeral runtime theme switch: repoints current/theme at a built slug
+      # and re-themes a running shell via applyTheme IPC.
+      name = "omanix-theme-set";
+      deps = [
+        bash
+        coreutils
+        gnused
+        util-linux
+      ];
+      selfPath = true;
+      envs = {
+        OMANIX_THEMES_DIR = quickshellThemesDir;
       };
     }
     {

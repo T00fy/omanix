@@ -1,7 +1,7 @@
 # Q2-04: `omanix-theme-color` resolver + `omanix-theme-set` (ephemeral runtime switch)
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q2-03
 - **Blocks:** Q2-05, Q2-06, Q4-10
 - **Size:** M
@@ -41,12 +41,12 @@ palette-only downstream targets like tmux/claude (Q4-10).
   hand-ported, use omanix names directly and note that in the header.
 
 ## Acceptance criteria
-- [ ] `omanix-theme-color --all` prints resolved key/value pairs from a `colors.toml`.
-- [ ] `omanix-theme-color <key> [fallback]` resolves single keys with the fallback cascade.
-- [ ] Mode detection works (explicit `mode`, then luminance fallback).
-- [ ] `omanix-theme-set <slug>` switches the live shell to a built theme via IPC.
-- [ ] The switch is ephemeral: a subsequent activation/shell restart reverts to declared `omanix.theme`.
-- [ ] Both scripts are on `PATH` via `omanix-scripts`.
+- [x] `omanix-theme-color --all` prints resolved key/value pairs from a `colors.toml`.
+- [x] `omanix-theme-color <key> [fallback]` resolves single keys with the fallback cascade.
+- [x] Mode detection works (explicit `mode`, then luminance fallback).
+- [x] `omanix-theme-set <slug>` switches the live shell to a built theme via IPC.
+- [x] The switch is ephemeral: a subsequent activation/shell restart reverts to declared `omanix.theme`.
+- [x] Both scripts are on `PATH` via `omanix-scripts`.
 
 ## Testing
 - Unit: `omanix-theme-color --file <a generated colors.toml> --all` returns expected keys; `omanix-theme-color red` returns a hex; unknown key with fallback returns the fallback.
