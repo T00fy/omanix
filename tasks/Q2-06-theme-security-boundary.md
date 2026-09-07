@@ -1,7 +1,7 @@
 # Q2-06: Theme security boundary (deny code from cloned themes)
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q2-04
 - **Blocks:** none
 - **Size:** S
@@ -43,6 +43,19 @@ the plugin security model (that is Q4-01's concern).
 - Craft a fake untrusted theme dir containing `colors.toml` + a `malicious.lua`; run `omanix-theme-set --file <dir>` (or the equivalent untrusted path); assert the `.lua` is refused and `colors.toml` applied.
 - Trusted/declared theme still applies fully.
 - `nix build` scripts package; `nix flake check` passes.
+
+## Resolution
+Document-only. omanix has no untrusted-theme ingestion path: `omanix-theme-set` accepts a
+**slug**, applies a traversal guard (reject empty / leading-`.` / contains-`/`), and resolves
+it against the trusted Nix store `$OMANIX_THEMES_DIR/<slug>` before repointing the
+`current/theme` symlink. Nothing arbitrary is ever accepted, copied, or staged, so the store
+*is* the allowlist and the boundary holds by construction — the whole `~/.config` git-clone
+staging flow upstream guards simply does not exist here. The security comment in
+`omanix-theme-set.sh` now states this explicitly and records the executable-file denylist
+(`.lua`, `alacritty.toml`/`foot.ini`/`ghostty.conf`/`kitty.conf`, `vscode.json`; no symlink
+following) that MUST be ported if an untrusted source (a `--file`/cloned user-theme flow) is
+ever introduced. No ingestion code or dormant guard shipped (see Q2-04's "revisit only if user
+themes land").
 
 ## References
 - omarchy: `bin/omarchy-theme-set` (`INSTALLED_THEME_DENIED`), `docs/theming.md`

@@ -14,9 +14,21 @@ set -euo pipefail
 # current/theme to the declared omanix.theme, so a rebuild/restart reverts it.
 # Nothing here is read back by activation.
 #
-# Palette only — the wallpaper is a separate axis (omanix-theme-bg-*). Omanix
-# themes are all in-store and trusted, so none of upstream's git-theme staging
-# / code-vs-color security machinery applies.
+# Palette only — the wallpaper is a separate axis (omanix-theme-bg-*).
+#
+# Security boundary: the only theme source is the trusted Nix store. A switch
+# resolves a slug against $OMANIX_THEMES_DIR and repoints a symlink — no
+# arbitrary path is ever accepted, copied, or staged, so there is no
+# code-execution vector to filter (upstream's git-theme staging guards a
+# ~/.config clone flow that omanix does not have). The traversal guard below
+# (reject empty / leading-dot / contains-slash) is what keeps slug resolution
+# inside the store.
+#
+# If an untrusted theme source is ever added (a --file <dir> or a cloned user
+# themes dir), this becomes an execution vector and must permit color/asset
+# data only — colors.toml, shell.toml, images under backgrounds/ — and deny any
+# .lua, terminal configs (alacritty.toml, foot.ini, ghostty.conf, kitty.conf)
+# and vscode.json, never following symlinks while staging.
 
 usage() {
   cat <<USAGE
