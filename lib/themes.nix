@@ -4,6 +4,7 @@
       name = "Tokyo Night";
       slug = "tokyo-night";
       icon_theme = "Yaru-magenta";
+      mode = "dark";
     };
 
     assets = {
@@ -52,6 +53,7 @@
       name = "Catppuccin Mocha";
       slug = "catppuccin-mocha";
       icon_theme = "Yaru-purple";
+      mode = "dark";
     };
 
     assets = {

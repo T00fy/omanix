@@ -5,6 +5,13 @@ types.submodule {
     meta.name = mkOption { type = types.str; };
     meta.slug = mkOption { type = types.str; };
     meta.icon_theme = mkOption { type = types.str; };
+    meta.mode = mkOption {
+      type = types.enum [
+        "dark"
+        "light"
+      ];
+      default = "dark";
+    };
 
     assets.wallpapers = mkOption {
       type = types.listOf types.path;

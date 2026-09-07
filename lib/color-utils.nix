@@ -35,4 +35,39 @@ rec {
       rgb = hexToRgb hex;
     in
     "rgba(${toString rgb.r}, ${toString rgb.g}, ${toString rgb.b}, 1.0)";
+
+  # Convert an { r, g, b } set of integers back to a lowercase hex string.
+  # lib.toHexString is uppercase and unpadded ("5" not "05"), so pad and lower.
+  # Example: { r = 26; g = 27; b = 38; } -> "#1a1b26"
+  rgbToHex =
+    { r, g, b }:
+    let
+      toHex2 =
+        n:
+        let
+          h = lib.toLower (lib.toHexString n);
+        in
+        if builtins.stringLength h < 2 then "0" + h else h;
+    in
+    "#${toHex2 r}${toHex2 g}${toHex2 b}";
+
+  # Linearly blend two hex colors per channel. pct is an integer 0-100:
+  # 0 -> all hexA, 100 -> all hexB. Integer math only (deterministic).
+  # Example: mix "#f7768e" "#e0af68" 50 -> "#eb927b"
+  mix =
+    hexA: hexB: pct:
+    let
+      a = hexToRgb hexA;
+      b = hexToRgb hexB;
+      blend = x: y: (x * (100 - pct) + y * pct) / 100;
+    in
+    rgbToHex {
+      r = blend a.r b.r;
+      g = blend a.g b.g;
+      b = blend a.b b.b;
+    };
+
+  # Mix a color toward black / white by pct.
+  darken = hex: pct: mix hex "#000000" pct;
+  lighten = hex: pct: mix hex "#ffffff" pct;
 }

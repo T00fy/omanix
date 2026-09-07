@@ -1,7 +1,7 @@
 # Q2-01: Emit `colors.toml` per theme from the existing palette
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-02
 - **Blocks:** Q2-02, Q2-04, Q4-09
 - **Size:** M
@@ -60,11 +60,19 @@ runtime switching scripts (Q2-04).
   paths directly.
 
 ## Acceptance criteria
-- [ ] A pure Nix function renders a valid omarchy-format `colors.toml` from an omanix palette.
-- [ ] All keys present in the omarchy reference `colors.toml` are emitted with plausible values.
-- [ ] Both shipped themes (`tokyo-night`, `catppuccin-mocha`) render without eval errors.
-- [ ] `mode` is present and correct for each theme.
-- [ ] No new mandatory data required per theme beyond the current palette + `meta.mode`.
+- [x] A pure Nix function renders a valid omarchy-format `colors.toml` from an omanix palette.
+- [x] All keys present in the omarchy reference `colors.toml` are emitted with plausible values.
+- [x] Both shipped themes (`tokyo-night`, `catppuccin-mocha`) render without eval errors.
+- [x] `mode` is present and correct for each theme.
+- [x] No new mandatory data required per theme beyond the current palette + `meta.mode`.
+
+## Implementation notes (done)
+- Renderer: `lib/theme-toml.nix` (`{ lib }: { colors, mode ? "dark" }: -> string`), exposed as
+  `omanixLib.renderColorsToml`; `omanixLib.themesColorsToml` maps it over all themes (Q2-03 consumes it).
+- Mixing helpers added to `lib/color-utils.nix` (`rgbToHex`/`mix`/`darken`/`lighten`, integer-only).
+- Mapping refinements over the ticket: `bright_foreground ← colors.cursor` and `muted ← color8`
+  (both exact for tokyo-night); `orange = mix(color1, color3, 50)` reproduces `#eb927b` exactly.
+- `meta.mode` added to `lib/theme-schema.nix` (enum dark/light, default "dark") and set on both themes.
 
 ## Testing
 - `nix eval` the renderer for both themes; assert output is non-empty and contains `background`,

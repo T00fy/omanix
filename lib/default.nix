@@ -1,10 +1,22 @@
 { lib }:
+let
+  themes = import ./themes.nix;
+  renderColorsToml = import ./theme-toml.nix { inherit lib; };
+in
 {
   # Expose color utils
   colors = import ./color-utils.nix { inherit lib; };
 
   # Expose themes (data only, doesn't need lib)
-  themes = import ./themes.nix;
+  inherit themes;
+
+  # Render an omarchy-format colors.toml from a palette (see lib/theme-toml.nix).
+  inherit renderColorsToml;
+
+  # Per-theme colors.toml strings, keyed by theme slug (Q2-03 writes these to the store).
+  themesColorsToml = lib.mapAttrs (
+    _: t: renderColorsToml { colors = t.colors; mode = t.meta.mode or "dark"; }
+  ) themes;
 
   # Expose dummyDisplay helpers (shared derivation logic between
   # modules/nixos/sunshine.nix and modules/home-manager/scripts/default.nix)
