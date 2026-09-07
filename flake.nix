@@ -63,6 +63,7 @@
         omanix-screensaver = final.callPackage ./pkgs/omanix-screensaver { };
         omanix-scripts = final.callPackage ./pkgs/omanix-scripts { };
         omanix-shell = final.callPackage ./pkgs/omanix-shell { };
+        omanix-audio-tunings = final.callPackage ./pkgs/omanix-audio-tunings { };
         wlctl = inputs.wlctl.packages.${prev.stdenv.hostPlatform.system}.default;
 
         # Pass-through so a future bump can be pinned/overridden here in one place.

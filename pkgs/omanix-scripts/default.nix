@@ -33,7 +33,9 @@
   wl-clipboard,
   wtype,
   pulseaudio,
-  swayosd,
+  wireplumber,
+  brightnessctl,
+  usbutils,
   wl-screenrec,
   hypridle,
   localsend,
@@ -88,6 +90,13 @@
   # Declarative laptop override from omanix.hardware.isLaptop (via osConfig).
   # "true"/"false" force omanix-hw-laptop's answer; "" leaves it auto-detecting.
   isLaptop ? "",
+  # Read-only speaker-tuning data (pkgs/omanix-audio-tunings). Null when the
+  # scripts are built standalone; the tuning CLI then finds no tunings.
+  audioTuningsDir ? null,
+  # LV2 plugin dir for the tuning limiter, set only when
+  # omanix.audio.speakerTuning.enable is on so lsp-plugins stays out of the
+  # closure otherwise. Null leaves the tuning CLI's LV2 preflight a no-op.
+  audioLv2Path ? null,
 }:
 
 let
@@ -489,7 +498,111 @@ let
         jq
         hyprland
         pulseaudio
-        swayosd
+      ];
+      # Calls the sibling omanix-audio-output-set-default and omanix-osd.
+      selfPath = true;
+    }
+
+    # ─── Audio subsystem (Q4-03) ─────────────────────────────────────
+    {
+      # Resolves a DSP/virtual sink down to the physical one loudness lives on.
+      # Called unconditionally by the shell audio panel and the volume keys.
+      name = "omanix-audio-output-sink";
+      deps = [
+        bash
+        coreutils
+        gawk
+        pulseaudio
+      ];
+    }
+    {
+      name = "omanix-audio-sink-availability";
+      deps = [
+        bash
+        gawk
+        pulseaudio
+      ];
+      # Calls the sibling omanix-audio-tuning to hide a fronted physical sink.
+      selfPath = true;
+    }
+    {
+      name = "omanix-audio-output-set-default";
+      deps = [
+        bash
+        coreutils
+        gawk
+        wireplumber
+        pulseaudio
+      ];
+    }
+    {
+      name = "omanix-audio-input-set-default";
+      deps = [
+        bash
+        coreutils
+        gawk
+        wireplumber
+        pulseaudio
+      ];
+    }
+    {
+      name = "omanix-audio-output-volume";
+      deps = [
+        bash
+        coreutils
+        gawk
+        pulseaudio
+      ];
+      # Calls the sibling omanix-audio-output-sink and omanix-osd.
+      selfPath = true;
+    }
+    {
+      name = "omanix-audio-source-switch";
+      deps = [ bash ];
+      # Drives the shell's Mpris media service over IPC (omanix-shell).
+      selfPath = true;
+    }
+    {
+      name = "omanix-brightness";
+      deps = [
+        bash
+        coreutils
+        gawk
+        brightnessctl
+      ];
+      # Calls the sibling omanix-osd.
+      selfPath = true;
+    }
+    {
+      name = "omanix-audio-tuning";
+      deps = [
+        bash
+        coreutils
+        gawk
+        gnugrep
+        gnused
+        procps
+        systemd
+        pulseaudio
+      ];
+      # Calls the sibling omanix-audio-output-sink; the systemd unit it drives is
+      # declared by Nix (omanix.audio.speakerTuning.enable).
+      selfPath = true;
+      envs = {
+        OMANIX_AUDIO_TUNINGS = audioTuningsDir;
+        OMANIX_AUDIO_LV2_PATH = audioLv2Path;
+      };
+    }
+    {
+      name = "omanix-restart-audio";
+      deps = [
+        bash
+        coreutils
+        gawk
+        gnused
+        systemd
+        wireplumber
+        usbutils
       ];
     }
     {

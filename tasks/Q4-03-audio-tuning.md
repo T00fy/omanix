@@ -59,12 +59,12 @@ sink-resolution awareness.
   → Mpris). This unblocks Q3-03's swayosd removal.
 
 ## Acceptance criteria
-- [ ] `omanix-audio-tuning {on,off,status,match,fronted-sink}` ported (D1) and registered in `default.nix`.
-- [ ] Sink helpers (`output-sink`, `output-volume`, `output-set-default`, `input-set-default`, `source-switch`, `sink-availability`) ported and registered.
-- [ ] `omanix-restart-audio` ported, including USB device recovery path.
-- [ ] `dell-xps-2026` tuning data shipped in the store and resolvable by `omanix-audio-tuning match` on a matching machine.
-- [ ] Speaker-tuning service defined declaratively as `systemd.user.services.omanix-speaker-tuning`, gated behind `omanix.audio.speakerTuning.enable`.
-- [ ] `lsp-plugins-lv2` only pulled in when the option is enabled.
+- [x] `omanix-audio-tuning {on,off,status,match,fronted-sink}` ported (D1) and registered in `default.nix`.
+- [x] Sink helpers (`output-sink`, `output-volume`, `output-set-default`, `input-set-default`, `source-switch`, `sink-availability`) ported and registered.
+- [x] `omanix-restart-audio` ported, including USB device recovery path.
+- [x] `dell-xps-2026` tuning data shipped in the store and resolvable by `omanix-audio-tuning match` on a matching machine.
+- [x] Speaker-tuning service defined declaratively as `systemd.user.services.omanix-speaker-tuning`, gated behind `omanix.audio.speakerTuning.enable`.
+- [x] `lsp-plugins-lv2` only pulled in when the option is enabled.
 
 ## Testing
 - `nix build .#omanix-scripts` and `nix flake check` pass.

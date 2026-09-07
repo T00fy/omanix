@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.omanix;
-  osdClient = ''swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"'';
 
   mkLua = lib.generators.mkLuaInline;
 
@@ -285,16 +284,16 @@ in
         # Media keys (repeat + locked)
         # ─────────────────────────────────────────────────────────────────
         ++ [
-          (mkExecRepeatLocked ''"XF86AudioRaiseVolume"'' "${osdClient} --output-volume raise" "Volume Up")
-          (mkExecRepeatLocked ''"XF86AudioLowerVolume"'' "${osdClient} --output-volume lower" "Volume Down")
-          (mkExecRepeatLocked ''"XF86AudioMute"'' "${osdClient} --output-volume mute-toggle" "Toggle Mute")
-          (mkExecRepeatLocked ''"XF86AudioMicMute"'' "${osdClient} --input-volume mute-toggle" "Toggle Mic Mute")
-          (mkExecRepeatLocked ''"XF86MonBrightnessUp"'' "${osdClient} --brightness raise" "Brightness Up")
-          (mkExecRepeatLocked ''"XF86MonBrightnessDown"'' "${osdClient} --brightness lower" "Brightness Down")
-          (mkExecRepeatLocked ''"ALT + XF86AudioRaiseVolume"'' "${osdClient} --output-volume +1" "Volume Up (Fine)")
-          (mkExecRepeatLocked ''"ALT + XF86AudioLowerVolume"'' "${osdClient} --output-volume -1" "Volume Down (Fine)")
-          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessUp"'' "${osdClient} --brightness +1" "Brightness Up (Fine)")
-          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessDown"'' "${osdClient} --brightness -1" "Brightness Down (Fine)")
+          (mkExecRepeatLocked ''"XF86AudioRaiseVolume"'' "omanix-audio-output-volume raise" "Volume Up")
+          (mkExecRepeatLocked ''"XF86AudioLowerVolume"'' "omanix-audio-output-volume lower" "Volume Down")
+          (mkExecRepeatLocked ''"XF86AudioMute"'' "omanix-audio-output-volume mute-toggle" "Toggle Mute")
+          (mkExecRepeatLocked ''"XF86AudioMicMute"'' "omanix-audio-output-volume mic-mute-toggle" "Toggle Mic Mute")
+          (mkExecRepeatLocked ''"XF86MonBrightnessUp"'' "omanix-brightness up" "Brightness Up")
+          (mkExecRepeatLocked ''"XF86MonBrightnessDown"'' "omanix-brightness down" "Brightness Down")
+          (mkExecRepeatLocked ''"ALT + XF86AudioRaiseVolume"'' "omanix-audio-output-volume +1" "Volume Up (Fine)")
+          (mkExecRepeatLocked ''"ALT + XF86AudioLowerVolume"'' "omanix-audio-output-volume -1" "Volume Down (Fine)")
+          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessUp"'' "omanix-brightness +1" "Brightness Up (Fine)")
+          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessDown"'' "omanix-brightness -1" "Brightness Down (Fine)")
         ]
         ++ cfg.hyprland.extraMediaBindings
 
@@ -302,10 +301,10 @@ in
         # Media keys (locked, no repeat)
         # ─────────────────────────────────────────────────────────────────
         ++ [
-          (mkExecLocked ''"XF86AudioNext"'' "${osdClient} --playerctl next" "Next Track")
-          (mkExecLocked ''"XF86AudioPause"'' "${osdClient} --playerctl play-pause" "Play/Pause")
-          (mkExecLocked ''"XF86AudioPlay"'' "${osdClient} --playerctl play-pause" "Play/Pause")
-          (mkExecLocked ''"XF86AudioPrev"'' "${osdClient} --playerctl previous" "Previous Track")
+          (mkExecLocked ''"XF86AudioNext"'' "playerctl next" "Next Track")
+          (mkExecLocked ''"XF86AudioPause"'' "playerctl play-pause" "Play/Pause")
+          (mkExecLocked ''"XF86AudioPlay"'' "playerctl play-pause" "Play/Pause")
+          (mkExecLocked ''"XF86AudioPrev"'' "playerctl previous" "Previous Track")
           (mkExecLocked ''mod .. " + XF86AudioMute"'' "omanix-cmd-audio-switch" "Switch Audio Output")
           (mkExecLocked ''"XF86PowerOff"'' "omanix-menu system" "Power Menu")
         ]

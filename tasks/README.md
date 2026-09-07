@@ -182,7 +182,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 |----|-------|-----------|--------|
 | Q4-01 | Plugin CLI (`omanix-plugin-*`) + `omanix-menu-plugin` | Q1-04 | ✅ |
 | Q4-02 | Hardware detection (`omanix-hw-*`) | none | ⬜ |
-| Q4-03 | Audio tuning subsystem (PipeWire filter-chain) | none | ⬜ |
+| Q4-03 | Audio tuning subsystem (PipeWire filter-chain) | none | ✅ |
 | Q4-04 | Network tools (`omanix-network-*`) | none | ⬜ |
 | Q4-05 | Capture tools (QR/region/OCR/webcam/image transcode) | none | ⬜ |
 | Q4-06 | Security: sshd + sudoless-docker → Nix module options | none | ⬜ |

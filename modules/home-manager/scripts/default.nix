@@ -86,6 +86,11 @@ let
     terminalWrapper = config.omanix.terminal.wrapper;
     shellDefaults = config.omanix.quickshell.declaredBaseFile;
     quickshellThemesDir = config.omanix.quickshell.themesDir;
+    audioTuningsDir = "${pkgs.omanix-audio-tunings}/share/omanix/audio";
+    # Only wire the LV2 limiter path (and so pull lsp-plugins into the closure)
+    # when the tuning subsystem is enabled.
+    audioLv2Path =
+      if config.omanix.audio.speakerTuning.enable then "${pkgs.lsp-plugins}/lib/lv2" else null;
     inherit isLaptop;
     inherit
       themesJson

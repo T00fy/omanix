@@ -31,8 +31,8 @@
     ./desktop/hyprland/monitors.nix
     ./desktop/hypridle.nix
     ./desktop/quickshell.nix
+    ./audio.nix
     ./ui/hidden-apps.nix
-    ./ui/swayosd.nix
     ./terminal
     ./core/bat.nix
   ];
