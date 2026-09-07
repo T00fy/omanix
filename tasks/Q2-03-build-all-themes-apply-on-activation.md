@@ -1,7 +1,7 @@
 # Q2-03: Build all themes' tomls; apply declared theme on activation via IPC
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q2-02, Q1-04
 - **Blocks:** Q2-04
 - **Size:** M
@@ -41,11 +41,37 @@ runtime path contract here.
 - Add an assertion/eval check that `omanix.theme`'s slug exists in the built theme set.
 
 ## Acceptance criteria
-- [ ] All themes' `colors.toml` + `shell.toml` exist in a store path with a predictable per-slug layout.
-- [ ] On activation, the declared `omanix.theme`'s tomls are materialized at the runtime current-theme path.
-- [ ] Activation applies the declared theme to a running shell via IPC (and the shell loads it on cold start).
-- [ ] A runtime switch to a non-declared theme is reverted by the next activation/shell restart.
-- [ ] Selecting an unknown `omanix.theme` fails at eval/build with a clear message.
+- [x] All themes' `colors.toml` + `shell.toml` exist in a store path with a predictable per-slug layout.
+- [x] On activation, the declared `omanix.theme`'s tomls are materialized at the runtime current-theme path.
+- [x] Activation applies the declared theme to a running shell via IPC (and the shell loads it on cold start).
+- [x] A runtime switch to a non-declared theme is reverted by the next activation/shell restart.
+- [x] Selecting an unknown `omanix.theme` fails at eval/build with a clear message.
+
+## Implementation notes (done)
+- `modules/home-manager/desktop/quickshell.nix` is the only file changed (added `omanixLib` to the
+  module args). A `themesStore = pkgs.linkFarm "omanix-themes" …` binding materializes every
+  theme's `<slug>/{colors.toml,shell.toml}` into the store from `omanixLib.themesColorsToml` /
+  `themesShellToml` (both slug-keyed). Exposed via a new internal readOnly option
+  `omanix.quickshell.themesDir` (mirrors `declaredBaseFile`) so Q2-04's `omanix-theme-set` resolves
+  switches against the same tree.
+- New `home.activation.omanixThemeState` (mirrors `omanixBackgroundState`): seeds
+  `~/.local/state/omanix/current/theme` as a **writable symlink into the store**
+  (`ln -sfn "${themesStore}/${config.omanix.theme}"`), then best-effort base64-encodes the seeded
+  `colors.toml`/`shell.toml` and calls `omanix-shell -q shell applyTheme "$c" "$s"` (guarded, never
+  fails activation). The shell reads `current/theme/*` on cold start (`Color.qml` unwatched
+  FileViews), so a down shell no-ops; the IPC push re-themes a running one (its FileViews don't
+  watch). `shell.qml:879` `applyTheme` takes base64 file *contents*, not a path.
+- **Symlink-into-store, not copy** (resolving the ticket's hedge): the shell only *reads*
+  `current/theme` — `applyTheme` never writes disk — so a symlink is safe and matches the committed
+  `omanixBackgroundState` precedent and Nix idiom.
+- **Unknown-theme eval failure** is already provided by `omanix.theme = types.enum availableThemes`
+  (`theme/default.nix`), whose enum derives from `omanixLib.themes` — the same source as
+  `themesStore`. No extra assertion added.
+- **Revert (D2):** activation always re-seeds `current/theme → <declared slug>` and re-applies;
+  nothing runtime-written is read by activation, so a prior `omanix-theme-set` is overwritten.
+- Verified: `nix flake check` passes; the `linkFarm` derivation builds with
+  `tokyo-night/{colors,shell}.toml` + `catppuccin-mocha/{colors,shell}.toml`. Live IPC apply /
+  runtime revert are runtime-only to verify in a Hyprland session.
 
 ## Testing
 - `nix build` the themes store derivation; confirm `<slug>/colors.toml` and `<slug>/shell.toml` exist for every theme.

@@ -2,10 +2,31 @@
   config,
   lib,
   pkgs,
+  omanixLib,
   ...
 }:
 let
   cfg = config.omanix.quickshell;
+
+  # All themes' rendered colors.toml + shell.toml (Q2-01/Q2-02), materialized
+  # into the store as <slug>/{colors.toml,shell.toml}. This is the declarative
+  # baseline: the declared omanix.theme is seeded from here on activation, and
+  # omanix-theme-set (Q2-04) resolves runtime switches against the same tree.
+  # Both attrsets are keyed by theme slug (see lib/themes.nix, lib/default.nix).
+  themesStore = pkgs.linkFarm "omanix-themes" (
+    lib.concatLists (
+      lib.mapAttrsToList (slug: colorsToml: [
+        {
+          name = "${slug}/colors.toml";
+          path = pkgs.writeText "${slug}-colors.toml" colorsToml;
+        }
+        {
+          name = "${slug}/shell.toml";
+          path = pkgs.writeText "${slug}-shell.toml" omanixLib.themesShellToml.${slug};
+        }
+      ]) omanixLib.themesColorsToml
+    )
+  );
   # Idle knobs keep their legacy top-level namespace (omanix.idle.*, defined in
   # theme/default.nix) as the user-facing surface — the shell idle service reads
   # them from shell.json (see the idle block in declaredBase below).
@@ -170,6 +191,17 @@ in
       default = declaredBase;
       description = "Store path of the Nix-generated declarative shell.json base.";
     };
+
+    # Internal: the store path of all themes' rendered tomls, exposed so
+    # omanix-theme-set (Q2-04) resolves runtime switches against the same tree
+    # the declarative baseline is seeded from.
+    themesDir = lib.mkOption {
+      type = lib.types.path;
+      internal = true;
+      readOnly = true;
+      default = themesStore;
+      description = "Store path of all themes' rendered colors.toml + shell.toml (per-slug).";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -217,6 +249,28 @@ in
       run mkdir -p "$HOME/.local/state/omanix/current"
       run ln -sfn "${config.omanix.activeTheme.assets.wallpaper}" \
         "$HOME/.local/state/omanix/current/background"
+    '';
+
+    # Apply the declared theme (D2 source of truth). The shell reads
+    # current/theme/{colors.toml,shell.toml} on cold start (Color.qml FileViews,
+    # unwatched), so the seeded symlink themes a not-yet-running shell; the IPC
+    # push re-themes an already-running one (its FileViews don't watch). Seeded
+    # as a writable symlink into the store (not a store symlink) so a rebuild
+    # reasserts the declared theme while omanix-theme-set (Q2-04) may repoint it
+    # as an ephemeral overlay.
+    home.activation.omanixThemeState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run mkdir -p "$HOME/.local/state/omanix/current"
+      run ln -sfn "${themesStore}/${config.omanix.theme}" \
+        "$HOME/.local/state/omanix/current/theme"
+      # Best-effort live apply; must never fail activation whether or not the
+      # shell is running (a cold start already reads current/theme on launch).
+      run sh -c '
+        _t="$HOME/.local/state/omanix/current/theme"
+        if command -v omanix-shell >/dev/null 2>&1; then
+          _c=$(${pkgs.coreutils}/bin/base64 -w0 < "$_t/colors.toml" 2>/dev/null || true)
+          _s=$(${pkgs.coreutils}/bin/base64 -w0 < "$_t/shell.toml" 2>/dev/null || true)
+          omanix-shell -q shell applyTheme "$_c" "$_s" || true
+        fi'
     '';
   };
 }
