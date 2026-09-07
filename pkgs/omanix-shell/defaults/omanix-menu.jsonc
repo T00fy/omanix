@@ -46,7 +46,7 @@
   "setup.hyprland": { "icon": "󰋁", "label": "Hyprland", "action": "omanix-show-setup-help hyprland" },
 
   "system": { "icon": "󰍛", "label": "System" },
-  "system.lock": { "icon": "󰌾", "label": "Lock", "action": "omanix-lock-screen" },
+  "system.lock": { "icon": "󰌾", "label": "Lock", "action": "omanix-system-lock" },
   "system.screensaver": { "icon": "󱄄", "label": "Screensaver", "action": "omanix-screensaver" },
   "system.idle": { "icon": "󰒲", "label": "Toggle Idle Lock", "action": "omanix-toggle-idle" },
   "system.scale": { "icon": "󰍹", "label": "Toggle UI Scale", "action": "omanix-scale" },

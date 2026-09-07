@@ -74,7 +74,18 @@ let
 in
 {
   options.omanix.quickshell = {
-    enable = lib.mkEnableOption "the Omanix Quickshell desktop shell";
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      example = false;
+      description = ''
+        Whether to enable the Omanix Quickshell desktop shell — the single
+        process that hosts the bar, launcher/menu, notifications, OSD, lock,
+        polkit agent, clipboard and background. This is the only supported
+        desktop; the discrete-tool stack (waybar/walker/mako/hyprlock/…) it
+        replaced has been removed.
+      '';
+    };
 
     package = lib.mkOption {
       type = lib.types.package;

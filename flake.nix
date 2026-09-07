@@ -18,13 +18,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    elephant.url = "github:abenz1267/elephant";
-
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.elephant.follows = "elephant";
-    };
-
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -51,8 +44,6 @@
       nixpkgs,
       home-manager,
       lazyvim,
-      walker,
-      elephant,
       silentSDDM,
       wlctl,
       ...
@@ -134,7 +125,6 @@
           imports = [
             ./modules/home-manager
             lazyvim.homeManagerModules.default
-            walker.homeManagerModules.default
           ];
 
           _module.args.omanixLib = omanixLib;

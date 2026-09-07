@@ -200,11 +200,8 @@ in
           { match = { namespace = "selection"; }; no_anim = true; }
           { match = { namespace = "^(selection)$"; }; no_anim = true; }
           { match = { namespace = "^(wayfreeze)$"; }; no_anim = true; }
-          { match = { namespace = "walker"; }; no_anim = true; }
-          { match = { namespace = "waybar"; }; blur = true; }
           { match = { namespace = "wofi"; }; blur = true; }
           { match = { namespace = "notifications"; }; blur = true; }
-          { match = { namespace = "waybar"; }; ignore_alpha = 0.5; }
           { match = { namespace = "wofi"; }; ignore_alpha = 0.5; }
           { match = { namespace = "notifications"; }; ignore_alpha = 0.5; }
         ]

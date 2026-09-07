@@ -1,22 +1,12 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (config.omanix.activeTheme.assets) wallpaper;
   cfg = config.omanix;
-  qs = cfg.quickshell.enable;
 
   autostartCmds =
     # Propagate session env (incl. OMANIX_PATH) to systemd/dbus.
     [ "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE GDK_SCALE HYPRCURSOR_THEME HYPRCURSOR_SIZE OMANIX_PATH" ]
     # The Quickshell desktop shell hosts bar/notifications/osd/polkit/clipboard/background.
-    ++ lib.optional qs "${pkgs.quickshell}/bin/quickshell -n -p $OMANIX_PATH/shell"
-    # Old stack — only when the shell is not running (it owns these otherwise).
-    ++ lib.optionals (!qs) [
-      "swayosd-server"
-      "systemctl --user start hyprpolkitagent"
-      "wl-paste --type text --watch cliphist store"
-      "wl-paste --type image --watch cliphist store"
-      "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill"
-    ]
+    ++ lib.optional cfg.quickshell.enable "${pkgs.quickshell}/bin/quickshell -n -p $OMANIX_PATH/shell"
     ++ cfg.hyprland.extraAutostart;
 
   execLines = lib.concatMapStringsSep "\n"

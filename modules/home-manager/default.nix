@@ -29,13 +29,8 @@
     ./desktop/hyprland/input.nix
     ./desktop/hyprland/rules.nix
     ./desktop/hyprland/monitors.nix
-    ./desktop/hyprpaper.nix
     ./desktop/hypridle.nix
-    ./desktop/hyprlock.nix
     ./desktop/quickshell.nix
-    ./ui/waybar.nix
-    ./ui/elephant.nix
-    ./ui/walker.nix
     ./ui/hidden-apps.nix
     ./ui/swayosd.nix
     ./terminal

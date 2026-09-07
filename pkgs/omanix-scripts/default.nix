@@ -11,7 +11,6 @@
   terminalWrapper ? ghostty,
   procps,
   systemd,
-  walker,
   gawk,
   gnugrep,
   gnused,
@@ -23,20 +22,15 @@
   quickshell,
   libxkbcommon,
   libnotify,
-  swaybg,
   vips,
-  envsubst,
   glow,
   pavucontrol,
   hyprpicker,
-  waybar,
   wayfreeze,
   grim,
   slurp,
   wl-clipboard,
   wtype,
-  hyprlock,
-  bitwarden-cli,
   pulseaudio,
   swayosd,
   wl-screenrec,
@@ -57,10 +51,6 @@
   gapsInner ? "5",
   borderSize ? "2",
   monitorMap ? "",
-  walkerWidth ? "644",
-  walkerHeight ? "300",
-  walkerScaledWidth ? "805",
-  walkerScaledHeight ? "375",
   menuWidth ? "295",
   menuMaxHeight ? "630",
   # omanix.sunshine.scaledDesktop settings (from osConfig), empty when unset
@@ -287,22 +277,6 @@ let
       ];
     }
     {
-      name = "omanix-launch-walker";
-      deps = [
-        bash
-        procps
-        systemd
-        coreutils
-      ];
-      envs = {
-        WALKER_BIN = "${walker}/bin/walker";
-        OMANIX_WALKER_WIDTH = walkerWidth;
-        OMANIX_WALKER_HEIGHT = walkerHeight;
-        OMANIX_WALKER_SCALED_WIDTH = walkerScaledWidth;
-        OMANIX_WALKER_SCALED_HEIGHT = walkerScaledHeight;
-      };
-    }
-    {
       name = "omanix-scale";
       deps = [
         bash
@@ -397,22 +371,24 @@ let
       ];
     }
     {
+      name = "omanix-menu-dmenu";
+      deps = [
+        bash
+        jq
+        coreutils
+      ];
+      # Calls the sibling omanix-shell to summon omanix.menu in dmenu mode.
+      selfPath = true;
+    }
+    {
       name = "omanix-menu-style";
       deps = [
         bash
         jq
         coreutils
-        gnused
-        envsubst
-        swaybg
-        terminalWrapper
-        glow
       ];
       envs = {
-        WALKER_BIN = "${walker}/bin/walker";
         OMANIX_THEMES_FILE = themesJson;
-        OMANIX_DOC_STYLE_PREVIEW = docStylePreview;
-        OMANIX_DOC_STYLE_OVERRIDE = docStyleOverride;
       };
       selfPath = true;
     }
@@ -478,17 +454,6 @@ let
         wl-clipboard
         wayfreeze
         libnotify
-      ];
-    }
-    {
-      name = "omanix-lock-screen";
-      deps = [
-        bash
-        hyprland
-        hyprlock
-        libnotify
-        bitwarden-cli
-        procps
       ];
     }
     {
@@ -657,6 +622,8 @@ let
         pulseaudio
         libnotify
       ];
+      # Calls the sibling omanix-shell to refresh the recording indicator.
+      selfPath = true;
     }
     {
       name = "omanix-workspace";

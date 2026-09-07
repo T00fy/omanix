@@ -34,7 +34,7 @@ for arg in "$@"; do
 done
 
 toggle_screenrecording_indicator() {
-  pkill -RTMIN+8 waybar
+  omanix-shell -q omanix.indicators refresh
 }
 
 screenrecording_active() {

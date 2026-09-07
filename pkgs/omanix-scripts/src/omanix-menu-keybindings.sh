@@ -100,15 +100,11 @@ parse_bindings() {
         gsub(/(^|,)[[:space:]]*exec[[:space:]]*,?/, "", action);
         gsub(/^[ \t]+|[ \t]+$/, "", action);
         gsub(/[ \t]+/, " ", key_combo);
-        gsub(/&/, "\\&amp;", action);
-        gsub(/</, "\\&lt;", action);
-        gsub(/>/, "\\&gt;", action);
-        gsub(/"/, "\\&quot;", action);
-        gsub(/'"'"'/, "\\&apos;", action);
     }
 
     if (action != "") {
-        printf "%-35s → %s\n", key_combo, action;
+        # Empty glyph, keycombo as label, action as subtext (shell dmenu shape).
+        printf "\t%s\t%s\n", key_combo, action;
     }
 }'
 }
@@ -121,8 +117,5 @@ output_keybindings() {
 if [[ "$1" == "--print" || "$1" == "-p" ]]; then
   output_keybindings
 else
-  monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')
-  menu_height=$((monitor_height * 40 / 100))
-
-  output_keybindings | omanix-launch-walker --dmenu -p 'Keybindings' --width 800 --height "$menu_height"
+  output_keybindings | omanix-menu-dmenu -p 'Keybindings' --width 480
 fi

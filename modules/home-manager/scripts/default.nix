@@ -73,7 +73,6 @@ let
   );
 
   omanixScripts = pkgs.omanix-scripts.override {
-    walker = inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default;
     terminalWrapper = config.omanix.terminal.wrapper;
     shellDefaults = config.omanix.quickshell.declaredBaseFile;
     quickshellThemesDir = config.omanix.quickshell.themesDir;
@@ -92,10 +91,6 @@ let
       borderSize
       monitorMap
       ;
-    walkerWidth = toString config.omanix.walker.width;
-    walkerHeight = toString config.omanix.walker.height;
-    walkerScaledWidth = toString config.omanix.walker.scaledWidth;
-    walkerScaledHeight = toString config.omanix.walker.scaledHeight;
     menuWidth = toString config.omanix.menu.width;
     menuMaxHeight = toString config.omanix.menu.maxHeight;
     scaledDesktopMonitor = if scaledDesktop != null then scaledDesktop.monitor else "";
@@ -144,8 +139,6 @@ in
     libxkbcommon
     gawk
     gnused
-    envsubst
-    swaybg
     wlctl
     glow
 
