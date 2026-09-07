@@ -1,7 +1,7 @@
 # Q3-02: Rewire Hyprland autostart (drop old daemons)
 
 - **Phase:** 3
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-03, Q1-06, Q1-07, Q1-10
 - **Blocks:** Q3-03
 - **Size:** S
@@ -36,11 +36,25 @@ plugin relies on it — verify against Q1-09).
 - `omanix.hyprland.extraAutostart` must still append cleanly.
 - Ensure ordering: the shell should start before things that IPC into it.
 
+## Resolution
+Refactored `autostart.nix` to assemble the `hyprland.start` commands from a Nix list gated by a
+single `qs = cfg.quickshell.enable` boolean (replacing the brittle inline `lib.optionalString`
+whitespace interleaving). Under quickshell only the dbus-env update, the single `quickshell`
+launch, and `omanix.hyprland.extraAutostart` run; `swayosd-server`, `hyprpolkitagent`, both
+`cliphist` watchers, and `swaybg` are emitted only under `!qs`, so the old stack still works
+unchanged when quickshell is off.
+
+**cliphist decision:** dropped under quickshell. Q1-09's clipboard plugin self-captures via its
+own `capture.sh` (`wl-paste --watch capture.sh`) into `~/.local/state/omanix/clipboard-history.json`
+and does not use cliphist, so the `wl-paste … cliphist store` watchers are pure old-stack.
+
+`hyprpaper.nix` gating was deliberately deferred to Q3-03 (module-level gating/removal).
+
 ## Acceptance criteria
-- [ ] mako, swayosd-server, hyprpolkitagent, swaybg are no longer autostarted from `autostart.nix`.
-- [ ] The Quickshell shell is autostarted exactly once (from Q1-03), no duplicate.
-- [ ] cliphist autostart decision made and documented in the ticket/commit.
-- [ ] `nix flake check` passes.
+- [x] mako, swayosd-server, hyprpolkitagent, swaybg are no longer autostarted from `autostart.nix` (under quickshell).
+- [x] The Quickshell shell is autostarted exactly once (from Q1-03), no duplicate.
+- [x] cliphist autostart decision made and documented (dropped under quickshell — see Resolution).
+- [x] `nix flake check` passes.
 
 ## Testing
 - `nix flake check`.

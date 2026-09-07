@@ -2,8 +2,25 @@
 let
   inherit (config.omanix.activeTheme.assets) wallpaper;
   cfg = config.omanix;
+  qs = cfg.quickshell.enable;
 
-  extraExecLines = lib.concatMapStringsSep "\n" (cmd: ''      hl.exec_cmd(${builtins.toJSON cmd})'') cfg.hyprland.extraAutostart;
+  autostartCmds =
+    # Propagate session env (incl. OMANIX_PATH) to systemd/dbus.
+    [ "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE GDK_SCALE HYPRCURSOR_THEME HYPRCURSOR_SIZE OMANIX_PATH" ]
+    # The Quickshell desktop shell hosts bar/notifications/osd/polkit/clipboard/background.
+    ++ lib.optional qs "${pkgs.quickshell}/bin/quickshell -n -p $OMANIX_PATH/shell"
+    # Old stack — only when the shell is not running (it owns these otherwise).
+    ++ lib.optionals (!qs) [
+      "swayosd-server"
+      "systemctl --user start hyprpolkitagent"
+      "wl-paste --type text --watch cliphist store"
+      "wl-paste --type image --watch cliphist store"
+      "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill"
+    ]
+    ++ cfg.hyprland.extraAutostart;
+
+  execLines = lib.concatMapStringsSep "\n"
+    (cmd: "        hl.exec_cmd(${builtins.toJSON cmd})") autostartCmds;
 in
 {
   options.omanix.hyprland.extraAutostart = lib.mkOption {
@@ -27,14 +44,7 @@ in
   config = {
     wayland.windowManager.hyprland.extraConfig = ''
       hl.on("hyprland.start", function()
-        hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE GDK_SCALE HYPRCURSOR_THEME HYPRCURSOR_SIZE OMANIX_PATH")
-${lib.optionalString cfg.quickshell.enable ''        hl.exec_cmd("${pkgs.quickshell}/bin/quickshell -n -p $OMANIX_PATH/shell")
-''}        hl.exec_cmd("swayosd-server")
-${lib.optionalString (!cfg.quickshell.enable) ''        hl.exec_cmd("systemctl --user start hyprpolkitagent")
-''}        hl.exec_cmd("wl-paste --type text --watch cliphist store")
-        hl.exec_cmd("wl-paste --type image --watch cliphist store")
-        hl.exec_cmd("${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill")
-${extraExecLines}
+      ${execLines}
       end)
     '';
   };
