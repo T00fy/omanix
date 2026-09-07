@@ -14,6 +14,7 @@ in
     ./libreoffice.nix
     ./docker.nix
     ./sunshine.nix
+    ./tailscale.nix
   ];
 
   options.omanix = {

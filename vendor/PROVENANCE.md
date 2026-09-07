@@ -65,3 +65,9 @@ then, this log is the record.
   → `omanix-cmd-screenrecord --stop-recording`. Upstream assumed gpu-screen-recorder, which
   omanix does not use; the start branch (`omanix-menu toggle trigger.capture.screenrecord`) is
   unchanged.
+- `plugins/panels/tailscale/Service.qml` (2026-09-08, Q4-07) — neutralized
+  `authorizeTailscaleOperator()` to an inert early-`return` (dropped the
+  `pkexec tailscale set --operator=$USER` command). On NixOS pkexec has a restricted PATH and
+  no polkit action for it; the operator is instead declared via `omanix.tailscale.operator`
+  (a `tailscaled` oneshot in `modules/nixos/tailscale.nix`), so the runtime button is
+  unnecessary. This is the Q0-05 `pkexec` landmine.

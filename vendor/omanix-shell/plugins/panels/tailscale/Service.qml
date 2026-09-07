@@ -346,12 +346,12 @@ Item {
   }
 
   function authorizeTailscaleOperator() {
-    if (!installed || operatorProcess.running || userName === "") return
-    _operatorOutput = ""
-    _operatorError = ""
-    actionStatus = "Authorizing Tailscale operator..."
-    operatorProcess.command = ["pkexec", "tailscale", "set", "--operator=" + userName]
-    operatorProcess.running = true
+    // omanix (local edit): the Tailscale operator is declared on NixOS via
+    // omanix.tailscale.operator (a tailscaled-oneshot), not authorized at
+    // runtime — pkexec has no polkit action here and a restricted PATH. Left
+    // as an inert no-op so the panel button never runs a broken privileged
+    // command.
+    return
   }
 
   function runAction(command, label) {

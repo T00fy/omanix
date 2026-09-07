@@ -137,7 +137,18 @@ in
     ./screensaver.nix
   ];
 
-  home.packages = with pkgs; [
+  # Expose the configuration-specific wrapped package so other modules can
+  # reference a wrapped binary by absolute store path (systemd user services
+  # don't inherit the interactive PATH) without rebuilding the override.
+  options.omanix.scripts.package = lib.mkOption {
+    type = lib.types.package;
+    readOnly = true;
+    internal = true;
+    default = omanixScripts;
+    description = "The wrapped omanix-scripts package built for this configuration.";
+  };
+
+  config.home.packages = with pkgs; [
     omanixScripts
     config.omanix.browser.package
 

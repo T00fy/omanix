@@ -1,7 +1,7 @@
 # Q4-07: Tailscale taildrop send/receive
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** M
@@ -50,13 +50,34 @@ widget/panel (that ships with the vendored shell in Q1-13); exit-node UI.
   (a small `omanix-menu`/fuzzel-driven picker) as part of this ticket.
 
 ## Acceptance criteria
-- [ ] `omanix-tailscale-send <machine> <file>` sends a file and notifies on success/failure.
-- [ ] `omanix-tailscale-send <machine>` with no file opens a picker.
-- [ ] `omanix.tailscale.taildrop.enable = true` starts a `omanix-tailscale-receive` user
+- [x] `omanix-tailscale-send <machine> <file>` sends a file and notifies on success/failure.
+- [x] `omanix-tailscale-send <machine>` with no file opens a picker (`omanix-file-select`,
+      floating `omanix-term` + `fzf`).
+- [x] `omanix.tailscale.taildrop.enable = true` starts a `omanix-tailscale-receive` user
       service that saves incoming files to `~/Downloads` and notifies (image preview for images).
-- [ ] Concurrent/duplicate-name transfers do not clobber (rename-on-conflict works).
-- [ ] No `omarchy` strings remain in the ported scripts or unit.
-- [ ] `nix flake check` passes; the new option appears in the generated options doc.
+- [x] Concurrent/duplicate-name transfers do not clobber — staging under `~/Downloads` +
+      atomic `ln` (link(2)) claim with `name (N).ext` rename-on-collision.
+- [x] No `omarchy` strings remain in the ported scripts or unit.
+- [x] `nix flake check` passes; both new options (`omanix.tailscale.taildrop.enable` HM,
+      `omanix.tailscale.operator` NixOS) appear in the generated options doc.
+
+## Implementation notes (as built)
+- Scripts: `pkgs/omanix-scripts/src/omanix-{file-select,tailscale-send,tailscale-receive}.sh`,
+  registered in `pkgs/omanix-scripts/default.nix` (`tailscale` added as a dep). Receive uses
+  `tailscale file get --wait --conflict=rename` and the atomic link claim; `--once` blocks
+  for one transfer then exits.
+- Picker reuses the existing `org.omanix.terminal` floating-window rule (no rules.nix change);
+  ghostty/foot launched from the CLI block until close, so the temp-file round-trip works.
+- Receiver service in new HM module `modules/home-manager/desktop/tailscale.nix`
+  (`omanix.tailscale.taildrop.enable`, `Restart=on-failure`, `WantedBy=graphical-session.target`).
+  ExecStart uses an absolute path via the new internal readOnly `omanix.scripts.package`
+  option (exposed from `modules/home-manager/scripts/default.nix`) since user services don't
+  inherit the interactive PATH.
+- **Landmine (Q0-05):** `authorizeTailscaleOperator()` in `vendor/.../tailscale/Service.qml`
+  neutralized to an inert `return` (logged in `vendor/PROVENANCE.md`); operator declared via
+  new NixOS `omanix.tailscale.operator` (`modules/nixos/tailscale.nix`, a `tailscaled`
+  oneshot gated on `services.tailscale.enable`). Enabling Tailscale itself stays host-provided.
+- Docs: added a "Tailscale" category to `docs/split-options.py` so the HM option is rendered.
 
 ## Testing
 - `nix build .#omanix-scripts` (or the attr that builds `pkgs/omanix-scripts`) succeeds.

@@ -31,6 +31,7 @@
     ./desktop/hyprland/monitors.nix
     ./desktop/hypridle.nix
     ./desktop/quickshell.nix
+    ./desktop/tailscale.nix
     ./audio.nix
     ./ui/hidden-apps.nix
     ./terminal

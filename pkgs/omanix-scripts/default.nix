@@ -24,6 +24,7 @@
   iputils,
   bluez,
   power-profiles-daemon,
+  tailscale,
   findutils,
   diffutils,
   perl,
@@ -1164,6 +1165,42 @@ let
         gawk
         gnugrep
         power-profiles-daemon
+      ];
+    }
+    {
+      # Floating-terminal file picker for headless callers (the shell tailscale
+      # panel invokes omanix-tailscale-send without a controlling terminal).
+      name = "omanix-file-select";
+      deps = [
+        bash
+        coreutils
+        findutils
+        fzf
+        terminalWrapper
+      ];
+    }
+    {
+      # Taildrop send; with no file arg falls back to omanix-file-select.
+      name = "omanix-tailscale-send";
+      deps = [
+        bash
+        coreutils
+        tailscale
+        libnotify
+      ];
+      selfPath = true;
+    }
+    {
+      # Long-running Taildrop receiver (systemd user service, see
+      # modules/home-manager/desktop/tailscale.nix); also runs by hand.
+      name = "omanix-tailscale-receive";
+      deps = [
+        bash
+        coreutils
+        file
+        tailscale
+        libnotify
+        xdg-utils
       ];
     }
   ];

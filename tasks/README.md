@@ -186,7 +186,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 | Q4-04 | Network tools (`omanix-network-*`) | none | ⬜ |
 | Q4-05 | Capture tools (QR/region/OCR/webcam/image transcode) | none | ⬜ |
 | Q4-06 | Security: sshd + sudoless-docker → Nix module options | none | ⬜ |
-| Q4-07 | Tailscale taildrop send/receive | none | ⬜ |
+| Q4-07 | Tailscale taildrop send/receive | none | ✅ |
 | Q4-08 | Gaming: Battle.net + RetroArch retro | none | ⬜ |
 | Q4-09 | Plymouth boot-splash theming (hybrid, mirrors D2) | Q2-01 | ⬜ |
 | Q4-10 | Palette-only theme targets (tmux/claude/pi/browser/osc) | Q2-04 | ⬜ |
