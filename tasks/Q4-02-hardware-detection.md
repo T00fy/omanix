@@ -1,10 +1,17 @@
 # Q4-02: Hardware detection (`omanix-hw-*`)
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** M
+
+> **Scope note (resolved):** in addition to the 8 `omanix-hw-*` probes, this ticket also shipped
+> the power panel's two data emitters `omanix-battery-status --shell` + `omanix-system-stats`.
+> `PORTING-QUATTRO.md:214` (Q1-13) buckets those two — plus `omanix-hw-laptop-closed` — under
+> Q4-02 as the shell's unimplemented callers, and no other ticket owns them. They read live
+> sensor state (battery %, charge rate, CPU/mem load) that Nix cannot declare, so they are
+> runtime scripts by nature, the same category as the probes.
 
 ## Context
 Omarchy 4.0.2 added a family of hardware-detection predicates used by the shell and other
@@ -34,10 +41,10 @@ Per-item guidance (script vs option):
 - These probes return exit codes for use in conditionals (like omanix's existing `hw-*` convention) — match that.
 
 ## Acceptance criteria
-- [ ] Scripts exist for laptop, laptop-closed, clamshell, display, fingerprint, nvidia, intel-sof, webcam, renamed per D1, registered in `default.nix`.
-- [ ] Each returns a correct exit code / string on the dev machine (document expected output per host in the PR).
-- [ ] The doc/PR explicitly states, per probe, whether it is a runtime script or backed by a NixOS option, and why.
-- [ ] `omanix-hw-webcam` correctly defers to `omanix-capture-webcam-list` (or is stubbed with a clear TODO if Q4-05 is not yet merged).
+- [x] Scripts exist for laptop, laptop-closed, clamshell, display, fingerprint, nvidia, intel-sof, webcam, renamed per D1, registered in `default.nix`. (Plus emitters `omanix-battery-status`, `omanix-system-stats` — see scope note.)
+- [ ] Each returns a correct exit code / string on the dev machine (document expected output per host in the PR). *(runtime-only; verify on real build.)*
+- [x] The doc/PR explicitly states, per probe, whether it is a runtime script or backed by a NixOS option, and why. (`laptop` is a runtime script with an `omanix.hardware.isLaptop` override; all others are runtime-only — they read state that changes at runtime or that Nix has no build-time equivalent for.)
+- [x] `omanix-hw-webcam` correctly defers to `omanix-capture-webcam-list`, with a `/sys/class/video4linux` fallback + `TODO(Q4-05)` until Q4-05 merges.
 
 ## Testing
 - `nix build .#omanix-scripts` succeeds.

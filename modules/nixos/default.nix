@@ -9,6 +9,7 @@ in
     ./hyprland.nix
     ./login.nix
     ./security.nix
+    ./hardware.nix
     ./steam.nix
     ./libreoffice.nix
     ./docker.nix

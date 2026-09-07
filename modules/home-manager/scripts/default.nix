@@ -47,6 +47,16 @@ let
 
   dummyDisplayRealMonitorsEnv =
     if dummyDisplay == null then "" else omanixLib.dummyDisplay.realMonitorsEnv dummyDisplay.realMonitors;
+  # omanix.hardware.isLaptop (NixOS option) forces omanix-hw-laptop's answer.
+  # Read via the same osConfig bridge as scaledDesktop above; null / standalone
+  # HM leaves it auto-detecting ("").
+  isLaptopOption =
+    if osConfig != null && osConfig ? omanix && osConfig.omanix ? hardware then
+      osConfig.omanix.hardware.isLaptop
+    else
+      null;
+  isLaptop = if isLaptopOption == null then "" else lib.boolToString isLaptopOption;
+
   availableThemes = builtins.attrNames omanixLib.themes;
   themeListFormatted = builtins.concatStringsSep "\\n" (map (t: "- ${t}") availableThemes);
 
@@ -76,6 +86,7 @@ let
     terminalWrapper = config.omanix.terminal.wrapper;
     shellDefaults = config.omanix.quickshell.declaredBaseFile;
     quickshellThemesDir = config.omanix.quickshell.themesDir;
+    inherit isLaptop;
     inherit
       themesJson
       docStylePreview

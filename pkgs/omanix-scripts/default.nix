@@ -14,6 +14,7 @@
   gawk,
   gnugrep,
   gnused,
+  pciutils,
   util-linux,
   findutils,
   diffutils,
@@ -84,6 +85,9 @@
   # (quickshell.nix themesDir). omanix-theme-set resolves runtime switches
   # against it. Null when the desktop shell module is disabled.
   quickshellThemesDir ? null,
+  # Declarative laptop override from omanix.hardware.isLaptop (via osConfig).
+  # "true"/"false" force omanix-hw-laptop's answer; "" leaves it auto-detecting.
+  isLaptop ? "",
 }:
 
 let
@@ -764,6 +768,98 @@ let
         libnotify
       ];
       selfPath = true;
+    }
+
+    # ─── Hardware detection (Q4-02) ──────────────────────────────────
+    {
+      # omanix.hardware.isLaptop overrides the probe via OMANIX_IS_LAPTOP.
+      name = "omanix-hw-laptop";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+      ];
+      envs = {
+        OMANIX_IS_LAPTOP = if isLaptop == "" then null else isLaptop;
+      };
+    }
+    {
+      name = "omanix-hw-laptop-closed";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+      ];
+    }
+    {
+      name = "omanix-hw-clamshell";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-hw-display";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+      ];
+    }
+    {
+      name = "omanix-hw-fingerprint";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+      ];
+    }
+    {
+      name = "omanix-hw-nvidia";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+      ];
+    }
+    {
+      name = "omanix-hw-intel-sof";
+      deps = [
+        bash
+        coreutils
+        gnugrep
+        pciutils
+      ];
+    }
+    {
+      # Delegates to omanix-capture-webcam-list (Q4-05) when present.
+      name = "omanix-hw-webcam";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
+    }
+
+    # ─── Power-panel data emitters (Q4-02) ───────────────────────────
+    {
+      name = "omanix-battery-status";
+      deps = [
+        bash
+        coreutils
+        gawk
+      ];
+    }
+    {
+      name = "omanix-system-stats";
+      deps = [
+        bash
+        coreutils
+        gawk
+        procps
+      ];
     }
   ];
 
