@@ -37,6 +37,8 @@
   hypridle,
   localsend,
   fzf,
+  git,
+  gum,
   omanix-screensaver,
   # Data files injected by the module
   themesJson ? null,
@@ -647,6 +649,121 @@ let
         fzf
         localsend
       ];
+    }
+    # ── Plugin system (Q4-01) ──────────────────────────────────────────
+    {
+      # Shared guard: refuse transport-helper / option-injection git URLs
+      # before any clone. Also reused by theme install.
+      name = "omanix-git-url-check";
+      deps = [ bash ];
+    }
+    {
+      # Mirrors PluginRegistry.qml's manifest schema so the CLI rejects
+      # anything the shell would refuse or load unsafely.
+      name = "omanix-plugin-validate";
+      deps = [
+        bash
+        coreutils
+        jq
+        findutils
+      ];
+    }
+    {
+      # Single source of truth for manifest walking (first-party + user).
+      # Reads $OMANIX_PATH from the session env; no running shell needed.
+      name = "omanix-plugin-catalog";
+      deps = [
+        bash
+        coreutils
+        jq
+        findutils
+      ];
+    }
+    {
+      name = "omanix-plugin-list";
+      deps = [
+        bash
+        coreutils
+        jq
+        gawk
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-plugin-enable";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-plugin-disable";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-plugin-add";
+      deps = [
+        bash
+        coreutils
+        jq
+        git
+        gum
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-plugin-clone";
+      deps = [
+        bash
+        coreutils
+        jq
+        gnused
+        gnugrep
+        libnotify
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-plugin-update";
+      deps = [
+        bash
+        coreutils
+        jq
+        git
+        gum
+      ];
+      selfPath = true;
+    }
+    {
+      name = "omanix-plugin-remove";
+      deps = [
+        bash
+        coreutils
+        jq
+        gum
+        findutils
+        libnotify
+      ];
+      selfPath = true;
+    }
+    {
+      # Menu wrapper: lists via omanix-plugin-list, picks via omanix-menu-dmenu,
+      # dispatches enable/disable over IPC and clone/remove in a floating term.
+      name = "omanix-menu-plugin";
+      deps = [
+        bash
+        coreutils
+        jq
+        libnotify
+      ];
+      selfPath = true;
     }
   ];
 

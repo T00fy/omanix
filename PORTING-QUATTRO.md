@@ -235,7 +235,7 @@ everything" lives. Phase 5 is optional and depends on Phase 1.
 ### Phase 4 — Plugin system + independent helpers (parallel) ⬜
 
 Plugin system:
-- [ ] Port `omanix-plugin-{add,clone,enable,disable,update,remove,list,validate,catalog}` + `omanix-menu-plugin`. Pure bash + jq + git + gum. User plugins → `~/.config/omanix/plugins/` (writable, outside store). Built-ins immutable in the store is fine.
+- [x] ✅ **Plugin CLI** (Q4-01): shipped all 11 scripts in `pkgs/omanix-scripts/` — `omanix-plugin-{add,clone,enable,disable,update,remove,list,validate,catalog}`, `omanix-menu-plugin`, `omanix-git-url-check` — added `git`+`gum` as the only new deps. **Reconstructed from the IPC contract** (`shell.qml` `rescanPlugins`/`enablePlugin`/`setPluginEnabled`/`listPlugins`) + the `PluginRegistry.qml` manifest schema / `clonedFrom` routing, rather than mechanically porting; the two security scripts (`git-url-check` URL-refusal, `validate` schema) preserve upstream's exact semantics. omanix-tree adaptations: `notify-send` (best-effort) for `omarchy-notification-send`, `omanix-menu-dmenu` for `omarchy-menu-select`, `omanix-launch-tui` for the floating clone/remove terminal, `grep -rlZ -F` for the `rg` path-rewrite, `command -v delta` optional. User plugins → `~/.config/omanix/plugins/` (writable, created at runtime by the registry — R3, no Nix seeding); built-ins immutable in the store. `nix flake check` + `omanix-scripts` build pass; runtime paths verify on a live shell.
 
 Independent CLI helpers (each self-contained; port as desired):
 - [ ] **Hardware detection**: `omanix-hw-{laptop,laptop-closed,clamshell,display,fingerprint,nvidia,intel-sof,webcam}`. Some map to NixOS `hardware.*` options instead of runtime probes — decide per item.

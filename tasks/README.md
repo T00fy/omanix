@@ -180,7 +180,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 ### Phase 4 — Plugin system + independent helpers (parallel)
 | ID | Title | Depends on | Status |
 |----|-------|-----------|--------|
-| Q4-01 | Plugin CLI (`omanix-plugin-*`) + `omanix-menu-plugin` | Q1-04 | ⬜ |
+| Q4-01 | Plugin CLI (`omanix-plugin-*`) + `omanix-menu-plugin` | Q1-04 | ✅ |
 | Q4-02 | Hardware detection (`omanix-hw-*`) | none | ⬜ |
 | Q4-03 | Audio tuning subsystem (PipeWire filter-chain) | none | ⬜ |
 | Q4-04 | Network tools (`omanix-network-*`) | none | ⬜ |
