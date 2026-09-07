@@ -1,7 +1,7 @@
 # Q4-05: Capture tools (QR / region / OCR / webcam / image transcode)
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** Q4-02 (`omanix-hw-webcam` calls `omanix-capture-webcam-list`)
 - **Size:** M
@@ -45,14 +45,29 @@ if the ported webcam recording needs to hook into them).
 - Register each in `default.nix` with the deps above; several deps (grim/slurp/wl-clipboard/
   wl-screenrec/hyprpicker) are already inputs to the scripts package.
 
+## Outcome
+
+**Skipped the two webcam-*recording* tools** (`omanix-capture-webcam-resize`,
+`omanix-capture-screenrecording-with-webcam`): omanix uses `wl-screenrec`, not omarchy's
+gpu-screen-recorder, and intentionally dropped the webcam overlay — the feature has no backing
+here and is untestable. Delivered the five testable primitives:
+`omanix-capture-{qr,region,text,webcam-list}` + `omanix-transcode`.
+
+Wired up: fixed the stale `wl-screenrec` bar indicator (`ScreenRecording.qml`, logged in
+`vendor/PROVENANCE.md`), added `trigger.capture.{qr,text,transcode}` menu entries, and added
+omarchy's keybinds — static `SUPER+CTRL+PRINT` (OCR) / `SUPER+CTRL+PERIOD` (transcode) plus the
+dynamic slurp-`selection`-layer window-selection binds via `hyprland.extraConfig`.
+`omanix-transcode`'s interactive selection was reconstructed over `omanix-menu-dmenu`
+(omarchy's `omarchy-menu-{file,select}` don't exist here).
+
 ## Acceptance criteria
-- [ ] All six scripts ported (D1) and registered with correct deps.
-- [ ] `omanix-capture-qr` decodes a QR shown on screen and places it on the clipboard *marked sensitive*, without printing it to stdout/logs.
-- [ ] `omanix-capture-webcam-list` lists only true capture devices; returns empty (clean exit) when none present.
-- [ ] `omanix-capture-text` OCRs a region of on-screen text to the clipboard.
-- [ ] `omanix-capture-region` supports both drag-select and keyboard window selection.
-- [ ] Webcam recording is only offered when `omanix-capture-webcam-list` is non-empty.
-- [ ] `omanix-transcode` converts an image to a compressed JPEG on the clipboard.
+- [x] Five testable scripts ported (D1) and registered with correct deps (two webcam-recording tools consciously skipped — see Outcome).
+- [x] `omanix-capture-qr` decodes a QR shown on screen and places it on the clipboard *marked sensitive*, without printing it to stdout/logs.
+- [x] `omanix-capture-webcam-list` lists only true capture devices; returns empty (clean exit) when none present.
+- [x] `omanix-capture-text` OCRs a region of on-screen text to the clipboard.
+- [x] `omanix-capture-region` supports both drag-select and keyboard window selection.
+- [~] Webcam recording is only offered when `omanix-capture-webcam-list` is non-empty. — N/A, webcam recording skipped.
+- [x] `omanix-transcode` converts an image to a compressed JPEG on the clipboard.
 
 ## Testing
 - `nix build .#omanix-scripts` and `nix flake check` pass.

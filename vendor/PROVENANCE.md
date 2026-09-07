@@ -59,3 +59,9 @@ then, this log is the record.
   `bar.run("omanix-menu-timezone")` handler; timezone is declarative on NixOS (`time.timeZone`,
   D4 / Q0-05 ratified cut), so the picker helper is not shipped and the call would dangle.
   Middle-click now falls through to `togglePanel()`; right-click format-cycle unchanged.
+- `plugins/bar/indicators/ScreenRecording.qml` (2026-09-08, Q4-05) — retarget the indicator at
+  omanix's `wl-screenrec` recorder: status probe `pgrep -f ^gpu-screen-recorder` → `pgrep -x
+  wl-screenrec`, and the press-to-stop command `omanix-capture-screenrecording --stop-recording`
+  → `omanix-cmd-screenrecord --stop-recording`. Upstream assumed gpu-screen-recorder, which
+  omanix does not use; the start branch (`omanix-menu toggle trigger.capture.screenrecord`) is
+  unchanged.

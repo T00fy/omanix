@@ -28,6 +28,11 @@
   diffutils,
   perl,
   imagemagick,
+  ffmpeg,
+  zbar,
+  tesseract,
+  v4l-utils,
+  file,
   quickshell,
   libxkbcommon,
   libnotify,
@@ -750,6 +755,78 @@ let
         libnotify
       ];
       # Calls the sibling omanix-shell to refresh the recording indicator.
+      selfPath = true;
+    }
+
+    # ─── Capture tools (Q4-05) ───────────────────────────────────────
+    {
+      # Decode a QR from a slurp-selected region; result to wl-copy --sensitive
+      # only (never printed/logged — QRs carry secrets).
+      name = "omanix-capture-qr";
+      deps = [
+        bash
+        coreutils
+        hyprpicker
+        slurp
+        grim
+        zbar
+        wl-clipboard
+        libnotify
+      ];
+    }
+    {
+      # OCR a slurp-selected region to the clipboard. Language via OMANIX_OCR_LANGS.
+      name = "omanix-capture-text";
+      deps = [
+        bash
+        coreutils
+        hyprpicker
+        slurp
+        grim
+        tesseract
+        wl-clipboard
+        libnotify
+      ];
+    }
+    {
+      # Shared region picker over a frozen screen; also drives keyboard window
+      # selection while slurp is open (invoked by the layer binds in bindings.nix).
+      name = "omanix-capture-region";
+      deps = [
+        bash
+        coreutils
+        hyprland
+        jq
+        slurp
+        hyprpicker
+        procps
+      ];
+    }
+    {
+      # List V4L2 devices that truly support Video Capture. Consumed by
+      # omanix-hw-webcam (Q4-02).
+      name = "omanix-capture-webcam-list";
+      deps = [
+        bash
+        coreutils
+        gawk
+        v4l-utils
+      ];
+    }
+    {
+      # Transcode an image/video to a size-optimized file on the clipboard.
+      # Interactive pickers go through the sibling omanix-menu-dmenu.
+      name = "omanix-transcode";
+      deps = [
+        bash
+        coreutils
+        file
+        imagemagick
+        ffmpeg
+        wl-clipboard
+        libnotify
+        findutils
+      ];
       selfPath = true;
     }
     {

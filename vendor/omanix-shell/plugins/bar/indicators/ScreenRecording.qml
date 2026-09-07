@@ -15,7 +15,7 @@ BarIndicator {
 
   function refresh() {
     if (!root.bar || statusProc.running) return
-    statusProc.command = ["pgrep", "--quiet", "-f", "^gpu-screen-recorder"]
+    statusProc.command = ["pgrep", "--quiet", "-x", "wl-screenrec"]
     statusProc.running = true
   }
 
@@ -37,7 +37,7 @@ BarIndicator {
 
   onPressed: function() {
     if (root.bar) {
-      root.bar.run(root.recording ? "omanix-capture-screenrecording --stop-recording" : "omanix-menu toggle trigger.capture.screenrecord")
+      root.bar.run(root.recording ? "omanix-cmd-screenrecord --stop-recording" : "omanix-menu toggle trigger.capture.screenrecord")
     }
   }
 }
