@@ -55,3 +55,7 @@ then, this log is the record.
   overlay, not a toplevel window, so the upstream `openwindow`/window-class path never fires).
   Added `screensaverLayerNamespace`/`screensaverLayerCount`/`screensaverPresentCount` and layer
   open/close handlers; the legacy window-class path is left intact.
+- `plugins/panels/clock/BarWidget.qml` (2026-09-07, Q3-04) — removed the clock middle-click
+  `bar.run("omanix-menu-timezone")` handler; timezone is declarative on NixOS (`time.timeZone`,
+  D4 / Q0-05 ratified cut), so the picker helper is not shipped and the call would dangle.
+  Middle-click now falls through to `togglePanel()`; right-click format-cycle unchanged.
