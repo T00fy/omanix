@@ -16,6 +16,14 @@
   gnused,
   pciutils,
   util-linux,
+  networkmanager,
+  iw,
+  qrencode,
+  curl,
+  iproute2,
+  iputils,
+  bluez,
+  power-profiles-daemon,
   findutils,
   diffutils,
   perl,
@@ -972,6 +980,113 @@ let
         coreutils
         gawk
         procps
+      ];
+    }
+
+    # ─── Network / DNS / Bluetooth / Power panels (Q4-04) ────────────
+    {
+      # Dual mode: bare line for the speedtest panel, key/value pairs under
+      # --verbose for the network panel. NetworkManager is host-provided.
+      name = "omanix-network-status";
+      deps = [
+        bash
+        coreutils
+        gawk
+        networkmanager
+        iproute2
+        iputils
+      ];
+    }
+    {
+      # Query the active Wi-Fi band, or pin one and reactivate (reverts on
+      # failure). Available bands come from a cached iw scan.
+      name = "omanix-network-band";
+      deps = [
+        bash
+        coreutils
+        gawk
+        networkmanager
+        iw
+      ];
+    }
+    {
+      # Emit the active network's WIFI: QR payload as a square 0/1 matrix.
+      name = "omanix-network-qr";
+      deps = [
+        bash
+        coreutils
+        gawk
+        networkmanager
+        qrencode
+      ];
+    }
+    {
+      name = "omanix-network-password";
+      deps = [
+        bash
+        coreutils
+        networkmanager
+      ];
+    }
+    {
+      # Stream Mbps samples for the speedtest panel's down/up phases.
+      name = "omanix-network-speedtest";
+      deps = [
+        bash
+        coreutils
+        gawk
+        curl
+        iproute2
+      ];
+    }
+    {
+      # Read or pin the DNS provider on the active connection.
+      name = "omanix-dns";
+      deps = [
+        bash
+        coreutils
+        gawk
+        networkmanager
+      ];
+    }
+    {
+      name = "omanix-bluetooth-device";
+      deps = [
+        bash
+        coreutils
+        bluez
+      ];
+    }
+    {
+      # Moves the rfkill soft block so the state persists across reboots.
+      name = "omanix-bluetooth-power";
+      deps = [
+        bash
+        coreutils
+        util-linux
+        bluez
+      ];
+    }
+    {
+      # power-profiles-daemon is the NixOS default; the helper degrades to a
+      # no-op (exit 0) when it is absent so a TLP host is left alone.
+      name = "omanix-powerprofiles-list";
+      deps = [
+        bash
+        coreutils
+        gawk
+        gnugrep
+        power-profiles-daemon
+      ];
+    }
+    {
+      name = "omanix-powerprofiles-set";
+      deps = [
+        bash
+        coreutils
+        gawk
+        gnugrep
+        power-profiles-daemon
       ];
     }
   ];

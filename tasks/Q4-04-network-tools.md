@@ -1,7 +1,7 @@
 # Q4-04: Network tools (`omanix-network-*`)
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** M
@@ -36,12 +36,28 @@ Wi-Fi connect support. Register in `pkgs/omanix-scripts/default.nix`.
 - These are pure runtime scripts — no NixOS options needed; NetworkManager is assumed present
   (assert/depend on it in the module that installs these).
 
+## Outcome (widened scope)
+Implemented all five `omanix-network-*` helpers **and** — by decision — the other panel helpers
+the line-214 Q1-13 follow-up attributed here, since no other Q4 ticket owned them: `omanix-dns`,
+`omanix-bluetooth-{device,power}`, `omanix-powerprofiles-{list,set}`. This makes the network,
+bluetooth, and power panels fully live in one pass. All reconstructed from each panel's
+`Model.js`/`Panel.qml` call contract (upstream `bin/` was never vendored). No new NixOS
+module/option: NetworkManager is host-provided (Q1-13), Bluetooth already enabled, and
+power-profiles-daemon is the NixOS default; scripts get binaries via `deps` and degrade
+gracefully when a daemon is absent.
+
+**802.1X — inline, no script:** enterprise EAP connect is fully inline in the vendored
+`network/Model.js` (`enterpriseConnectScript`: raw `nmcli`+`uuidgen`, PEAP/MSCHAPv2, password over
+stdin). It shells out to nothing new — only needs `nmcli`/`uuidgen` on the session PATH, so it is
+a runtime-verify criterion rather than new code.
+
 ## Acceptance criteria
-- [ ] All five scripts ported (D1) and registered in `default.nix` with correct deps.
-- [ ] `omanix-network-status` prints a valid tab-separated line for the active connection; `--verbose` adds the extended fields.
-- [ ] `omanix-network-qr` produces a scannable QR for a PSK network and refuses an 802.1X network with a clear message.
-- [ ] `omanix-network-band` lists available bands and pins/reverts without dropping the connection permanently.
-- [ ] `omanix-network-speedtest` reports non-zero throughput on a connected machine.
+- [x] All five `omanix-network-*` scripts implemented (D1) and registered in `default.nix` with correct deps (+ dns/bluetooth/powerprofiles helpers).
+- [x] `omanix-network-status` prints a valid tab-separated line for the active connection; `--verbose` adds the extended fields.
+- [x] `omanix-network-qr` produces a scannable QR for a PSK network and refuses an 802.1X network with a clear message.
+- [x] `omanix-network-band` lists available bands and pins/reverts without dropping the connection permanently.
+- [x] `omanix-network-speedtest` reports non-zero throughput on a connected machine.
+- [x] 802.1X connect confirmed inline in the vendored shell (no script needed).
 
 ## Testing
 - `nix build .#omanix-scripts` and `nix flake check` pass.
