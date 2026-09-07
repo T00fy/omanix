@@ -157,6 +157,43 @@ omanix = {
 };
 ```
 
+## Security (SSH & Docker)
+
+Omanix intentionally ships **no** `omanix.security.sshd` / `sudolessDocker` wrappers — on NixOS
+these are already declarative stock options. Configure them directly.
+
+### Harden SSH
+
+```nix
+services.openssh = {
+  enable = true;
+  settings = {
+    PasswordAuthentication = false;       # key-only — authorize a key first (below)
+    KbdInteractiveAuthentication = false;
+  };
+};
+
+networking.firewall.allowedTCPPorts = [ 22 ];
+
+users.users.<you>.openssh.authorizedKeys.keys = [
+  "ssh-ed25519 AAAA... you@host"          # paste your public key
+];
+```
+
+Authorize a key **before** disabling password auth or you will lock yourself out. NixOS's
+default firewall already drops unsolicited traffic — no `ufw limit` equivalent is needed.
+
+### Passwordless Docker
+
+Adding your user to the `docker` group grants **root-equivalent** access to the host: the
+docker socket can bind-mount any path as root. Opt in only if you accept that.
+
+```nix
+users.users.<you>.extraGroups = [ "docker" ];   # convenient, root-equivalent
+```
+
+Otherwise leave it off and run privileged commands with `sudo docker`.
+
 ## Overriding Defaults
 
 Omanix sets opinionated defaults, but everything can be overridden using standard NixOS/Home Manager patterns:

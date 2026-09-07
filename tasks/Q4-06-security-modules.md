@@ -1,10 +1,26 @@
 # Q4-06: Security — sshd + sudoless-docker → Nix module options
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** skipped
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** M
+
+## Disposition: skipped (intentional)
+
+Not implemented — no `omanix.security.sshd.*` / `sudolessDocker.*` options and no
+`omanix-sudo-docker` wrapper. Every step of the intent is already a stock, declarative NixOS
+one-liner (`services.openssh.enable`, `services.openssh.settings.{PasswordAuthentication,
+KbdInteractiveAuthentication}`, `networking.firewall.allowedTCPPorts`,
+`users.users.<u>.{openssh.authorizedKeys.keys,extraGroups}`); wrapping them in an
+`omanix.security.*` façade hides the standard interface and adds no value. The omarchy scripts
+are install/provisioning wizards — the genre PORTING-QUATTRO.md §1 already classifies as "Nix
+obsoletes." The `githubKeys` build-time fetch is actively anti-idiomatic (keys rotate → impure
+eval-time curl or a pinned hash that silently breaks), and these modules have no system-level
+"primary user" to key group/keys off. The intent is instead served the Nix way — a "Security
+(SSH & Docker)" section in `docs/configuration.md` pointing users at the stock options, with the
+anti-lockout and root-equivalence caveats that were the substance of the wizards. Original spec
+retained below for provenance.
 
 ## Context
 Omarchy 4.0.2 added interactive security setup: `omarchy-setup-security-sshd` (install/enable
