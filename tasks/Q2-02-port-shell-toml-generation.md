@@ -1,7 +1,7 @@
 # Q2-02: Port `shell.toml.tpl` (13 sections) → Nix generation
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q2-01
 - **Blocks:** Q2-03
 - **Size:** L
@@ -42,11 +42,27 @@ template's substitution helpers; emit for all themes.
   what the (renamed) shell expects — keys are unchanged by the rename.
 
 ## Acceptance criteria
-- [ ] `shell.toml` generator emits all 13 sections with correct keys.
-- [ ] `mix` and `shell_gradient` helpers implemented and produce valid color/gradient strings.
-- [ ] Generated `shell.toml` parses as valid TOML.
-- [ ] Both shipped themes generate without eval errors.
-- [ ] Cross-section references (`"hyprland.active-border"`, etc.) preserved literally.
+- [x] `shell.toml` generator emits all 13 sections with correct keys.
+- [x] `mix` and `shell_gradient` helpers implemented and produce valid color/gradient strings.
+- [x] Generated `shell.toml` parses as valid TOML.
+- [x] Both shipped themes generate without eval errors.
+- [x] Cross-section references (`"hyprland.active-border"`, etc.) preserved literally.
+
+## Implementation notes (done)
+- Generator: `lib/shell-toml.nix` (`{ lib }: { colors, hyprlandActiveBorder ? null }: -> string`),
+  exposed as `omanixLib.renderShellToml`; `omanixLib.themesShellToml` maps it over all themes
+  (Q2-03 consumes it, alongside `themesColorsToml`).
+- Only 4 palette-derived color keys are needed (`background`, `foreground`, `accent`, `red←color1`),
+  plus one `mix foreground background 34%` (`[lock] placeholder`, reuses `color-utils.mix`) and the
+  two `[hyprland]` border tokens.
+- `shell_gradient` ported as `color-utils.shellGradient` (`{ spec ? null, fallback }`): shipped
+  themes pass `spec = null` → emit the solid fallback (`accent` / `foreground`), matching omanix's
+  solid `rgb(accent)` Hyprland border (`visuals.nix`). `hyprland_active_border` is an optional theme
+  key upstream; neither omanix theme defines a gradient, so no gradient string is emitted.
+- Output is lean per decision: verbatim key/value coverage, comments stripped (kept in the generator
+  source). Cross-section refs (`"hyprland.active-border"`, `-foreground`) emitted as literals.
+- Verified: both themes eval, `taplo lint` clean, all 13 headers present, zero stray `{{`, every
+  upstream non-comment key present, `nix flake check` passes.
 
 ## Testing
 - `nix eval` the generator for both themes; pipe output through a TOML validator

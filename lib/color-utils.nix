@@ -70,4 +70,18 @@ rec {
   # Mix a color toward black / white by pct.
   darken = hex: pct: mix hex "#000000" pct;
   lighten = hex: pct: mix hex "#ffffff" pct;
+
+  # Format a shell.toml border token. `spec` is either null (-> use the
+  # fallback solid color) or { colors = [ "rgba(..)" .. ]; angle ? null; }
+  # for a Hyprland-style gradient. Reproduces omarchy's shell_gradient_value:
+  # space-joined colors, with an optional "<angle>deg" suffix.
+  shellGradient =
+    {
+      spec ? null,
+      fallback,
+    }:
+    if spec == null then
+      fallback
+    else
+      lib.concatStringsSep " " (spec.colors ++ lib.optional (spec.angle or null != null) "${toString spec.angle}deg");
 }

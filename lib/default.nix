@@ -2,6 +2,7 @@
 let
   themes = import ./themes.nix;
   renderColorsToml = import ./theme-toml.nix { inherit lib; };
+  renderShellToml = import ./shell-toml.nix { inherit lib; };
 in
 {
   # Expose color utils
@@ -17,6 +18,12 @@ in
   themesColorsToml = lib.mapAttrs (
     _: t: renderColorsToml { colors = t.colors; mode = t.meta.mode or "dark"; }
   ) themes;
+
+  # Render a shell.toml (UI surface tokens) from a palette (see lib/shell-toml.nix).
+  inherit renderShellToml;
+
+  # Per-theme shell.toml strings, keyed by theme slug (Q2-03 writes these to the store).
+  themesShellToml = lib.mapAttrs (_: t: renderShellToml { colors = t.colors; }) themes;
 
   # Expose dummyDisplay helpers (shared derivation logic between
   # modules/nixos/sunshine.nix and modules/home-manager/scripts/default.nix)
