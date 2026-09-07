@@ -104,7 +104,7 @@ Omanix ships with comprehensive keybindings that closely match Omarchy. Rather t
 
 ## Themes
 
-Omanix currently ships with **Tokyo Night**. Themes are defined in `lib/themes.nix` and contain everything: colour palette, wallpapers, bat syntax theme, and icon theme.
+Omanix ships with **Tokyo Night** and **Catppuccin Mocha**. Themes are defined in `lib/themes.nix` (the source of truth for the current set) and contain everything: colour palette, wallpapers, bat syntax theme, and icon theme.
 
 ### Adding a Theme
 

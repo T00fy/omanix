@@ -1,7 +1,7 @@
 # Q2-07: Reconcile stale theme docs (README/CLAUDE)
 
 - **Phase:** 2
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** S
@@ -41,6 +41,16 @@ they exist.
 - `rg` shows no remaining stale theme-count claims.
 - `nix build .#docs` (options reference) succeeds.
 - `nix flake check` passes.
+
+## Resolution
+Corrected the theme-count contradiction: `README.md` ("ships with Tokyo Night") and
+`CLAUDE.md` ("only Tokyo Night exists") now enumerate both shipped themes (Tokyo Night +
+Catppuccin Mocha) and point at `lib/themes.nix` as the source of truth to resist drift. Left
+the "no runtime theme switching" statements as accurate for the shipped product on `main` — the
+D2 hybrid runtime switch lives on the (unmerged) quattro Quickshell stack, and the ticket's
+governing constraint is not to claim runtime switching before it merges. Stack references
+(waybar/walker/mako/swayosd) left intact: still accurate for the current branch state (Phase 3
+retirement hasn't landed); a broader quattro doc pass is out of scope.
 
 ## References
 - omanix: `README.md`, `CLAUDE.md`, `lib/themes.nix`, `docs/`, `PORTING-QUATTRO.md`
