@@ -248,7 +248,6 @@ in
           # Quick Info (No Waybar)
           # ─────────────────────────────────────────────────────────────────
           (mkExec ''mod .. " + CTRL + ALT + T"'' ''notify-send "    $(date +"%A %H:%M  —  %d %B W%V %Y")"'' "Show Time")
-          (mkExec ''mod .. " + CTRL + ALT + B"'' ''notify-send "󰁹    Battery is at $(omanix-battery-remaining)%"'' "Show Battery")
 
           # ─────────────────────────────────────────────────────────────────
           # Control Panels

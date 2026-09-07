@@ -1,7 +1,7 @@
 # Q3-05: Retire/repurpose `omanix-menu.sh`; fix dangling script refs
 
 - **Phase:** 3
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q3-01
 - **Blocks:** none
 - **Size:** S
@@ -35,13 +35,35 @@ or module points at a nonexistent script.
   against the shell/UPower and keep the notify. Pick one and document it.
 - D1: `omanix-*` throughout.
 
+## Resolution
+The ticket's premise was largely overtaken by later Phase-1/3 work:
+- **`omanix-menu.sh`** was already retired-into-a-shim by **Q1-08** — it is no longer the
+  bash/Walker control panel but a thin `omanix-shell shell toggle|show|hide omanix.menu` IPC
+  wrapper. The two helpers `omanix-menu-{keybindings,style}.sh` were rewired off Walker onto the
+  `omanix-menu-dmenu` shim by **Q3-03**. Decision: **keep all three (repurposed); no fallback
+  bash surface.**
+- **`omanix-restart-walker`** died with `ui/walker.nix` in **Q3-03**; repo-wide grep finds zero
+  references.
+- **`omanix-battery-remaining`** was the sole live dangler (`bindings.nix:244` "Show Battery").
+  **Dropped the keybind** — battery % is shown by the bar's `omanix.power` widget (Q1-13), so the
+  notify is redundant under the shell. The sibling `SUPER+CTRL+ALT+T` "Show Time" (self-contained
+  `date`) is kept.
+
+The broader dangling-ref sweep was audited: all remaining `omanix-*` residue is benign —
+state-file names (`omanix-idle-inhibited`, `omanix-screenrecording`), PAM service names
+(`omanix-lock-password`/`-fingerprint`), separately-packaged commands (`omanix-screensaver`,
+`omanix-toggle-sunshine`), guarded runtime probes (`omanix-installed-service-*`), the deferred
+`omanix-scale.sh` subsystem's internal subcommands, and intentionally-optional future-ticket
+best-effort calls (`omanix-theme-set-{tmux,claude,pi,browser}` → Q4-10, `omanix-plugin-catalog`
+→ Q4-01).
+
 ## Acceptance criteria
-- [ ] Decision on `omanix-menu.sh` (retire or fallback) is implemented and noted in the commit.
-- [ ] No reference anywhere to `omanix-restart-walker` or any removed walker command.
-- [ ] `omanix-battery-remaining` reference is resolved (removed or backed by a real command).
-- [ ] `grep` across `modules/` + `pkgs/` finds no invocation of a script absent from
+- [x] Decision on `omanix-menu.sh` (retire or fallback) is implemented and noted in the commit.
+- [x] No reference anywhere to `omanix-restart-walker` or any removed walker command.
+- [x] `omanix-battery-remaining` reference is resolved (removed or backed by a real command).
+- [x] `grep` across `modules/` + `pkgs/` finds no invocation of a script absent from
       `pkgs/omanix-scripts/src/` (and not provided elsewhere).
-- [ ] `nix flake check` passes.
+- [x] `nix flake check` passes.
 
 ## Testing
 - Dangling-ref sweep: for each `omanix-*` referenced in `modules/` and `pkgs/`, confirm it
