@@ -75,6 +75,11 @@ categories = {
         "description": "Taildrop file sharing over Tailscale. Tailscale itself is host-provided (`services.tailscale.enable`); see also `omanix.tailscale.operator` under NixOS Options.",
         "options": {},
     },
+    "gaming": {
+        "title": "Gaming",
+        "description": "Optional gaming helpers: Battle.net (umu + GE-Proton) and RetroArch with a declarative core set. Steam is separate — see `omanix.steam.enable` under NixOS Options.",
+        "options": {},
+    },
 }
 
 
@@ -99,6 +104,8 @@ def categorize_option(name):
         return "user"
     if name.startswith("omanix.tailscale."):
         return "tailscale"
+    if name.startswith("omanix.gaming."):
+        return "gaming"
     if name.startswith("omanix.theme") or name.startswith("omanix.wallpaper") or name.startswith("omanix.font") or name.startswith("omanix.waybar.") or name.startswith("omanix.walker.") or name.startswith("omanix.menu."):
         return "theme"
     return None

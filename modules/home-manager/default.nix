@@ -22,6 +22,7 @@
     ./apps/btop.nix
     ./apps/tmux.nix
     ./apps/gh.nix
+    ./apps/gaming.nix
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix

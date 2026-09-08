@@ -111,6 +111,14 @@
   # omanix.audio.speakerTuning.enable is on so lsp-plugins stays out of the
   # closure otherwise. Null leaves the tuning CLI's LV2 preflight a no-op.
   audioLv2Path ? null,
+  # libretro core directory of the retroarch-with-cores package, injected only
+  # when omanix.gaming.retroarch.enable is on. Null leaves the retro CLIs
+  # reporting no cores.
+  retroCoresDir ? null,
+  # GE-Proton compatibilitytool dir, injected only when
+  # omanix.gaming.battlenet.enable is on so proton-ge stays out of the closure
+  # otherwise. Null leaves omanix-gaming-battlenet inert.
+  protonPath ? null,
 }:
 
 let
@@ -1202,6 +1210,48 @@ let
         libnotify
         xdg-utils
       ];
+    }
+
+    # ─── Gaming (Q4-08) ──────────────────────────────────────────────
+    {
+      # List installed libretro cores from the nix-provided core dir with
+      # friendly system labels.
+      name = "omanix-games-retro-cores";
+      deps = [
+        bash
+        coreutils
+      ];
+      envs = {
+        OMANIX_RETRO_CORES_DIR = retroCoresDir;
+      };
+    }
+    {
+      # Create a per-ROM .desktop launcher; picks core+ROM interactively via the
+      # sibling omanix-games-retro-cores / omanix-menu-dmenu / omanix-file-select.
+      name = "omanix-games-retro-install";
+      deps = [
+        bash
+        coreutils
+        gnused
+      ];
+      selfPath = true;
+      envs = {
+        OMANIX_RETRO_CORES_DIR = retroCoresDir;
+      };
+    }
+    {
+      # Install/launch Battle.net through umu + GE-Proton. umu-run comes from the
+      # session PATH (added by the gaming module when enabled); the GE-Proton dir
+      # arrives via OMANIX_PROTON_PATH.
+      name = "omanix-gaming-battlenet";
+      deps = [
+        bash
+        coreutils
+        curl
+      ];
+      envs = {
+        OMANIX_PROTON_PATH = protonPath;
+      };
     }
   ];
 

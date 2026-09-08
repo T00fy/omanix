@@ -91,6 +91,16 @@ let
     # when the tuning subsystem is enabled.
     audioLv2Path =
       if config.omanix.audio.speakerTuning.enable then "${pkgs.lsp-plugins}/lib/lv2" else null;
+    # Resolve the libretro core dir from the built retroarch package (never a
+    # hardcoded /usr/lib/libretro or store hash); null keeps retroarch out of
+    # the closure when the feature is off.
+    retroCoresDir =
+      if config.omanix.gaming.retroarch.enable then
+        "${config.omanix.gaming.retroarch.package}/lib/retroarch/cores"
+      else
+        null;
+    protonPath =
+      if config.omanix.gaming.battlenet.enable then "${pkgs.proton-ge-bin.steamcompattool}" else null;
     inherit isLaptop;
     inherit
       themesJson

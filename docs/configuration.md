@@ -157,6 +157,37 @@ omanix = {
 };
 ```
 
+## Gaming (Battle.net & RetroArch)
+
+Optional, user-level gaming helpers (off by default). Steam is separate — see
+`omanix.steam.enable` above.
+
+```nix
+omanix.gaming = {
+  # Battle.net via umu-launcher + GE-Proton (no Steam/Lutris). Adds a
+  # "Battle.net" desktop entry; run `omanix-gaming-battlenet install` once to
+  # set up the prefix under ~/Games/battlenet.
+  battlenet.enable = true;
+
+  retroarch = {
+    enable = true;
+    # Libretro cores to bundle (attribute names under pkgs.libretro).
+    # Omit to use the curated default set.
+    cores = [
+      "snes9x"
+      "mgba"
+      "mupen64plus"
+      "beetle-psx-hw"
+      "flycast"
+    ];
+  };
+};
+```
+
+`omanix-games-retro-cores` lists the bundled cores with friendly labels, and
+`omanix-games-retro-install <core> <rom>` (or interactive) writes a per-ROM
+`.desktop` launcher to `~/.local/share/applications`.
+
 ## Security (SSH & Docker)
 
 Omanix intentionally ships **no** `omanix.security.sshd` / `sudolessDocker` wrappers — on NixOS
