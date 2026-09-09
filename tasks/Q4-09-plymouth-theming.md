@@ -1,7 +1,7 @@
 # Q4-09: Plymouth boot-splash theming
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q2-01
 - **Blocks:** none
 - **Size:** M
@@ -55,16 +55,42 @@ sandbox, so most of it is moot — see notes).
 - Gotcha: ImageMagick recoloring can move to build time (a derivation that recolors PNGs from
   the palette) rather than a runtime script — prefer that for reproducibility.
 
+## Resolution — fully declarative, opt-out (default on)
+
+Ported the **declarative half only**, per an explicit scope decision: on NixOS the boot
+splash lives in the declaratively-built initrd (no persistent Arch-style
+`plymouth-set-default-theme -R` + `mkinitcpio` path), so omarchy's D2 *ephemeral runtime
+switcher* has no honest home here. The four `omanix-plymouth-{set,list,current,switcher}`
+CLIs, the `unlock.png`/`preview-unlock.png` assets, and the ImageMagick PNG-recolor of
+hand-authored art were **dropped** — the splash is generated programmatically from the
+palette (solid background + accent progress bar, no art). The single source of truth is
+`omanix.theme` + rebuild.
+
+Delivered:
+- `lib/plymouth.nix` — pure renderer (`omanixLib.renderPlymouthTheme`): a `script`-module
+  `.plymouth` + `.script` colored from `{ colors, name }`, plus the two swatch colors
+  (`trackColor` = darkened bg, `fillColor` = accent) the build materializes as 1×1 PNGs.
+- `modules/nixos/plymouth.nix` — `omanix.boot.plymouth.enable` (**default `true`**, matching
+  the other system toggles), builds the active theme's splash via `pkgs.runCommand` +
+  `imagemagick`, wires `boot.plymouth.{enable,themePackages,theme}` and adds `quiet`/`splash`
+  kernel params. Registered in `modules/nixos/default.nix`.
+- Docs: Plymouth section in `docs/configuration.md`; the option renders in the generated
+  options doc.
+
+The omarchy privilege-hardening (root staging, symlink rejection, 64 MiB cap, `pkexec`)
+evaporates: the theme is built in the Nix sandbox and installed into the store/initrd.
+SDDM theming left untouched as directed. Logo deferred to Q4-12 (omanix has no logo asset
+yet) — the splash is background + progress only.
+
 ## Acceptance criteria
-- [ ] `omanix.boot.plymouth.enable = true` builds and installs a Plymouth theme colored from
-      the active palette; boot splash matches the theme after `nixos-rebuild` + reboot.
-- [ ] Switching `omanix.theme` and rebuilding changes the boot splash colors (declarative).
-- [ ] `omanix-plymouth-list` lists themes with unlock previews; `omanix-plymouth-current`
-      reports the active one; `omanix-plymouth-switcher` offers a picker.
-- [ ] Runtime `omanix-plymouth-set` swaps the splash but a subsequent `nixos-rebuild` reverts
-      to the declared theme (ephemeral overlay verified).
-- [ ] No `omarchy` strings remain.
-- [ ] `nix flake check` passes; the option appears in the generated options doc.
+- [x] `omanix.boot.plymouth.enable = true` builds and installs a Plymouth theme colored from
+      the active palette; boot splash matches the theme after `nixos-rebuild` + reboot
+      (build verified; splash appearance is runtime-only to verify).
+- [x] Switching `omanix.theme` and rebuilding changes the boot splash colors (declarative).
+- [ ] ~~`omanix-plymouth-{list,current,switcher}` CLIs~~ — **dropped** (declarative only; see Resolution).
+- [ ] ~~Runtime `omanix-plymouth-set` ephemeral overlay~~ — **dropped** (declarative only; see Resolution).
+- [x] No `omarchy` strings remain.
+- [x] `nix flake check` passes; the option appears in the generated options doc.
 
 ## Testing
 - `nix build` the plymouth theme derivation; `nix flake check` passes.

@@ -154,8 +154,27 @@ omanix = {
   docker.enable = true;       # Docker daemon + lazydocker (default: true)
   libreoffice.enable = true;  # LibreOffice (default: true)
   login.enable = true;        # SDDM with SilentSDDM theme (default: true)
+  boot.plymouth.enable = true; # Theme-colored boot splash (default: true) — see below
 };
 ```
+
+## Boot Splash (Plymouth)
+
+On by default (with `omanix.enable`). Builds a Plymouth boot splash colored from
+the active `omanix.theme` (solid background + accent-colored progress bar) and
+bakes it into the initrd. Disable it with:
+
+```nix
+omanix.boot.plymouth.enable = false;
+```
+
+This is fully declarative: the splash lives in the initrd, so it changes only on
+`nixos-rebuild` — there is no runtime switcher. To change it, set a different
+`omanix.theme` and rebuild.
+
+The module adds the `quiet` and `splash` kernel params, but the bootloader is
+host-provided: a compatible bootloader/initrd setup may be required for the
+splash to actually appear.
 
 ## Gaming (Battle.net & RetroArch)
 

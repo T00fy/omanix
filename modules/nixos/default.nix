@@ -8,6 +8,7 @@ in
   imports = [
     ./hyprland.nix
     ./login.nix
+    ./plymouth.nix
     ./security.nix
     ./hardware.nix
     ./steam.nix

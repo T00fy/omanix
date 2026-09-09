@@ -3,6 +3,7 @@ let
   themes = import ./themes.nix;
   renderColorsToml = import ./theme-toml.nix { inherit lib; };
   renderShellToml = import ./shell-toml.nix { inherit lib; };
+  renderPlymouthTheme = import ./plymouth.nix { inherit lib; };
 in
 {
   # Expose color utils
@@ -24,6 +25,11 @@ in
 
   # Per-theme shell.toml strings, keyed by theme slug (Q2-03 writes these to the store).
   themesShellToml = lib.mapAttrs (_: t: renderShellToml { colors = t.colors; }) themes;
+
+  # Render an omanix Plymouth "script"-module boot-splash theme from a palette
+  # (see lib/plymouth.nix). Built declaratively per the active theme by
+  # modules/nixos/plymouth.nix; no per-slug map is needed (single splash).
+  inherit renderPlymouthTheme;
 
   # Expose dummyDisplay helpers (shared derivation logic between
   # modules/nixos/sunshine.nix and modules/home-manager/scripts/default.nix)
