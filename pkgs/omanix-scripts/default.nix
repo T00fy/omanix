@@ -788,6 +788,40 @@ let
       ];
     }
     {
+      # Ephemeral retint of a running herdr. The declared theme is name =
+      # "terminal" (apps/herdr.nix), so reloading the server picks up the
+      # current terminal palette. herdr resolves off the session PATH.
+      name = "omanix-theme-set-herdr";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+    }
+    # ─── herdr multiplexer (Q4-11) ───────────────────────────────────
+    {
+      # Reload a running herdr server's config. herdr resolves off the session
+      # PATH (home.packages when omanix.apps.herdr.enable), so it stays out of
+      # the scripts closure and no-ops when herdr is absent.
+      name = "omanix-restart-herdr";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+    }
+    {
+      # Annotated herdr keybindings viewer: parses `herdr --default-config` +
+      # the user config, then picks via the sibling omanix-menu-dmenu.
+      name = "omanix-menu-herdr-keybindings";
+      deps = [
+        bash
+        gawk
+        coreutils
+      ];
+      selfPath = true;
+    }
+    {
       name = "omanix-toggle-idle";
       deps = [
         bash

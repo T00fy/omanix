@@ -190,7 +190,7 @@ Update the Status column as tickets progress. Legend: ⬜ todo · 🟡 in-progre
 | Q4-08 | Gaming: Battle.net + RetroArch retro | none | ⬜ |
 | Q4-09 | Plymouth boot-splash theming (hybrid, mirrors D2) | Q2-01 | ⬜ |
 | Q4-10 | Palette-only theme targets (tmux/claude/pi/browser/osc) | Q2-04 | ⬜ |
-| Q4-11 | herdr: package + config + bindings + dev-layout fns | none | ⬜ |
+| Q4-11 | herdr: package + config + bindings + dev-layout fns | none | ✅ |
 | Q4-12 | Custom branding: About screen + logo→ANSI | none | ⬜ |
 
 ### Phase 5 — AI agents (optional; depends on shell)

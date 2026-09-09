@@ -92,6 +92,7 @@ flock -u 9
 # track only the declared theme — a runtime switch does not retint them.
 for cmd in \
   omanix-theme-set-tmux \
+  omanix-theme-set-herdr \
   omanix-theme-set-claude \
   omanix-theme-set-pi; do
   command -v "$cmd" >/dev/null 2>&1 && "$cmd" || true

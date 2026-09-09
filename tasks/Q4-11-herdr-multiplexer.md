@@ -1,7 +1,7 @@
 # Q4-11: herdr terminal multiplexer
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** M

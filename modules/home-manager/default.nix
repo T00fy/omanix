@@ -21,6 +21,7 @@
     ./apps/satty.nix
     ./apps/btop.nix
     ./apps/tmux.nix
+    ./apps/herdr.nix
     ./apps/gh.nix
     ./apps/gaming.nix
     ./desktop/hyprland/autostart.nix
