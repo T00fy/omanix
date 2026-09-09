@@ -1,7 +1,7 @@
 # Q5-01: `omanix-agent` launcher + `omanix-default-agent` picker
 
 - **Phase:** 5
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-08 (menu plugin, for the picker surface), D3
 - **Blocks:** Q5-02, Q5-03, Q5-04
 - **Size:** M

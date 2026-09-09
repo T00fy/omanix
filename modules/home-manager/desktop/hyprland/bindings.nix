@@ -206,6 +206,7 @@ in
           (mkExec ''mod .. " + ALT + SPACE"'' "omanix-menu apps" "Apps Menu")
           (mkExec ''mod .. " + ESCAPE"'' "omanix-menu system" "System Menu")
           (mkExec ''mod .. " + K"'' "omanix-menu-keybindings" "Show Keybindings")
+          (mkExec ''mod .. " + G"'' "omanix-agent" "Launch Agent")
 
           # ─────────────────────────────────────────────────────────────────
           # Aesthetics

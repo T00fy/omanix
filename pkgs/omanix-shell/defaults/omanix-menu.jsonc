@@ -6,8 +6,10 @@
 // Each key is a dotted id; the parent is the id minus its last segment (root
 // is implicit). `kind` is inferred: `action` present => action; else `target`
 // present => link; else submenu. Every action points at a command that ships
-// on PATH today (pkgs/omanix-scripts + hyprpicker/pavucontrol/systemctl). No
-// `when`/`checked` guards in v1 — package guards have no NixOS backing.
+// on PATH today (pkgs/omanix-scripts + hyprpicker/pavucontrol/systemctl).
+// `checked:` guards are used only by the agent picker (batched via the
+// omanix-default-agent GUARD_READER); package `when:` guards are avoided —
+// they have no NixOS backing.
 {
   // The app launcher. QML-native provider over DesktopEntries; typing at the
   // root menu also searches these, so root doubles as the launcher.
@@ -47,6 +49,10 @@
   "setup.wifi": { "icon": "󰖩", "label": "Wifi", "action": "omanix-launch-or-focus-tui wlctl" },
   "setup.bluetooth": { "icon": "󰂯", "label": "Bluetooth", "action": "omanix-launch-or-focus-tui bluetui" },
   "setup.hyprland": { "icon": "󰋁", "label": "Hyprland", "action": "omanix-show-setup-help hyprland" },
+  "setup.defaults": { "icon": "󰒓", "label": "Defaults" },
+  "setup.defaults.agent": { "icon": "󰚩", "label": "Agent" },
+  "setup.defaults.agent.claude": { "icon": "󰚩", "label": "Claude", "action": "omanix-default-agent claude", "checked": "[ \"$(omanix-default-agent)\" = claude ]" },
+  "setup.defaults.agent.opencode": { "icon": "󰚩", "label": "OpenCode", "action": "omanix-default-agent opencode", "checked": "[ \"$(omanix-default-agent)\" = opencode ]" },
 
   "system": { "icon": "󰍛", "label": "System" },
   "system.lock": { "icon": "󰌾", "label": "Lock", "action": "omanix-system-lock" },

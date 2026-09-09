@@ -28,6 +28,19 @@ in
     openCode = {
       enable = lib.mkEnableOption "Open Code CLI";
     };
+
+    # Declarative default coding agent (source of truth, reconciled onto
+    # ~/.config/omanix/defaults/agent each activation — D2). The enum is the
+    # eval-time assertion; keep it in lockstep with omanix-agent's map and the
+    # omanix-menu.jsonc picker. null = unset (nothing launches until picked).
+    defaultAgent = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum [
+        "claude"
+        "opencode"
+      ]);
+      default = null;
+      description = "The default coding agent launched by omanix-agent.";
+    };
   };
 
   config = lib.mkMerge [
@@ -65,6 +78,26 @@ in
     # --- Open Code Configuration ---
     (lib.mkIf cfg.openCode.enable {
       home.packages = [ pkgs.llm-agents.opencode ];
+    })
+
+    # --- Default agent (declarative source of truth, D2) ---
+    # Reconcile the declared default onto the picker-writable
+    # ~/.config/omanix/defaults/agent each activation (declared wins; a runtime
+    # `omanix-agent --pick` change is reverted on the next rebuild). Written as a
+    # copy, never a store symlink (R3). When defaultAgent = null this block is
+    # inert and any existing runtime pick is left untouched.
+    (lib.mkIf (cfg.defaultAgent != null) {
+      home.activation.omanixDefaultAgent = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        run mkdir -p "$HOME/.config/omanix/defaults"
+        _omanix_agent="$HOME/.config/omanix/defaults/agent"
+        run printf '%s\n' ${lib.escapeShellArg cfg.defaultAgent} > "$_omanix_agent.tmp"
+        run mv "$_omanix_agent.tmp" "$_omanix_agent"
+      '';
+
+      warnings = lib.optional (
+        (cfg.defaultAgent == "claude" && !cfg.claudeCode.enable)
+        || (cfg.defaultAgent == "opencode" && !cfg.openCode.enable)
+      ) "omanix.apps.ai.defaultAgent is \"${cfg.defaultAgent}\" but its agent is not enabled; omanix-agent will report it as unavailable until you enable the matching omanix.apps.ai.*.enable option.";
     })
   ];
 }

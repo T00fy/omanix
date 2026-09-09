@@ -296,6 +296,28 @@ let
         coreutils
       ];
     }
+    # ─── Coding-agent launcher (Q5-01) ───────────────────────────────
+    {
+      # Canonical agent map; launches the default agent in a fixed-app-id
+      # window. Calls sibling omanix-launch-tui / omanix-menu.
+      name = "omanix-agent";
+      deps = [
+        bash
+        coreutils
+        libnotify
+      ];
+      selfPath = true;
+    }
+    {
+      # Read/set the default agent (~/.config/omanix/defaults/agent), then launch
+      # via sibling omanix-agent. No install (D3).
+      name = "omanix-default-agent";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
+    }
     {
       name = "omanix-launch-or-focus-tui";
       deps = [
