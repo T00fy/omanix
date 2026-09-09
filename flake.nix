@@ -63,6 +63,7 @@
         omanix-screensaver = final.callPackage ./pkgs/omanix-screensaver { };
         omanix-scripts = final.callPackage ./pkgs/omanix-scripts { };
         omanix-shell = final.callPackage ./pkgs/omanix-shell { };
+        omanix-agent-usage = final.callPackage ./pkgs/omanix-agent-usage { };
         omanix-audio-tunings = final.callPackage ./pkgs/omanix-audio-tunings { };
         wlctl = inputs.wlctl.packages.${prev.stdenv.hostPlatform.system}.default;
 
@@ -110,6 +111,12 @@
           system = "x86_64-linux";
           overlays = [ self.overlays.default ];
         }).omanix-shell;
+
+      packages.x86_64-linux.omanix-agent-usage =
+        (import nixpkgs {
+          system = "x86_64-linux";
+          overlays = [ self.overlays.default ];
+        }).omanix-agent-usage;
 
       # ═══════════════════════════════════════════════════════════════════
       # Home Manager Module (user-level configuration)

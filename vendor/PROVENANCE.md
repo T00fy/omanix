@@ -34,6 +34,31 @@ at `$OMANIX_PATH/shell/config/shell.json` and `$OMANIX_PATH/shell/defaults/{oman
 launcher.hides}` — these are **not** part of this vendored snapshot; Phase-1 packaging installs
 them into `$out/shell/`.
 
+## pkgs/omanix-agent-usage/src/ — Omarchy AI usage collectors (`bin/`)
+
+| Field | Value |
+|---|---|
+| Upstream repo | `omacom/omarchy` (https://github.com/omacom/omarchy) |
+| Pinned rev | tag **`v4.0.2`** (same as the shell tree) |
+| Commit SHA | `346e69e1cec6c4e8924531874af6ba010a1bc99e` |
+| Copied files | upstream `bin/omarchy-agent-usage-{claude,codex,fireworks,update}` → `pkgs/omanix-agent-usage/src/omanix-agent-usage-*` (Q5-02) |
+| Date vendored | **2026-09-09** |
+| Rename ruleset | **applied** — the same Q0-03 D1 case-preserving `omarchy`↔`omanix` rename used for the shell tree (URLs excluded). The three collectors are byte-identical to their D1-renamed upstream. |
+| Local edit | `omanix-agent-usage-update` discovery loop rewritten (D5) — see below. |
+
+The three `-{claude,codex,fireworks}` collectors are stdlib-only Python 3 and needed no
+edits beyond the D1 rename. `pkgs/omanix-agent-usage/default.nix` rewrites their upstream
+`#!/usr/bin/python3` shebang to the store interpreter (patchShebangs cannot, since it resolves
+absolute-path interpreters against `$HOST_PATH`).
+
+#### Local edits
+
+- `src/omanix-agent-usage-update` (2026-09-09, Q5-02) — the upstream orchestrator discovers
+  collectors by globbing `$OMARCHY_PATH/bin/omarchy-agent-usage-*`. omanix has no synthetic
+  `$OMANIX_PATH/bin` (D5); the loop was rewritten to iterate the known collector set
+  (`claude codex fireworks`) and skip any not resolvable via `command -v` on PATH, so a subset
+  build still works and the collectors are found as wrapped commands.
+
 ### Flake input
 
 No omarchy source flake input existed in `flake.nix` / `flake.lock` at vendor time — an

@@ -41,6 +41,42 @@ in
       default = null;
       description = "The default coding agent launched by omanix-agent.";
     };
+
+    # AI subscription usage bar widget (omanix.agents Quickshell plugin) + its
+    # Python usage collectors (Q5-02). Opt-in: off by default. The widget
+    # self-hides per provider until a collector records usage, so a machine
+    # with, say, only Claude signed in shows just Claude.
+    usageWidget = {
+      enable = lib.mkEnableOption "the AI agent usage bar widget and usage collectors";
+
+      refreshIntervalSec = lib.mkOption {
+        type = lib.types.ints.between 30 3600;
+        default = 900;
+        description = "How often the widget regenerates the usage records, in seconds.";
+      };
+
+      # Per-provider toggles. claude maps to the packaged claude-code; codex has
+      # no packaged CLI (its collector self-skips when absent) and fireworks is a
+      # provider opencode can run against — both default off. A disabled provider
+      # is skipped by the widget and by the collector run.
+      providers = {
+        claude = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Show Claude (Anthropic) usage in the widget.";
+        };
+        codex = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Show Codex usage in the widget (requires the codex CLI on PATH).";
+        };
+        fireworks = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Show Fireworks prepaid-balance and usage in the widget.";
+        };
+      };
+    };
   };
 
   config = lib.mkMerge [
@@ -78,6 +114,19 @@ in
     # --- Open Code Configuration ---
     (lib.mkIf cfg.openCode.enable {
       home.packages = [ pkgs.llm-agents.opencode ];
+    })
+
+    # --- Agent usage widget (Q5-02) ---
+    # Ship the collectors + orchestrator; the omanix.agents plugin is wired into
+    # the bar layout in quickshell.nix (which reads cfg.usageWidget). The widget
+    # needs the shell, so warn if it is off. The claude collector already
+    # surfaces opencode's Anthropic-provider sessions, so it is useful even when
+    # only opencode is enabled.
+    (lib.mkIf cfg.usageWidget.enable {
+      home.packages = [ pkgs.omanix-agent-usage ];
+
+      warnings = lib.optional (!config.omanix.quickshell.enable)
+        "omanix.apps.ai.usageWidget.enable is set but omanix.quickshell.enable is false; the usage widget is a Quickshell bar plugin and will not appear.";
     })
 
     # --- Default agent (declarative source of truth, D2) ---

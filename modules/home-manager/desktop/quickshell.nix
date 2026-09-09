@@ -62,6 +62,22 @@ let
   # carrying inline per-widget settings ({ id = "omanix.clock"; format = ...; }).
   layoutEntry = lib.types.either lib.types.str (lib.types.attrsOf lib.types.anything);
 
+  # The AI agent usage widget (omanix.agents) is opt-in via omanix.apps.ai
+  # (apps/ai.nix). When enabled it is placed in the bar with its per-provider
+  # enablement and refresh interval carried as inline settings; a disabled
+  # provider is skipped by the widget and its collector run. Empty list when off,
+  # so the plugin never activates and nothing polls for usage.
+  aiUsage = config.omanix.apps.ai.usageWidget;
+  agentsBarEntry = lib.optional aiUsage.enable {
+    id = "omanix.agents";
+    inherit (aiUsage) refreshIntervalSec;
+    providers = {
+      claude = { enabled = aiUsage.providers.claude; };
+      codex = { enabled = aiUsage.providers.codex; };
+      fireworks = { enabled = aiUsage.providers.fireworks; };
+    };
+  };
+
   # Declarative base merged over the user's shell.json on every activation
   # (declared keys win). Carries the required version marker, the disabled
   # first-party plugins, the bar block driven by omanix.quickshell.bar.*, and
@@ -199,7 +215,9 @@ in
                 { id = "omanix.network"; }
                 { id = "omanix.audio"; }
                 { id = "omanix.power"; }
-              ];
+              ]
+              ++ agentsBarEntry;
+              defaultText = lib.literalExpression ''[ { id = "omanix.indicators"; ... } { id = "omanix.tray"; } { id = "omanix.bluetooth"; } { id = "omanix.network"; } { id = "omanix.audio"; } { id = "omanix.power"; } ] ++ (optional omanix.apps.ai.usageWidget.enable { id = "omanix.agents"; ... })'';
               description = "Widget entries in the bar's right section.";
             };
           };

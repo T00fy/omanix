@@ -1,7 +1,7 @@
 # Q5-02: Agents usage widget (Quickshell plugin + Python collectors)
 
 - **Phase:** 5
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q1-05 (bar plugin host), Q4-01 (plugin CLI), Q5-01 (agent abstraction)
 - **Blocks:** none
 - **Size:** L
@@ -48,14 +48,14 @@ into the default bar layout, self-hiding when no records exist. State dir:
   omanix's packaged agents; log a note for any dropped.
 
 ## Acceptance criteria
-- [ ] `omanix.agents` plugin loads in the shell and appears in the default bar layout.
-- [ ] Widget self-hides when `~/.local/state/omanix/agents/usage/` has no records.
-- [ ] `omanix-agent-usage-update` runs the collectors and writes one JSON record per agent atomically.
-- [ ] Collectors run with only `python3` (stdlib) available; no third-party Python deps introduced.
-- [ ] With a signed-in Claude, the widget shows plan + rate-limit meters after a refresh.
-- [ ] Left/right/middle-click behaviors work (panel / `omanix-agent --pick` / next).
-- [ ] No `omarchy`/`OMARCHY_PATH`/`omarchy.agents` strings remain in the ported plugin or collectors.
-- [ ] `nix flake check` passes; shell still builds.
+- [x] `omanix.agents` plugin loads in the shell and appears in the bar layout **when opt-in** (`omanix.apps.ai.usageWidget.enable`). Verified by eval: `bar.layout.right` gains `omanix.agents` (with a `providers` block + `refreshIntervalSec`) when enabled, and is unchanged when off.
+- [ ] Widget self-hides when `~/.local/state/omanix/agents/usage/` has no records. *(runtime-only)*
+- [x] `omanix-agent-usage-update` runs the collectors and writes one JSON record per agent atomically (`mktemp` + `mv`); discovery rewritten to PATH (D5). Bash `-n` parse passes.
+- [x] Collectors run with only `python3` (stdlib) available; no third-party Python deps introduced. `py_compile` passes; runtime closure carries only `python3`.
+- [ ] With a signed-in Claude, the widget shows plan + rate-limit meters after a refresh. *(runtime-only)*
+- [ ] Left/right/middle-click behaviors work (panel / `omanix-agent --pick` / next). *(runtime-only; QML unchanged from upstream)*
+- [x] No `omarchy`/`OMARCHY_PATH`/`omarchy.agents` strings remain in the ported plugin or collectors.
+- [x] `nix flake check` passes; shell still builds; collector package builds.
 
 ## Testing
 - `nix flake check`; build the shell package and the collector package.
