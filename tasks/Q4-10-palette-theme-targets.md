@@ -1,7 +1,7 @@
 # Q4-10: Palette-only theme targets (tmux/claude/pi/browser/osc)
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** done
 - **Depends on:** Q2-04
 - **Blocks:** none
 - **Size:** M

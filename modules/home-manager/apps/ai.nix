@@ -46,6 +46,20 @@ in
           text = builtins.toJSON cfg.claudeCode.settings;
         };
       };
+
+      # Auto-activate the Omanix palette theme in Claude Code. Copies
+      # the declared theme's claude.json to ~/.claude/themes/omanix.json and
+      # sets settings.theme = "custom:omanix". Ordered after omanixThemeState so
+      # current/theme (the source) is seeded first; ~/.claude/settings.json is
+      # jq-merged in place (user-writable, never a store symlink — R3).
+      # Best-effort: never fails activation, and no-ops if the theme source
+      # isn't seeded (e.g. omanix.quickshell.enable = false).
+      home.activation.omanixClaudeTheme = lib.hm.dag.entryAfter [
+        "writeBoundary"
+        "omanixThemeState"
+      ] ''
+        run ${config.omanix.scripts.package}/bin/omanix-theme-set-claude --activate || true
+      '';
     })
 
     # --- Open Code Configuration ---

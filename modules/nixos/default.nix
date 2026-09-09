@@ -9,6 +9,7 @@ in
     ./hyprland.nix
     ./login.nix
     ./plymouth.nix
+    ./browser-policy.nix
     ./security.nix
     ./hardware.nix
     ./steam.nix

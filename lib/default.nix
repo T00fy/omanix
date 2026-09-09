@@ -4,6 +4,7 @@ let
   renderColorsToml = import ./theme-toml.nix { inherit lib; };
   renderShellToml = import ./shell-toml.nix { inherit lib; };
   renderPlymouthTheme = import ./plymouth.nix { inherit lib; };
+  renderAgentTheme = import ./agent-theme.nix { inherit lib; };
 in
 {
   # Expose color utils
@@ -25,6 +26,19 @@ in
 
   # Per-theme shell.toml strings, keyed by theme slug (Q2-03 writes these to the store).
   themesShellToml = lib.mapAttrs (_: t: renderShellToml { colors = t.colors; }) themes;
+
+  # Render the palette-only coding-agent theme JSON (Claude Code + Pi) from a
+  # palette (see lib/agent-theme.nix). Returns { claude, pi } JSON strings.
+  inherit renderAgentTheme;
+
+  # Per-theme agent theme JSON, keyed by theme slug — baked into the theme store
+  # (quickshell.nix) so omanix-theme-set-{claude,pi} copy current/theme/{claude,pi}.json.
+  themesClaudeJson = lib.mapAttrs (
+    _: t: (renderAgentTheme { colors = t.colors; mode = t.meta.mode or "dark"; }).claude
+  ) themes;
+  themesPiJson = lib.mapAttrs (
+    _: t: (renderAgentTheme { colors = t.colors; mode = t.meta.mode or "dark"; }).pi
+  ) themes;
 
   # Render an omanix Plymouth "script"-module boot-splash theme from a palette
   # (see lib/plymouth.nix). Built declaratively per the active theme by

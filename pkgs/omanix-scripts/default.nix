@@ -34,6 +34,7 @@
   tesseract,
   v4l-utils,
   file,
+  tmux,
   quickshell,
   libxkbcommon,
   libnotify,
@@ -740,6 +741,51 @@ let
       envs = {
         OMANIX_THEMES_DIR = quickshellThemesDir;
       };
+    }
+    {
+      # Palette-only theme targets: pushed by omanix-theme-set's
+      # best-effort tail and reasserted declaratively (tmux via apps/tmux.nix,
+      # claude via apps/ai.nix). Each reads current/theme/ and no-ops when its
+      # target isn't present.
+      #
+      # Emit OSC retint sequences from a colors.toml (calls omanix-theme-color).
+      name = "omanix-theme-osc";
+      deps = [
+        bash
+        coreutils
+      ];
+      selfPath = true;
+    }
+    {
+      # Live-retint a running tmux server (colors/cursor/COLORFGBG/OSC).
+      name = "omanix-theme-set-tmux";
+      deps = [
+        bash
+        tmux
+        coreutils
+        gawk
+        procps
+      ];
+      selfPath = true;
+    }
+    {
+      # Copy current/theme/claude.json -> ~/.claude/themes/omanix.json; --activate
+      # sets settings.theme = custom:omanix.
+      name = "omanix-theme-set-claude";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
+    }
+    {
+      # Copy current/theme/pi.json -> ~/.pi/agent/themes/omanix-system.json.
+      name = "omanix-theme-set-pi";
+      deps = [
+        bash
+        coreutils
+        jq
+      ];
     }
     {
       name = "omanix-toggle-idle";

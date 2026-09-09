@@ -86,12 +86,13 @@ omanix-shell -q shell applyTheme "$colors_b64" "$shell_b64" || true
 
 flock -u 9
 
-# Best-effort downstream palette-only targets (tmux/claude/pi/browser). None
-# exist yet; call them only if present, never hard-depend.
+# Best-effort downstream palette-only targets. Called only if present,
+# never hard-depended on. Browser color is not here: it is declarative under Nix
+# (omanix.browserPolicy via environment.etc), and /etc is read-only, so browsers
+# track only the declared theme — a runtime switch does not retint them.
 for cmd in \
   omanix-theme-set-tmux \
   omanix-theme-set-claude \
-  omanix-theme-set-pi \
-  omanix-theme-set-browser; do
+  omanix-theme-set-pi; do
   command -v "$cmd" >/dev/null 2>&1 && "$cmd" || true
 done

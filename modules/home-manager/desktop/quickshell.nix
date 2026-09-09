@@ -17,6 +17,9 @@ let
   # Each slug also gets a backgrounds/ subdir symlinking that theme's declared
   # assets.wallpapers. Since current/theme -> ${themesStore}/<slug>, the picker
   # resolves current/theme/backgrounds for whichever theme is active (Q2-05).
+  #
+  # Each slug also carries the palette-only agent theme sources claude.json +
+  # pi.json; omanix-theme-set-{claude,pi} copy current/theme/{claude,pi}.json.
   themesStore = pkgs.linkFarm "omanix-themes" (
     lib.concatLists (
       lib.mapAttrsToList (
@@ -29,6 +32,14 @@ let
           {
             name = "${slug}/shell.toml";
             path = pkgs.writeText "${slug}-shell.toml" omanixLib.themesShellToml.${slug};
+          }
+          {
+            name = "${slug}/claude.json";
+            path = pkgs.writeText "${slug}-claude.json" omanixLib.themesClaudeJson.${slug};
+          }
+          {
+            name = "${slug}/pi.json";
+            path = pkgs.writeText "${slug}-pi.json" omanixLib.themesPiJson.${slug};
           }
         ]
         ++ map (wp: {
