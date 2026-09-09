@@ -1,12 +1,43 @@
 # Q4-12: Custom system branding — About screen + logo→ANSI
 
 - **Phase:** 4
-- **Status:** todo
+- **Status:** skipped
 - **Depends on:** none
 - **Blocks:** none
 - **Size:** M
 
-## Context
+## Disposition: skipped (intentional)
+
+Not implemented — no `omanix-branding-{about,screensaver}`, no `omanix-transcode-ascii`, no
+`omanix-launch-about`, no `omanix.branding.*` options, no fastfetch About surface. The feature
+decomposes into three parts, and the part worth keeping is **already declarative** while the rest
+is the imperative-runtime layer Nix obsoletes:
+
+1. **Screensaver branding is already declarative.** `omanix.idle.screensaver.logo` is a Nix path
+   to an ASCII `.txt` (default `assets/branding/logo.txt`), baked into the store and injected as
+   `OMANIX_SCREENSAVER_LOGO` into `omanix-launch-screensaver`
+   (`modules/home-manager/scripts/default.nix:75`, `pkgs/omanix-scripts/default.nix` ~L249); the
+   GTK layer-shell screensaver renders it via `tte --input-file`. This is the only branding this
+   port keeps, and it already delivers "declare a logo, bake it in."
+2. **`branding-* image|text|reset` is imperative provisioning.** Pick-a-file / `$EDITOR` / reset,
+   mutating `~/.config/omanix/branding/*.txt` — the same "user mutates a file in `$HOME`" genre
+   PORTING-QUATTRO.md §1 classifies as *"install/provisioning … Nix obsoletes."* Dropped.
+3. **`transcode-ascii` is a build-time concern, not a runtime CLI**, and the **fastfetch About
+   screen** (upstream's ~365-line terminal auto-fit + bespoke "sheen" light-sweep animation + a
+   config full of Arch-only `omarchy-version`/`-channel`/`-pkgs`/`-theme-current` rows that don't
+   map to NixOS) is an unwanted extra. Dropped.
+
+Consistent with the Q4-06 skip. `assets/branding/icon.txt` (the intended About-screen logo
+counterpart) is left in place but deliberately unused — it documents the omanix wordmark; the
+screensaver uses `logo.txt`.
+
+**Future door (if wanted):** the Nix way to extend declarative branding beyond the screensaver is a
+single `omanix.branding.logo` path option — a `.txt` used verbatim, or a PNG/SVG transcoded to
+ASCII at **build time** (ImageMagick in a `runCommand`, à la Q4-09's Plymouth swatches) — whose
+baked result feeds the screensaver (and optionally an About config). No runtime scripts, no
+`~/.config` seed, no `image|text|reset`.
+
+## Context (original ticket, retained for audit)
 Omarchy 4.0.2 ships a **custom branding** feature: a `neofetch`-style **About** screen and a
 matching **screensaver** banner, both of which display an ANSI-art logo the user can replace with
 any image (e.g. a company logo like 37signals). The transcript calls this out under "Custom System

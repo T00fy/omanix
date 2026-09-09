@@ -79,8 +79,8 @@ Delivered:
 
 The omarchy privilege-hardening (root staging, symlink rejection, 64 MiB cap, `pkexec`)
 evaporates: the theme is built in the Nix sandbox and installed into the store/initrd.
-SDDM theming left untouched as directed. Logo deferred to Q4-12 (omanix has no logo asset
-yet) — the splash is background + progress only.
+SDDM theming left untouched as directed. Logo dropped (Q4-12 skipped) — the splash is
+background + progress only, and stays art-free.
 
 ## Acceptance criteria
 - [x] `omanix.boot.plymouth.enable = true` builds and installs a Plymouth theme colored from
