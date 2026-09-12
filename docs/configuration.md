@@ -28,7 +28,36 @@ omanix = {
 };
 ```
 
-Each monitor gets its own set of workspaces. `Super+1-5` targets the focused monitor's workspaces. Run `hyprctl monitors` to find your monitor names.
+Run `hyprctl monitors` to find your monitor names.
+
+### Workspace model
+
+`omanix.hyprland.uniqueWorkspacePerMonitor` selects how workspaces behave across
+monitors. It defaults to `false`.
+
+**`false` — shared workspaces (default, matches Omarchy).** One global set of
+workspaces `1-5` shared across every monitor. `Super+N` focuses global workspace
+`N` wherever you are — since a workspace lives on whichever monitor it was
+created on, this jumps your focus to that monitor rather than dragging the
+workspace to you. At session start monitor 1 holds workspace 1 and monitor 2
+holds workspace 2, so `Super+1`/`Super+2` land on those monitors; workspaces 3-5
+attach to the monitor you first summon them on. Every bar shows the same `1-5`
+set and highlights the single focused workspace. To pull a workspace to the other
+monitor with you, use `Super+Shift+Alt+←/→` (move workspace to left/right
+monitor).
+
+**`true` — unique workspace per monitor (legacy Omanix).** Each monitor gets its
+own independent `1-5`, pinned to that output (real ids `10*monitorIndex + N`).
+`Super+N` targets the focused monitor's Nth workspace, and each bar shows and
+highlights only its own monitor's workspaces.
+
+```nix
+omanix.hyprland.uniqueWorkspacePerMonitor = true;
+```
+
+> Hyprland only re-reads workspace pinning on a fresh session (autoreload is
+> disabled), so log out and back in after changing this option — a
+> `nixos-rebuild` alone won't apply it to the running session.
 
 ## Hyprland Visuals
 
