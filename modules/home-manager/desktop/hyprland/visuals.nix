@@ -122,6 +122,11 @@ in
             disable_splash_rendering = true;
             mouse_move_enables_dpms = true;
             key_press_enables_dpms = true;
+            # Live-reloading a Lua config tears down and re-executes the whole
+            # script, which desyncs __lua keybind dispatch (binds stay listed
+            # but stop firing until the session restarts). Suppress the on-save
+            # autoreload; config is asserted at session start, not mutated live.
+            disable_autoreload = true;
           };
         };
 
@@ -151,5 +156,16 @@ in
         ];
       } cfg.hyprland.extraSettings;
     };
+
+    # Home Manager's default onChange runs `hyprctl reload` on every activation.
+    # For a Lua config that reload re-executes the whole script and rebinds the
+    # __lua keybind dispatch; in Hyprland 0.56.2 that leaves exec keybinds listed
+    # but non-firing until the session is restarted (e.g. Super+Space stops
+    # opening the launcher after `rebuild`). Drop the live reload — the config is
+    # declarative and applies cleanly on the next Hyprland start / relogin.
+    # mkForce is required because onChange is a `lines` option (defs concatenate).
+    xdg.configFile."hypr/hyprland.lua".onChange = lib.mkForce ''
+      echo "omanix: Hyprland config updated; changes apply on next Hyprland start (relogin)." >&2
+    '';
   };
 }
