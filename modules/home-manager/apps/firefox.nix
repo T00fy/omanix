@@ -3,7 +3,9 @@
 {
   programs.firefox = {
     enable = true;
-    configPath = "${config.xdg.configHome}/mozilla/firefox";
+    # Pin the standard profile location; HM's default otherwise flips to the
+    # XDG path on stateVersion >= 26.05.
+    configPath = ".mozilla/firefox";
 
     profiles.default = {
       id = 0;
