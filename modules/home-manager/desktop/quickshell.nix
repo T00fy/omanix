@@ -278,8 +278,17 @@ in
                   id = "omanix.clock";
                   format = cfg.bar.clockFormat;
                 }
+                # The weather pill is a bar-widget: placing it here is what
+                # instantiates it. Matches omarchy's center slot after the
+                # clock. unit/refreshMinutes ride as inline settings; the
+                # location lives in weather.json (seeded on activation).
+                {
+                  id = "omanix.weather";
+                  unit = config.omanix.weather.units;
+                  refreshMinutes = config.omanix.weather.refreshMinutes;
+                }
               ];
-              defaultText = lib.literalExpression ''[ { id = "omanix.media"; } { id = "omanix.clock"; format = cfg.bar.clockFormat; } ]'';
+              defaultText = lib.literalExpression ''[ { id = "omanix.media"; } { id = "omanix.clock"; format = cfg.bar.clockFormat; } { id = "omanix.weather"; unit = config.omanix.weather.units; refreshMinutes = config.omanix.weather.refreshMinutes; } ]'';
               description = "Widget entries in the bar's center section.";
             };
             right = lib.mkOption {
@@ -343,6 +352,56 @@ in
       readOnly = true;
       default = themesStore;
       description = "Store path of all themes' rendered colors.toml + shell.toml (per-slug).";
+    };
+  };
+
+  # Weather widget knobs. units/refreshMinutes ride into the bar layout entry as
+  # inline settings; location (when set) seeds weather.json and is re-asserted
+  # each rebuild, with the in-panel picker as an ephemeral overlay. Defaults
+  # reproduce omarchy exactly (auto units, 15-min refresh, IP-detected location).
+  options.omanix.weather = {
+    units = lib.mkOption {
+      type = lib.types.enum [
+        ""
+        "metric"
+        "imperial"
+      ];
+      default = "";
+      description = "Temperature units for the weather widget; empty auto-detects by locale.";
+    };
+    refreshMinutes = lib.mkOption {
+      type = lib.types.ints.positive;
+      default = 15;
+      description = "How often the weather widget refetches conditions, in minutes.";
+    };
+    location = lib.mkOption {
+      default = null;
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "Location label shown in the widget and sent to the weather query.";
+            };
+            latitude = lib.mkOption {
+              type = lib.types.nullOr lib.types.float;
+              default = null;
+              description = "Optional latitude; with longitude, pins the exact forecast point.";
+            };
+            longitude = lib.mkOption {
+              type = lib.types.nullOr lib.types.float;
+              default = null;
+              description = "Optional longitude; with latitude, pins the exact forecast point.";
+            };
+          };
+        }
+      );
+      description = ''
+        Declared weather location, seeded into
+        ~/.local/state/omanix/settings/weather.json and re-asserted each rebuild.
+        The in-panel location picker is an ephemeral overlay a rebuild reasserts.
+        Null keeps omarchy's IP auto-detect behavior.
+      '';
     };
   };
 
@@ -451,5 +510,32 @@ in
         run mv "$_omanix_shell_toml.tmp" "$_omanix_shell_toml"
       fi
     '';
+
+    # Seed the declared weather location (omanix.weather.location) into
+    # settings/weather.json, re-asserted each rebuild — same declared-is-source-
+    # of-truth model as theme/wallpaper. The in-panel picker (via
+    # omanix-weather-location) writes the same file as an ephemeral overlay. When
+    # no location is declared the file is left untouched, so IP auto-detect and
+    # any picker choice remain authoritative (omarchy's default behavior).
+    home.activation.omanixWeatherLocation =
+      let
+        loc = config.omanix.weather.location;
+        weatherJson = pkgs.writeText "omanix-weather.json" (
+          builtins.toJSON (
+            { inherit (loc) name; }
+            // lib.optionalAttrs (loc.latitude != null && loc.longitude != null) {
+              inherit (loc) latitude longitude;
+            }
+          )
+        );
+      in
+      lib.mkIf (loc != null) (
+        lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          run mkdir -p "${omanixLib.state.rootExpr}/${omanixLib.state.subdirs.settings}"
+          run cp "${weatherJson}" \
+            "${omanixLib.state.rootExpr}/${omanixLib.state.subdirs.settings}/weather.json"
+          run chmod u+w "${omanixLib.state.rootExpr}/${omanixLib.state.subdirs.settings}/weather.json"
+        ''
+      );
   };
 }

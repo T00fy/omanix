@@ -146,6 +146,38 @@ let
   # ═══════════════════════════════════════════════════════════════════
   scripts = [
     {
+      # Owns settings/weather.json for the weather widget's location picker.
+      name = "omanix-weather-location";
+      deps = [
+        bash
+        coreutils
+        jq
+        curl
+      ];
+    }
+    {
+      # Right-click weather status string; calls the sibling location CLI.
+      name = "omanix-weather-status";
+      deps = [
+        bash
+        coreutils
+        jq
+        curl
+      ];
+      selfPath = true;
+    }
+    {
+      # Sends desktop notifications via busctl (systemd provides it). Used by
+      # the weather right-click and the reminders/notifications plugins.
+      name = "omanix-notification-send";
+      deps = [
+        bash
+        systemd
+        jq
+        coreutils
+      ];
+    }
+    {
       name = "omanix-shell";
       deps = [
         bash
