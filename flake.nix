@@ -67,8 +67,29 @@
         omanix-audio-tunings = final.callPackage ./pkgs/omanix-audio-tunings { };
         wlctl = inputs.wlctl.packages.${prev.stdenv.hostPlatform.system}.default;
 
-        # Pass-through so a future bump can be pinned/overridden here in one place.
-        quickshell = prev.quickshell;
+        # Give Quickshell's Qt the webp (+ heif/avif/…) image plugin so QML
+        # `Image` can decode webp — theme wallpapers and user-picked backgrounds
+        # render natively instead of black. Mirrors omarchy, which ships
+        # qt6-imageformats alongside quickshell (install/omarchy-base.packages);
+        # omarchy draws its wallpaper through the same Quickshell path, not swww.
+        #
+        # Wrap the cached binary rather than overrideAttrs (buildInputs) so the
+        # upstream quickshell is still substituted from the binary cache instead
+        # of recompiled: QT_PLUGIN_PATH is read at runtime and merges with the
+        # inner Qt wrapper's paths, so prefixing qtimageformats' plugin dir is
+        # enough to make libqwebp discoverable.
+        quickshell = prev.symlinkJoin {
+          name = "quickshell-webp";
+          paths = [ prev.quickshell ];
+          nativeBuildInputs = [ prev.makeWrapper ];
+          postBuild = ''
+            for b in qs quickshell; do
+              wrapProgram "$out/bin/$b" \
+                --prefix QT_PLUGIN_PATH : "${prev.qt6.qtimageformats}/lib/qt-6/plugins"
+            done
+          '';
+          inherit (prev.quickshell) meta;
+        };
 
         yt-dlp = prev.yt-dlp.overrideAttrs (oldAttrs: {
           src = inputs.yt-dlp-src;
