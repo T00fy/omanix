@@ -52,19 +52,20 @@ omanix.hyprland = {
 
 ## Idle & Power Management
 
-Every stage is independently togglable and has a configurable timeout:
+The Quickshell `omanix.idle` service is the single idle owner. Two stages,
+each independently togglable with a configurable timeout:
 
 ```nix
 omanix.idle = {
   screensaver = { enable = true; timeout = 150; };   # 2.5 min
-  dimScreen   = { enable = true; timeout = 840; brightness = 10; };
   lock        = { enable = true; timeout = 900; };   # 15 min
-  dpms        = { enable = true; timeout = 960; };
-  suspend     = { enable = true; timeout = 1800; };  # 30 min
 };
 ```
 
-To disable suspend entirely: `omanix.idle.suspend.enable = false;`
+There is no idle-dim, idle-DPMS-off, or auto-suspend-on-idle — the fullscreen
+screensaver is the blanking, and locking before suspend is handled separately
+(see [docs/idle.md](idle.md)). To keep the machine awake, use `omanix-toggle-idle`
+(bound to `Super+Ctrl+I`, the "Stay Awake" menu entry, and the bar widget).
 
 ## Languages
 
@@ -257,6 +258,7 @@ wayland.windowManager.hyprland.settings.bind = lib.mkAfter [
   "$mainMod SHIFT, P, exec, my-custom-app"
 ];
 
-# Override hypridle listeners
-services.hypridle.settings.listener = lib.mkForce [ /* your config */ ];
+# Adjust idle timeouts
+omanix.idle.screensaver.timeout = lib.mkForce 300;
+omanix.idle.lock.timeout = lib.mkForce 1200;
 ```

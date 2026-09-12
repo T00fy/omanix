@@ -52,7 +52,6 @@
   brightnessctl,
   usbutils,
   wl-screenrec,
-  hypridle,
   localsend,
   fzf,
   git,
@@ -251,8 +250,8 @@ let
       };
     }
     {
-      # Lock action for the omanix.idle service (and hypridle lock_cmd) — drives
-      # the omanix.lock shell plugin.
+      # Lock action for the omanix.idle service and the lock-before-sleep
+      # inhibitor — drives the omanix.lock shell plugin.
       name = "omanix-system-lock";
       deps = [
         bash
@@ -847,9 +846,7 @@ let
       name = "omanix-toggle-idle";
       deps = [
         bash
-        procps
         coreutils
-        systemd
         libnotify
       ];
     }

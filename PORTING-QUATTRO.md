@@ -147,12 +147,13 @@ Two `omanix.*` namespaces coexist and must not be confused:
   consistent with Q1-03's `omanix.quickshell.*` shell namespace (chosen to avoid the pre-existing
   `omanix.shell` zsh collision). New Phase-1/2 component tickets follow this when they add options.
 
-**Legacy exceptions (predate the shell):** `omanix.waybar.*` and `omanix.idle.*`
-(`modules/home-manager/desktop/hypridle.nix`) are top-level option namespaces from the old stack.
-**Q1-12 decided idle keeps `omanix.idle.*`** (not `omanix.quickshell.idle.*`): back-compat, and
-the ticket explicitly said preserve the option names. Q1-12 maps `omanix.idle.screensaver.timeout`
-/ `omanix.idle.lock.timeout` into the shell's `idle` block; the remaining `omanix.idle.*` stages
-(dim/dpms/suspend) have no shell equivalent and stay on the (gated) hypridle daemon.
+**Legacy exceptions (predate the shell):** `omanix.waybar.*` and `omanix.idle.*` are top-level
+option namespaces from the old stack. **Q1-12 decided idle keeps `omanix.idle.*`** (not
+`omanix.quickshell.idle.*`): back-compat, and the ticket explicitly said preserve the option
+names. Q1-12 maps `omanix.idle.screensaver.timeout` / `omanix.idle.lock.timeout` into the shell's
+`idle` block. hypridle has since been fully retired (Q3-03 follow-up): the dim/dpms/suspend stages
+were dropped to match Omarchy (only `screensaver` + `lock` remain), and lock-before-suspend is now
+the declarative `omanix-lock-before-sleep` delay-inhibitor service. See `docs/idle.md`.
 
 ---
 
@@ -167,7 +168,7 @@ Modules-only flake (`omanix.*` options; consumed by the user's own flake — no 
 | Notifications | Mako (`ui/mako.nix`) | `omanix.notifications` (history + avatars) |
 | OSD | SwayOSD (`ui/swayosd.nix`) | `omanix.osd` |
 | Lock | Hyprlock (`desktop/hyprlock.nix`) | `omanix.lock` (in-shell PAM + fingerprint) |
-| Idle | Hypridle (`desktop/hypridle.nix`) | `omanix.idle` (shell service) |
+| Idle | `omanix.idle` (shell service) + `omanix-lock-before-sleep` inhibitor | `omanix.idle` (shell service) |
 | Clipboard / emoji | cliphist + walker providers | `omanix.clipboard`, `omanix.emojis` |
 | Background | swaybg + hyprpaper | `omanix.background` overlay |
 | Theming | static build-time palette, per-app string interpolation, 2 themes, no runtime switch | palette → `colors.toml` + `shell.toml`; hybrid switching (D2) |

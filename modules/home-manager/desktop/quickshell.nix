@@ -97,8 +97,10 @@ let
       inherit (cfg.bar) position transparent centerAnchor;
       inherit (cfg.bar) layout;
     };
-    # The omanix.idle service honors only screensaver + lock timeouts (seconds);
-    # dim/dpms/suspend stay on hypridle (see desktop/hypridle.nix).
+    # The omanix.idle service is the single idle owner: screensaver + lock
+    # timeouts (seconds). There is no idle-dim / idle-DPMS-off / auto-suspend —
+    # the fullscreen screensaver is the blanking, and lock-before-suspend is a
+    # declarative delay-inhibitor service (desktop/lock-before-sleep.nix).
     idle = {
       screensaver =
         if idleCfg.screensaver.enable then idleCfg.screensaver.timeout else idleDisabledSentinel;

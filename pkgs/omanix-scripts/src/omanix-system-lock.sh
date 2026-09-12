@@ -11,8 +11,8 @@ usage() {
 Usage: omanix-system-lock
 
 Locks the session through the omanix.lock shell plugin (in-shell PAM). Invoked
-by the omanix.idle service at the lock timeout and by hypridle's lock_cmd (e.g.
-on loginctl lock-session before suspend). Any running screensaver overlay is
+by the omanix.idle service at the lock timeout and by the lock-before-sleep
+inhibitor before the system suspends. Any running screensaver overlay is
 dismissed afterwards so it is gone on unlock.
 USAGE
 }

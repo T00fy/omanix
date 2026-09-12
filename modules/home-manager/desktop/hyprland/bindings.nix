@@ -229,7 +229,7 @@ in
           # ─────────────────────────────────────────────────────────────────
           # System Toggles
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + I"'' "omanix-toggle-idle" "Toggle Idle Inhibit")
+          (mkExec ''mod .. " + CTRL + I"'' "omanix-toggle-idle" "Stay Awake")
 
           # ─────────────────────────────────────────────────────────────────
           # Screenshots & Screen Recording

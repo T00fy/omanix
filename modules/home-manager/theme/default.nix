@@ -101,24 +101,6 @@ in
         };
       };
 
-      dimScreen = {
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Enable screen dimming on idle.";
-        };
-        timeout = mkOption {
-          type = types.int;
-          default = 840;
-          description = "Seconds of inactivity before screen dims (default: 840 = 14 minutes).";
-        };
-        brightness = mkOption {
-          type = types.int;
-          default = 10;
-          description = "Brightness percentage when dimmed (default: 10).";
-        };
-      };
-
       lock = {
         enable = mkOption {
           type = types.bool;
@@ -129,32 +111,6 @@ in
           type = types.int;
           default = 900;
           description = "Seconds of inactivity before screen locks (default: 900 = 15 minutes).";
-        };
-      };
-
-      dpms = {
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Enable DPMS (turn off screen) on idle.";
-        };
-        timeout = mkOption {
-          type = types.int;
-          default = 960;
-          description = "Seconds of inactivity before screen turns off (default: 960 = 16 minutes).";
-        };
-      };
-
-      suspend = {
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Enable automatic suspend on idle.";
-        };
-        timeout = mkOption {
-          type = types.int;
-          default = 1800;
-          description = "Seconds of inactivity before system suspends (default: 1800 = 30 minutes).";
         };
       };
     };

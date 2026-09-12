@@ -12,6 +12,7 @@ in
     ./browser-policy.nix
     ./security.nix
     ./hardware.nix
+    ./idle.nix
     ./steam.nix
     ./libreoffice.nix
     ./docker.nix

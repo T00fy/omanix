@@ -4,7 +4,7 @@ TOPIC="$1"
 
 case "$TOPIC" in
   hyprland)  DOC_FILE="$OMANIX_DOCS_DIR/hyprland.md" ;;
-  hypridle)  DOC_FILE="$OMANIX_DOCS_DIR/hypridle.md" ;;
+  idle)      DOC_FILE="$OMANIX_DOCS_DIR/idle.md" ;;
   *)
     echo "Unknown topic: $TOPIC"
     exit 1

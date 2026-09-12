@@ -31,7 +31,7 @@
     ./desktop/hyprland/input.nix
     ./desktop/hyprland/rules.nix
     ./desktop/hyprland/monitors.nix
-    ./desktop/hypridle.nix
+    ./desktop/lock-before-sleep.nix
     ./desktop/quickshell.nix
     ./desktop/tailscale.nix
     ./audio.nix

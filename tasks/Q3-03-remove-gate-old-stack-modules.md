@@ -71,9 +71,17 @@ preview picker).
 **Retired `omanix-lock-screen`** (it launched the deleted hyprlock): menu `system.lock` repointed
 to `omanix-system-lock`. Its bitwarden-lock/xkb-reset are not carried over (already flagged in Q1-11).
 
-**Kept swayosd.nix + hypridle.nix** (they still own duties): swayosd media/brightness binds await
-**Q4-03**; `hypridle.nix` simplified to dim/dpms/suspend only (`quickshellOwnsIdle`/`hyprlockCmd`
-conditionals removed, `lock_cmd = omanix-system-lock`) — screensaver+lock are the shell's.
+**Kept swayosd.nix** (still owns duties): swayosd media/brightness binds await **Q4-03**.
+
+**hypridle now fully retired** (follow-up, completed): `desktop/hypridle.nix` deleted and the
+dim/dpms/suspend + auto-suspend-on-idle stages dropped to match Omarchy (the shell's fullscreen
+screensaver is the blanking; no idle-DPMS-off/dim). The pruned `omanix.idle.{dimScreen,dpms,suspend}`
+options are gone (only `screensaver` + `lock` remain). Lock-before-suspend moved to a race-free
+delay-inhibitor `systemd.user.services.omanix-lock-before-sleep`
+(`desktop/lock-before-sleep.nix`) + `services.logind.settings.Login.InhibitDelayMaxSec = 15`
+(`modules/nixos/idle.nix`), replacing hypridle's racy `before_sleep_cmd`. `omanix-toggle-idle`
+rewritten as a thin `indicators/stay-awake` flipper so the menu ("Stay Awake"), `Super+Ctrl+I`,
+and the bar widget share one state. See `docs/idle.md`.
 
 Cleared the incidental waybar signals too: `omanix-cmd-screenrecord` now refreshes the shell's
 recording indicator via `omanix-shell -q omanix.indicators refresh`; `omanix-toggle-idle`'s dead
@@ -103,3 +111,4 @@ not this cleanup.
 ## References
 - omarchy: retired-package list in `bin/omarchy-upgrade-to-quattro` (confirms these are dropped)
 - omanix: `flake.nix`, `modules/home-manager/ui/*.nix`, `modules/home-manager/desktop/{hyprlock,hypridle,hyprpaper}.nix`, `modules/home-manager/theme/default.nix`
+- hypridle retirement follow-up: `modules/home-manager/desktop/lock-before-sleep.nix`, `modules/nixos/idle.nix`, `docs/idle.md`

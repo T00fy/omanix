@@ -11,8 +11,7 @@ usage() {
 Usage: omanix-system-wake
 
 Best-effort wake handler invoked by the omanix.idle service (and the omanix.lock
-plugin) when activity ends an idle cycle. Ensures displays are powered back on;
-DPMS-off itself is owned by hypridle's dpms listener.
+plugin) when activity ends an idle cycle. Ensures displays are powered back on.
 USAGE
 }
 
