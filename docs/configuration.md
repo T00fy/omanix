@@ -135,38 +135,66 @@ omanix.apps = {
 };
 ```
 
-## Waybar
+## Quickshell Bar
+
+The desktop shell is Quickshell (`omanix.quickshell`, enabled by default). It
+hosts the bar, launcher/menu, notifications, OSD, lock, clipboard, and
+background — the old discrete-tool stack (waybar/walker/mako/hyprlock) has been
+removed.
+
+The bar layout is a list of widget-id entries per section; each entry is a bare
+id string or `{ id = "..."; ...inline-settings }`:
 
 ```nix
-omanix.waybar = {
-  modules-left = [ "hyprland/workspaces" ];
-  modules-center = [ "clock" ];
-  modules-right = [
-    "cpu" "memory"
-    "tray" "bluetooth" "network" "pulseaudio" "battery"
-  ];
+omanix.quickshell.bar = {
+  position = "top";                 # top | bottom | left | right
+  transparent = false;
+  clockFormat = "dddd HH:mm";       # Qt date tokens (not strftime)
 
-  # Configure any module
-  extraModuleSettings = {
-    clock = { format = "{:%H:%M:%S}"; interval = 1; };
+  layout = {
+    left = [
+      { id = "omanix.menu"; }
+      { id = "omanix.workspaces"; }
+      { id = "omanix.active-window"; }
+    ];
+    center = [
+      { id = "omanix.media"; }
+      { id = "omanix.clock"; }
+    ];
+    right = [
+      { id = "omanix.tray"; }
+      { id = "omanix.bluetooth"; }
+      { id = "omanix.network"; }
+      { id = "omanix.audio"; }
+      { id = "omanix.power"; }
+    ];
   };
-
-  # Append custom CSS (theme variables @background, @foreground, @accent are available)
-  extraStyle = ''
-    #cpu { color: @accent; margin: 0 8px; }
-  '';
 };
 ```
 
+Third-party shell plugins are declared (and pinned) under
+`omanix.quickshell.plugins`; nothing is fetched at runtime. See the
+**Options Reference → Quickshell** section for the full option set.
+
 ## Extra Keybindings
+
+Omanix drives Hyprland through its Lua config/IPC API, so keybindings use the
+attrset / `mkLuaInline` form (key, `hl.*` dispatcher, options), and window rules
+use a `match` block — not the legacy space-separated strings.
 
 ```nix
 omanix.hyprland = {
   extraBindings = [
-    "$mainMod SHIFT, G, Open GIMP, exec, gimp"
+    {
+      _args = [
+        (lib.generators.mkLuaInline ''"SUPER + SHIFT + G"'')
+        (lib.generators.mkLuaInline ''hl.dsp.exec_cmd([[gimp]])'')
+        { description = "Open GIMP"; }
+      ];
+    }
   ];
   extraWindowRules = [
-    "opacity 1 1, match:class ^(gimp)$"
+    { match = { class = "^(gimp)$"; }; opacity = "1.0 1.0"; }
   ];
   extraSettings = {
     # Any raw Hyprland setting
@@ -282,9 +310,15 @@ Omanix sets opinionated defaults, but everything can be overridden using standar
 # Override a specific setting completely
 wayland.windowManager.hyprland.settings.general.gaps_in = lib.mkForce 10;
 
-# Append to a list
+# Append a keybinding (Lua bind format — see Extra Keybindings above)
 wayland.windowManager.hyprland.settings.bind = lib.mkAfter [
-  "$mainMod SHIFT, P, exec, my-custom-app"
+  {
+    _args = [
+      (lib.generators.mkLuaInline ''"SUPER + SHIFT + P"'')
+      (lib.generators.mkLuaInline ''hl.dsp.exec_cmd([[my-custom-app]])'')
+      { description = "My custom app"; }
+    ];
+  }
 ];
 
 # Adjust idle timeouts
