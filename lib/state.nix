@@ -10,17 +10,21 @@ rec {
   # ported omanix-* scripts never drift.
   # ═══════════════════════════════════════════════════════════════════
 
-  # Shell-expandable string for the per-user state root; honors
-  # XDG_STATE_HOME. Written with escaped `$` so Nix does NOT interpolate
-  # `$XDG_STATE_HOME` / `$HOME` — the literal expression is emitted for a
-  # shell to expand at runtime. Use verbatim inside bash / home.activation
-  # scripts. This mirrors the idiom already in the vendored shell
-  # (vendor/omanix-shell/plugins/clipboard/capture.sh).
+  # Shell-expandable string for the per-user state root. Written with an
+  # escaped `$` so Nix does NOT interpolate `$HOME` — the literal expression
+  # is emitted for a shell to expand at runtime. Use verbatim inside bash /
+  # home.activation scripts so every consumer resolves the same directory.
   #
-  # Known gap: most of the vendored QML hardcodes `$HOME/.local/state`
-  # (only plugins/agents/Main.qml honors XDG_STATE_HOME). Reconciling the
-  # QML is deferred to Q1-02. See docs/state-layout.md.
-  rootExpr = ''''${XDG_STATE_HOME:-$HOME/.local/state}/omanix'';
+  # This is deliberately HOME-based rather than XDG_STATE_HOME-based: the
+  # vendored QML reads its state from `$HOME/.local/state/omanix` (only
+  # plugins/agents/Main.qml honors XDG_STATE_HOME today). The shell's read
+  # path is therefore the source of truth, and the write side (activation +
+  # scripts) must match it — honoring XDG_STATE_HOME on the write side alone
+  # would point writes at a directory the shell never reads. When the QML is
+  # reconciled to honor XDG_STATE_HOME, flip this one expression to
+  # `''${XDG_STATE_HOME:-$HOME/.local/state}/omanix` and every consumer moves
+  # with it. See docs/state-layout.md.
+  rootExpr = ''$HOME/.local/state/omanix'';
 
   # Canonical subpath names, so future tickets reference one source
   # instead of scattering string literals. Not pre-created on activation —

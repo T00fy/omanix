@@ -78,13 +78,20 @@ let
     };
   };
 
+  # Third-party plugins declared via omanix.quickshell.plugins whose enable is
+  # true, recorded as plugins[] entries (panels/services/overlays/menus). Bar
+  # widgets are placed via omanix.quickshell.bar.layout instead, so those are
+  # declared with enable = false (installed but not auto-added to plugins[]).
+  enabledPluginIds = lib.attrNames (lib.filterAttrs (_: p: p.enable) cfg.plugins);
+
   # Declarative base merged over the user's shell.json on every activation
   # (declared keys win). Carries the required version marker, the disabled
-  # first-party plugins, the bar block driven by omanix.quickshell.bar.*, and
-  # the idle block driven by omanix.idle.*.
+  # first-party plugins, the enabled third-party plugins, the bar block driven
+  # by omanix.quickshell.bar.*, and the idle block driven by omanix.idle.*.
   declaredBase = pkgs.writeText "omanix-shell.json" (builtins.toJSON {
     version = 1;
     disabledPlugins = cfg.disabledPlugins;
+    plugins = map (id: { inherit id; }) enabledPluginIds;
     bar = {
       id = "omanix.bar";
       inherit (cfg.bar) position transparent centerAnchor;
@@ -133,6 +140,57 @@ in
         so the shell never invokes a command with no omanix implementer. This
         list is reconciled onto the user's config on every rebuild (declared
         config wins).
+      '';
+    };
+
+    plugins = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule (_: {
+          options = {
+            source = lib.mkOption {
+              type = lib.types.path;
+              description = ''
+                Directory containing the plugin's manifest.json (and its QML).
+                Pin it: a fetchFromGitHub with a fixed rev + hash, a flake
+                input, or a local path. It is built into the store and
+                symlinked read-only into ~/.config/omanix/plugins/<name>, which
+                the shell's PluginRegistry scans on startup.
+              '';
+            };
+            enable = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = ''
+                Record this plugin as enabled in shell.json's plugins[] on
+                every rebuild (for panels, services, overlays, and menus). Set
+                to false for bar-widget or bar plugins — those are still
+                installed, but you enable them by placing their id in
+                omanix.quickshell.bar.layout (or as the bar id) instead.
+              '';
+            };
+          };
+        })
+      );
+      default = { };
+      example = lib.literalExpression ''
+        {
+          "acme.weather" = {
+            source = pkgs.fetchFromGitHub {
+              owner = "acme";
+              repo = "omanix-weather";
+              rev = "v1.2.0";
+              hash = "sha256-AAAA...";
+            };
+          };
+        }
+      '';
+      description = ''
+        Declaratively installed third-party shell plugins, keyed by plugin id
+        (the attribute name must match the manifest id). Each source is pinned
+        and built into the store — nothing is fetched or cloned at runtime.
+        Installing, updating, or removing a plugin means editing this option
+        and rebuilding. Runtime enable/disable (omanix-plugin-{enable,disable})
+        remains available as an ephemeral overlay that a rebuild reasserts.
       '';
     };
 
@@ -271,6 +329,13 @@ in
       pkgs.perl
     ];
 
+    # Install declared third-party plugins as read-only store symlinks into the
+    # dir the shell's PluginRegistry scans. Nothing is fetched at runtime; the
+    # source is pinned and built into the store by omanix.quickshell.plugins.
+    xdg.configFile = lib.mapAttrs' (
+      id: p: lib.nameValuePair "omanix/plugins/${id}" { inherit (p) source; }
+    ) cfg.plugins;
+
     # Reconcile the declared base onto the user-writable shell.json. The shell
     # treats a valid user file as canonical (no in-shell merge), so this merge
     # is what re-applies declared keys each rebuild. Never a store symlink (R3)
@@ -279,15 +344,27 @@ in
       run mkdir -p "$HOME/.config/omanix"
       _omanix_cfg="$HOME/.config/omanix/shell.json"
       if [ -f "$_omanix_cfg" ] && ${pkgs.jq}/bin/jq -e . "$_omanix_cfg" >/dev/null 2>&1; then
-        run ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$_omanix_cfg" "${declaredBase}" > "$_omanix_cfg.tmp"
+        # Shallow, right-biased merge: every key the declared base defines is
+        # taken wholesale from the base (so a removed or renamed declared
+        # sub-key does not linger under bar/idle), while any runtime-only
+        # top-level key the base doesn't define is preserved.
+        run ${pkgs.jq}/bin/jq -s '.[0] + .[1]' "$_omanix_cfg" "${declaredBase}" > "$_omanix_cfg.tmp"
       else
+        # Present but not valid JSON: keep it as .corrupt instead of silently
+        # discarding accumulated runtime state, then start from the base.
+        [ -e "$_omanix_cfg" ] && run mv "$_omanix_cfg" "$_omanix_cfg.corrupt"
         run cp "${declaredBase}" "$_omanix_cfg.tmp"
       fi
       run mv "$_omanix_cfg.tmp" "$_omanix_cfg"
       run chmod u+w "$_omanix_cfg"
-      # Best-effort reload; a guarded no-op until the IPC CLI lands. Must never
-      # fail activation whether or not the shell is running.
-      run sh -c 'command -v omanix-refresh-shell >/dev/null 2>&1 && omanix-refresh-shell || true'
+      # Best-effort live reload only — the merge above is authoritative, so we
+      # do NOT re-merge via omanix-refresh-shell here. Must never fail
+      # activation whether or not the shell is running.
+      run sh -c '
+        if command -v omanix-shell >/dev/null 2>&1; then
+          omanix-shell shell reloadConfig >/dev/null 2>&1 \
+            || omanix-shell -q shell rescanPlugins >/dev/null 2>&1 || true
+        fi'
     '';
 
     # Point the shell's background overlay (omanix.background) at the declared
@@ -297,9 +374,9 @@ in
     # reasserted each rebuild, and a runtime switcher may repoint it as an
     # ephemeral overlay.
     home.activation.omanixBackgroundState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      run mkdir -p "$HOME/.local/state/omanix/current"
+      run mkdir -p "${omanixLib.state.rootExpr}/current"
       run ln -sfn "${config.omanix.activeTheme.assets.wallpaper}" \
-        "$HOME/.local/state/omanix/current/background"
+        "${omanixLib.state.rootExpr}/current/background"
     '';
 
     # Apply the declared theme (D2 source of truth). The shell reads
@@ -310,13 +387,13 @@ in
     # reasserts the declared theme while omanix-theme-set (Q2-04) may repoint it
     # as an ephemeral overlay.
     home.activation.omanixThemeState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      run mkdir -p "$HOME/.local/state/omanix/current"
+      run mkdir -p "${omanixLib.state.rootExpr}/current"
       run ln -sfn "${themesStore}/${config.omanix.theme}" \
-        "$HOME/.local/state/omanix/current/theme"
+        "${omanixLib.state.rootExpr}/current/theme"
       # Best-effort live apply; must never fail activation whether or not the
       # shell is running (a cold start already reads current/theme on launch).
       run sh -c '
-        _t="$HOME/.local/state/omanix/current/theme"
+        _t="${omanixLib.state.rootExpr}/current/theme"
         if command -v omanix-shell >/dev/null 2>&1; then
           _c=$(${pkgs.coreutils}/bin/base64 -w0 < "$_t/colors.toml" 2>/dev/null || true)
           _s=$(${pkgs.coreutils}/bin/base64 -w0 < "$_t/shell.toml" 2>/dev/null || true)

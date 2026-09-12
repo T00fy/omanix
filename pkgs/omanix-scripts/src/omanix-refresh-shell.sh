@@ -6,7 +6,8 @@
 #
 # The merge here MUST stay in sync with home.activation.omanixShellConfig in
 # modules/home-manager/desktop/quickshell.nix (same declared base, same
-# `jq -s '.[0] * .[1]'`). Succeeds whether or not the shell is running.
+# `jq -s '.[0] + .[1]'` shallow right-biased merge). Succeeds whether or not
+# the shell is running.
 
 set -euo pipefail
 
@@ -19,8 +20,12 @@ mkdir -p "$config_dir"
 
 tmp="$config_file.tmp"
 if [[ -f $config_file ]] && jq -e . "$config_file" >/dev/null 2>&1; then
-  jq -s '.[0] * .[1]' "$config_file" "$base" >"$tmp"
+  # Shallow right-biased merge: declared base keys win wholesale (no lingering
+  # stale sub-keys); runtime-only top-level keys are preserved.
+  jq -s '.[0] + .[1]' "$config_file" "$base" >"$tmp"
 else
+  # Present but invalid JSON: keep it rather than silently discarding it.
+  [[ -e $config_file ]] && mv "$config_file" "$config_file.corrupt"
   cp "$base" "$tmp"
 fi
 mv "$tmp" "$config_file"

@@ -5,7 +5,8 @@
 
 set -euo pipefail
 
-state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/omanix/toggles"
+# HOME-based to match the directory the shell watches (see lib/state.nix).
+state_dir="$HOME/.local/state/omanix/toggles"
 flag="$state_dir/bar-off"
 mkdir -p "$state_dir"
 

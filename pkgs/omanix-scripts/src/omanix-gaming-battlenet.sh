@@ -6,6 +6,14 @@
 
 set -euo pipefail
 
+# Declarative-Nix note: this is the one deliberate runtime download in the tree.
+# It runs ONLY when omanix.gaming.battlenet.enable is set (opt-in, off by
+# default), and only umu-launcher + GE-Proton — which it needs — come from
+# nixpkgs/the flake. The Battle.net installer itself is proprietary and
+# non-redistributable, so it cannot be pinned as a Nix package or checksummed
+# against a stable artifact (the URL serves a live, moving installer). It
+# installs into a mutable Wine prefix under ~/Games, which is inherently
+# runtime state. This exception is intentional, not an oversight.
 prefix="$HOME/Games/battlenet"
 launcher="$prefix/drive_c/Program Files (x86)/Battle.net/Battle.net Launcher.exe"
 installer_url="https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"

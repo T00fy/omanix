@@ -13,15 +13,19 @@ Upstream omarchy uses `~/.local/state/omarchy/`; per decision **D1** omanix uses
 The state root is **always**:
 
 ```
-${XDG_STATE_HOME:-$HOME/.local/state}/omanix
+$HOME/.local/state/omanix
 ```
 
 - **Nix code** uses the single source of truth `omanixLib.state.rootExpr` (defined in
   `lib/state.nix`, surfaced via `lib/default.nix`). Subpath names live in
   `omanixLib.state.subdirs`.
-- **Bash / activation scripts** use the same idiom inline:
-  `"${XDG_STATE_HOME:-$HOME/.local/state}/omanix"`. There is deliberately **no** shared bash
-  library to source (the repo has no such mechanism); the idiom is short and self-contained.
+- **Bash / activation scripts** use the same literal inline:
+  `"$HOME/.local/state/omanix"`. There is deliberately **no** shared bash
+  library to source (the repo has no such mechanism); the literal is short and self-contained.
+
+The root is **HOME-based, not `XDG_STATE_HOME`-based** — see the known gap below. When the
+vendored QML is reconciled to honor `XDG_STATE_HOME`, flip the single `rootExpr` expression in
+`lib/state.nix` and every consumer moves with it.
 
 The base directory is created writable on activation by
 `modules/home-manager/core/state.nix` (a plain `home.activation` `mkdir -p`). Feature
@@ -87,8 +91,10 @@ owning feature.
 
 The vendored QML honors `XDG_STATE_HOME` **inconsistently**: only
 `vendor/omanix-shell/plugins/agents/Main.qml` respects it; the rest hardcode
-`$HOME/.local/state`. If a user overrides `XDG_STATE_HOME` to a non-default location, the shell
-and the scripts may disagree on the state root. Reconciling the vendored QML to honor
-`XDG_STATE_HOME` uniformly is deferred to **Q1-02** (shell packaging), the next ticket that
-touches the vendored tree. The resolver defined here honors `XDG_STATE_HOME`; the default
-(`$HOME/.local/state`) matches the QML today.
+`$HOME/.local/state`. Because the shell's *read* path is therefore effectively HOME-based,
+`rootExpr` and every write-side consumer (activation + scripts) are deliberately HOME-based
+too — honoring `XDG_STATE_HOME` on the write side alone would point writes at a directory the
+shell never reads (a split-brain under a non-default `XDG_STATE_HOME`). Reconciling the
+vendored QML to honor `XDG_STATE_HOME` uniformly is deferred to the next ticket that touches
+the vendored tree; when it lands, flip the single `rootExpr` expression in `lib/state.nix` to
+`''${XDG_STATE_HOME:-$HOME/.local/state}/omanix` and all consumers follow.

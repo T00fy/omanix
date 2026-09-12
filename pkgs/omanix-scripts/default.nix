@@ -963,13 +963,10 @@ let
         localsend
       ];
     }
-    # ── Plugin system (Q4-01) ──────────────────────────────────────────
-    {
-      # Shared guard: refuse transport-helper / option-injection git URLs
-      # before any clone. Also reused by theme install.
-      name = "omanix-git-url-check";
-      deps = [ bash ];
-    }
+    # ── Plugin system ──────────────────────────────────────────────────
+    # Plugins are installed declaratively (omanix.quickshell.plugins); there is
+    # no runtime fetch/clone. These CLIs only inspect installed plugins and
+    # flip runtime enable/disable state as an ephemeral overlay.
     {
       # Mirrors PluginRegistry.qml's manifest schema so the CLI rejects
       # anything the shell would refuse or load unsafely.
@@ -1021,54 +1018,8 @@ let
       selfPath = true;
     }
     {
-      name = "omanix-plugin-add";
-      deps = [
-        bash
-        coreutils
-        jq
-        git
-        gum
-      ];
-      selfPath = true;
-    }
-    {
-      name = "omanix-plugin-clone";
-      deps = [
-        bash
-        coreutils
-        jq
-        gnused
-        gnugrep
-        libnotify
-      ];
-      selfPath = true;
-    }
-    {
-      name = "omanix-plugin-update";
-      deps = [
-        bash
-        coreutils
-        jq
-        git
-        gum
-      ];
-      selfPath = true;
-    }
-    {
-      name = "omanix-plugin-remove";
-      deps = [
-        bash
-        coreutils
-        jq
-        gum
-        findutils
-        libnotify
-      ];
-      selfPath = true;
-    }
-    {
       # Menu wrapper: lists via omanix-plugin-list, picks via omanix-menu-dmenu,
-      # dispatches enable/disable over IPC and clone/remove in a floating term.
+      # dispatches enable/disable over IPC.
       name = "omanix-menu-plugin";
       deps = [
         bash
