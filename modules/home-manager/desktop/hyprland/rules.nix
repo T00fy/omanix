@@ -82,6 +82,13 @@ in
           { match = { class = "(Alacritty|kitty|com.mitchellh.ghostty|foot)"; }; tag = "+terminal"; }
 
           # ─────────────────────────────────────────────────────────────────
+          # Screensaver (ttfx terminal, one fullscreen window per monitor)
+          # ─────────────────────────────────────────────────────────────────
+          { match = { class = "^(org.omanix.screensaver)$"; }; fullscreen = true; }
+          { match = { class = "^(org.omanix.screensaver)$"; }; float = true; }
+          { match = { class = "^(org.omanix.screensaver)$"; }; opacity = "1.0 1.0"; }
+
+          # ─────────────────────────────────────────────────────────────────
           # JetBrains IDEs
           # ─────────────────────────────────────────────────────────────────
           { match = { class = "^(jetbrains-.*)$"; title = "^(splash)$"; float = true; }; tag = "+jetbrains-splash"; }

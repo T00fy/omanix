@@ -60,7 +60,7 @@
 
       overlays.default = final: prev: {
         spotatui = prev.callPackage inputs.spotatui { };
-        omanix-screensaver = final.callPackage ./pkgs/omanix-screensaver { };
+        ttfx = final.callPackage ./pkgs/ttfx { };
         omanix-scripts = final.callPackage ./pkgs/omanix-scripts { };
         omanix-shell = final.callPackage ./pkgs/omanix-shell { };
         omanix-agent-usage = final.callPackage ./pkgs/omanix-agent-usage { };

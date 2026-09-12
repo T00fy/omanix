@@ -84,6 +84,8 @@ let
 
   omanixScripts = pkgs.omanix-scripts.override {
     terminalWrapper = config.omanix.terminal.wrapper;
+    screensaverEmulator = config.omanix.terminal.bin;
+    screensaverTermConfig = config.omanix.terminal.screensaverConfig;
     shellDefaults = config.omanix.quickshell.declaredBaseFile;
     quickshellThemesDir = config.omanix.quickshell.themesDir;
     audioTuningsDir = "${pkgs.omanix-audio-tunings}/share/omanix/audio";

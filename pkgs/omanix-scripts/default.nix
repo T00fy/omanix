@@ -56,7 +56,8 @@
   fzf,
   git,
   gum,
-  omanix-screensaver,
+  socat,
+  ttfx,
   # Data files injected by the module
   themesJson ? null,
   docStylePreview ? null,
@@ -65,6 +66,10 @@
   docsDir ? null,
   themeListFormatted ? "",
   screensaverLogo ? null,
+  # Which emulator the screensaver terminal spawns (omanix.terminal.bin) and the
+  # zero-padding/black config it launches with (omanix.terminal.screensaverConfig).
+  screensaverEmulator ? "",
+  screensaverTermConfig ? null,
   # Hyprland visual defaults for gap toggling
   gapsOuter ? "10",
   gapsInner ? "5",
@@ -236,14 +241,38 @@ let
       selfPath = true;
     }
     {
-      # Screensaver launcher for the omanix.idle service. Bakes the declared
-      # logo path (omanix.idle.screensaver.logo) so the bare command the shell
-      # invokes still honors it.
+      # Screensaver launcher for the omanix.idle service and the system menu.
+      # Spawns one ttfx terminal (class org.omanix.screensaver) per monitor,
+      # mirroring omarchy. The emulator and its zero-padding config are baked
+      # from omanix.terminal.{bin,screensaverConfig}. hyprctl/jq/socat drive the
+      # per-monitor spawn + openwindow wait; the emulator itself resolves off the
+      # session PATH (Hyprland execs the command string).
       name = "omanix-launch-screensaver";
       deps = [
         bash
         coreutils
-        omanix-screensaver
+        hyprland
+        jq
+        socat
+        procps
+      ];
+      envs = {
+        OMANIX_SCREENSAVER_TERM = screensaverEmulator;
+        OMANIX_SCREENSAVER_TERM_CONFIG = screensaverTermConfig;
+      };
+    }
+    {
+      # Runs inside each screensaver terminal: loops ttfx with random effects on
+      # the declared logo (OMANIX_SCREENSAVER_LOGO = omanix.idle.screensaver.logo)
+      # and exits on any key/mouse input or focus loss.
+      name = "omanix-screensaver";
+      deps = [
+        bash
+        coreutils
+        hyprland
+        jq
+        procps
+        ttfx
       ];
       envs = lib.optionalAttrs (screensaverLogo != null) {
         OMANIX_SCREENSAVER_LOGO = "${screensaverLogo}";

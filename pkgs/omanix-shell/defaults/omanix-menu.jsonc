@@ -56,7 +56,7 @@
 
   "system": { "icon": "󰍛", "label": "System" },
   "system.lock": { "icon": "󰌾", "label": "Lock", "action": "omanix-system-lock" },
-  "system.screensaver": { "icon": "󱄄", "label": "Screensaver", "action": "omanix-screensaver" },
+  "system.screensaver": { "icon": "󱄄", "label": "Screensaver", "action": "omanix-launch-screensaver" },
   "system.idle": { "icon": "󰒲", "label": "Stay Awake", "action": "omanix-toggle-idle", "checked": "[ -f \"${XDG_STATE_HOME:-$HOME/.local/state}/omanix/indicators/stay-awake\" ]" },
   "system.scale": { "icon": "󰍹", "label": "Toggle UI Scale", "action": "omanix-scale" },
   "system.logout": { "icon": "󰗽", "label": "Logout", "action": "omanix-cmd-logout" },

@@ -23,11 +23,10 @@ Item {
   readonly property int screensaverDelaySeconds: Math.max(0, screensaverTimeoutSeconds - firstIdleTimeoutSeconds)
   readonly property int lockDelaySeconds: Math.max(0, lockTimeoutSeconds - firstIdleTimeoutSeconds)
   readonly property bool idleEnabled: stayAwakeStateLoaded && !stayAwake
+  // The screensaver is a fullscreen terminal per monitor (class
+  // screensaverClass), tracked via Hyprland openwindow/closewindow — see
+  // handleHyprlandEvent.
   readonly property string screensaverClass: "org.omanix.screensaver"
-  // omanix screensaver is a layer-shell overlay, not a toplevel window, so it is
-  // tracked via Hyprland openlayer/closelayer on this namespace (see
-  // handleHyprlandEvent) instead of the window-class path above.
-  readonly property string screensaverLayerNamespace: "omanix-screensaver"
 
   property bool stayAwake: false
   property bool stayAwakeStateLoaded: false
@@ -39,11 +38,9 @@ Item {
   property string lastEventAt: ""
   property var screensaverWindows: ({})
   property int screensaverWindowCount: 0
-  property int screensaverLayerCount: 0
 
-  // Total screensaver surfaces up — toplevel windows (legacy) plus layer-shell
-  // overlays (omanix). Drives the grace/dismiss/lock-arm logic.
-  readonly property int screensaverPresentCount: screensaverWindowCount + screensaverLayerCount
+  // Screensaver terminals currently up. Drives the grace/dismiss/lock-arm logic.
+  readonly property int screensaverPresentCount: screensaverWindowCount
 
   function secondsFromConfig(value, fallback) {
     return IdleModel.secondsFromConfig(value, fallback)
@@ -122,7 +119,6 @@ Item {
   function resetScreensaverWindows() {
     root.screensaverWindows = ({})
     root.screensaverWindowCount = 0
-    root.screensaverLayerCount = 0
   }
 
   function setScreensaverWindow(address, visible) {
@@ -138,18 +134,6 @@ Item {
 
   function handleScreensaverWindowClosed(address) {
     setScreensaverWindow(address, false)
-    handleScreensaverGone()
-  }
-
-  // Layer-shell events (omanix screensaver) carry only the namespace, so a
-  // per-surface address map does not apply; count opens/closes instead.
-  function handleScreensaverLayerOpened() {
-    root.screensaverLayerCount++
-    screensaverLaunchGraceTimer.stop()
-  }
-
-  function handleScreensaverLayerClosed() {
-    root.screensaverLayerCount = Math.max(0, root.screensaverLayerCount - 1)
     handleScreensaverGone()
   }
 
@@ -176,12 +160,6 @@ Item {
       var close = eventParts(event, 1)
       var address = String(close[0] || "")
       if (root.screensaverWindows[address]) root.handleScreensaverWindowClosed(address)
-    } else if (name === "openlayer") {
-      var openLayer = eventParts(event, 1)
-      if (String(openLayer[0] || "") === root.screensaverLayerNamespace) root.handleScreensaverLayerOpened()
-    } else if (name === "closelayer") {
-      var closeLayer = eventParts(event, 1)
-      if (String(closeLayer[0] || "") === root.screensaverLayerNamespace) root.handleScreensaverLayerClosed()
     }
   }
 
@@ -222,7 +200,6 @@ Item {
       screensaverDelay: root.screensaverDelaySeconds,
       lockDelay: root.lockDelaySeconds,
       screensaverWindows: root.screensaverWindowCount,
-      screensaverLayers: root.screensaverLayerCount,
       timers: {
         screensaver: screensaverTimer.running,
         lock: lockTimer.running,

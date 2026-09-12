@@ -75,11 +75,16 @@ then, this log is the record.
 
 #### Local edits
 
-- `plugins/services/idle/Service.qml` (2026-09-05, Q1-12) — track the omanix screensaver via
-  Hyprland `openlayer`/`closelayer` on namespace `omanix-screensaver` (it is a layer-shell
-  overlay, not a toplevel window, so the upstream `openwindow`/window-class path never fires).
-  Added `screensaverLayerNamespace`/`screensaverLayerCount`/`screensaverPresentCount` and layer
-  open/close handlers; the legacy window-class path is left intact.
+- `plugins/services/idle/Service.qml` (2026-09-05, Q1-12) — retarget the screensaver-window
+  class at `org.omanix.screensaver` (upstream `org.omarchy.screensaver`). Tracking uses the
+  upstream `openwindow`/`closewindow` window-class path unchanged. (Superseded 2026-09-12 — see
+  below.)
+- `plugins/services/idle/Service.qml` (2026-09-12) — the screensaver is now a fullscreen ttfx
+  terminal per monitor (see `pkgs/ttfx`, `omanix-launch-screensaver`), a real toplevel window, so
+  the earlier layer-shell overlay is gone. Removed the interim
+  `screensaverLayerNamespace`/`screensaverLayerCount` tracking and the `openlayer`/`closelayer`
+  handlers; `screensaverPresentCount` is now just the window count. This matches upstream, which
+  only ever tracked the screensaver window.
 - `plugins/panels/clock/BarWidget.qml` (2026-09-07, Q3-04) — removed the clock middle-click
   `bar.run("omanix-menu-timezone")` handler; timezone is declarative on NixOS (`time.timeZone`,
   D4 / Q0-05 ratified cut), so the picker helper is not shipped and the call would dangle.
