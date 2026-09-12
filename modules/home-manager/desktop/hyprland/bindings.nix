@@ -258,6 +258,8 @@ in
           (mkExec ''mod .. " + CTRL + B"'' "omanix-shell shell toggle omanix.bluetooth" "Bluetooth Panel")
           (mkExec ''mod .. " + CTRL + W"'' "omanix-shell shell toggle omanix.network" "Network Panel")
           (mkExec ''mod .. " + CTRL + D"'' "omanix-shell shell toggle omanix.monitor" "Display Panel")
+          (mkExec ''mod .. " + SLASH"'' "omanix-hyprland-monitor-scaling up" "Monitor scaling up")
+          (mkExec ''mod .. " + ALT + SLASH"'' "omanix-hyprland-monitor-scaling down" "Monitor scaling down")
           (mkExec ''mod .. " + CTRL + P"'' "omanix-shell shell toggle omanix.power" "Power Panel")
           (mkExec ''mod .. " + CTRL + T"'' "omanix-launch-tui btop" "System Monitor")
 

@@ -50,6 +50,8 @@
   pulseaudio,
   wireplumber,
   brightnessctl,
+  ddcutil,
+  glib,
   usbutils,
   wl-screenrec,
   localsend,
@@ -77,6 +79,9 @@
   monitorMap ? "",
   menuWidth ? "295",
   menuMaxHeight ? "630",
+  # Declared default shell font base-size (omanix.monitor.textSize), the anchor
+  # for omanix-display-text-size. "12" when built standalone.
+  textSizeDefault ? "12",
   # omanix.sunshine.scaledDesktop settings (from osConfig), empty when unset
   scaledDesktopMonitor ? "",
   scaledDesktopMode ? "",
@@ -402,6 +407,60 @@ let
         hyprland
         jq
       ];
+    }
+    {
+      # Ephemeral compositor-scale overlay for the focused monitor (Display
+      # panel). Declared default is omanix.monitor.scale, re-asserted on rebuild.
+      name = "omanix-hyprland-monitor-scaling";
+      deps = [
+        bash
+        hyprland
+        jq
+        gawk
+        coreutils
+      ];
+    }
+    {
+      # Shell font base-size + GTK text-scaling overlay (Display panel). Declared
+      # default is omanix.monitor.textSize; a rebuild strips this overlay.
+      name = "omanix-display-text-size";
+      deps = [
+        bash
+        glib.bin # gsettings
+        gawk
+        coreutils
+      ];
+      envs = {
+        OMANIX_TEXT_SIZE_DEFAULT = textSizeDefault;
+      };
+    }
+    {
+      # Per-monitor brightness for the Display panel: internal via brightnessctl
+      # (omanix-hw-display device), external via DDC/CI (ddcutil).
+      name = "omanix-brightness-display";
+      deps = [
+        bash
+        hyprland
+        jq
+        gawk
+        coreutils
+        brightnessctl
+        ddcutil
+        util-linux
+      ];
+      selfPath = true;
+    }
+    {
+      # 8-line state contract the Display panel polls; delegates to
+      # omanix-brightness-display and omanix-hyprland-monitor-scaling.
+      name = "omanix-monitor-state";
+      deps = [
+        bash
+        hyprland
+        jq
+        coreutils
+      ];
+      selfPath = true;
     }
     {
       name = "omanix-menu";

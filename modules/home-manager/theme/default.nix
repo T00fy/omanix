@@ -124,8 +124,20 @@ in
         type = types.str;
         default = "auto";
         description = ''
-          Monitor scaling factor. Can be a number (e.g., "1", "1.5", "2") 
+          Monitor scaling factor. Can be a number (e.g., "1", "1.5", "2")
           or "auto" for automatic detection.
+        '';
+      };
+
+      textSize = mkOption {
+        type = types.int;
+        default = 12;
+        description = ''
+          Declared shell font base-size in px (9–20), the anchor for the Display
+          panel's Text Size slider and `omanix-display-text-size`. Rendered into
+          every theme's shell.toml as `[font] base-size`. The runtime slider is
+          an ephemeral overlay (~/.config/omanix/shell.toml) that a rebuild
+          re-asserts back to this value.
         '';
       };
     };

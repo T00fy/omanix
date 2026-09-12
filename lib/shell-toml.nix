@@ -15,6 +15,10 @@ in
   # shipped themes) falls back to a solid accent/foreground border, matching
   # omanix's solid rgb(accent) Hyprland border in visuals.nix.
   hyprlandActiveBorder ? null,
+  # Declared shell font base-size in px (omanix.monitor.textSize). The Display
+  # panel's Text Size slider overlays this at runtime via
+  # ~/.config/omanix/shell.toml; a rebuild re-asserts this declared value.
+  baseSize ? 12,
 }:
 
 let
@@ -82,7 +86,7 @@ in
   scale-with-font = true
 
   [font]
-  base-size = 12
+  base-size = ${toString baseSize}
 
   [popups]
   background       = "${background}"

@@ -127,6 +127,7 @@ let
       ;
     menuWidth = toString config.omanix.menu.width;
     menuMaxHeight = toString config.omanix.menu.maxHeight;
+    textSizeDefault = toString config.omanix.monitor.textSize;
     scaledDesktopMonitor = if scaledDesktop != null then scaledDesktop.monitor else "";
     scaledDesktopMode = if scaledDesktop != null then scaledDesktop.mode else "";
     scaledDesktopPosition = if scaledDesktop != null then scaledDesktop.position else "";

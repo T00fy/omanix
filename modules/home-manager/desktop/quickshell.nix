@@ -31,7 +31,15 @@ let
           }
           {
             name = "${slug}/shell.toml";
-            path = pkgs.writeText "${slug}-shell.toml" omanixLib.themesShellToml.${slug};
+            # Render per-slug with the declared base-size (omanix.monitor.textSize)
+            # rather than the default-12 omanixLib.themesShellToml, so the Display
+            # panel's Text Size slider has a declared anchor to re-assert to.
+            path = pkgs.writeText "${slug}-shell.toml" (
+              omanixLib.renderShellToml {
+                colors = omanixLib.themes.${slug}.colors;
+                baseSize = config.omanix.monitor.textSize;
+              }
+            );
           }
           {
             name = "${slug}/claude.json";
@@ -292,10 +300,15 @@ in
                 # enable networking.networkmanager for it to be functional.
                 { id = "omanix.network"; }
                 { id = "omanix.audio"; }
+                # The Display panel (brightness/text-size/scale/outputs) is a
+                # bar-widget: placing it here is what instantiates it and
+                # registers its toggle IPC (Super+Ctrl+D). Matches omarchy's
+                # right-section slot between audio and power.
+                { id = "omanix.monitor"; }
                 { id = "omanix.power"; }
               ]
               ++ agentsBarEntry;
-              defaultText = lib.literalExpression ''[ { id = "omanix.indicators"; ... } { id = "omanix.tray"; } { id = "omanix.bluetooth"; } { id = "omanix.network"; } { id = "omanix.audio"; } { id = "omanix.power"; } ] ++ (optional omanix.apps.ai.usageWidget.enable { id = "omanix.agents"; ... })'';
+              defaultText = lib.literalExpression ''[ { id = "omanix.indicators"; ... } { id = "omanix.tray"; } { id = "omanix.bluetooth"; } { id = "omanix.network"; } { id = "omanix.audio"; } { id = "omanix.monitor"; } { id = "omanix.power"; } ] ++ (optional omanix.apps.ai.usageWidget.enable { id = "omanix.agents"; ... })'';
               description = "Widget entries in the bar's right section.";
             };
           };
@@ -419,6 +432,24 @@ in
           _s=$(${pkgs.coreutils}/bin/base64 -w0 < "$_t/shell.toml" 2>/dev/null || true)
           omanix-shell -q shell applyTheme "$_c" "$_s" || true
         fi'
+    '';
+
+    # Re-assert the declared text size (omanix.monitor.textSize) by stripping the
+    # runtime overlay's [font] base-size from the user shell.toml. The declared
+    # value lives in current/theme/shell.toml (store); the Display panel's slider
+    # writes an ephemeral override here that a rebuild clears — same declared-is-
+    # source-of-truth model as theme/wallpaper. Other user keys are preserved,
+    # and the shell's watched userShellFile reflows live when the file changes.
+    home.activation.omanixShellTextOverlay = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      _omanix_shell_toml="$HOME/.config/omanix/shell.toml"
+      if [ -f "$_omanix_shell_toml" ]; then
+        run ${pkgs.gawk}/bin/awk '
+          /^[[:space:]]*\[/ { in_font = ($0 ~ /^[[:space:]]*\[font\]([[:space:]]|$)/) }
+          in_font && /^[[:space:]]*base-size[[:space:]]*=/ { next }
+          { print }
+        ' "$_omanix_shell_toml" > "$_omanix_shell_toml.tmp"
+        run mv "$_omanix_shell_toml.tmp" "$_omanix_shell_toml"
+      fi
     '';
   };
 }
