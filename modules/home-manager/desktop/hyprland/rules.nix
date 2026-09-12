@@ -82,6 +82,13 @@ in
           { match = { class = "(Alacritty|kitty|com.mitchellh.ghostty|foot)"; }; tag = "+terminal"; }
 
           # ─────────────────────────────────────────────────────────────────
+          # Screensaver (ttfx terminal, one fullscreen window per monitor)
+          # ─────────────────────────────────────────────────────────────────
+          { match = { class = "^(org.omanix.screensaver)$"; }; fullscreen = true; }
+          { match = { class = "^(org.omanix.screensaver)$"; }; float = true; }
+          { match = { class = "^(org.omanix.screensaver)$"; }; opacity = "1.0 1.0"; }
+
+          # ─────────────────────────────────────────────────────────────────
           # JetBrains IDEs
           # ─────────────────────────────────────────────────────────────────
           { match = { class = "^(jetbrains-.*)$"; title = "^(splash)$"; float = true; }; tag = "+jetbrains-splash"; }
@@ -200,11 +207,8 @@ in
           { match = { namespace = "selection"; }; no_anim = true; }
           { match = { namespace = "^(selection)$"; }; no_anim = true; }
           { match = { namespace = "^(wayfreeze)$"; }; no_anim = true; }
-          { match = { namespace = "walker"; }; no_anim = true; }
-          { match = { namespace = "waybar"; }; blur = true; }
           { match = { namespace = "wofi"; }; blur = true; }
           { match = { namespace = "notifications"; }; blur = true; }
-          { match = { namespace = "waybar"; }; ignore_alpha = 0.5; }
           { match = { namespace = "wofi"; }; ignore_alpha = 0.5; }
           { match = { namespace = "notifications"; }; ignore_alpha = 0.5; }
         ]

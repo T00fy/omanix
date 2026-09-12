@@ -1,9 +1,16 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (config.omanix.activeTheme.assets) wallpaper;
   cfg = config.omanix;
 
-  extraExecLines = lib.concatMapStringsSep "\n" (cmd: ''      hl.exec_cmd(${builtins.toJSON cmd})'') cfg.hyprland.extraAutostart;
+  autostartCmds =
+    # Propagate session env (incl. OMANIX_PATH) to systemd/dbus.
+    [ "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE GDK_SCALE HYPRCURSOR_THEME HYPRCURSOR_SIZE OMANIX_PATH" ]
+    # The Quickshell desktop shell hosts bar/notifications/osd/polkit/clipboard/background.
+    ++ lib.optional cfg.quickshell.enable "${pkgs.quickshell}/bin/quickshell -n -p $OMANIX_PATH/shell"
+    ++ cfg.hyprland.extraAutostart;
+
+  execLines = lib.concatMapStringsSep "\n"
+    (cmd: "        hl.exec_cmd(${builtins.toJSON cmd})") autostartCmds;
 in
 {
   options.omanix.hyprland.extraAutostart = lib.mkOption {
@@ -27,14 +34,7 @@ in
   config = {
     wayland.windowManager.hyprland.extraConfig = ''
       hl.on("hyprland.start", function()
-        hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XCURSOR_THEME XCURSOR_SIZE GDK_SCALE HYPRCURSOR_THEME HYPRCURSOR_SIZE")
-        hl.exec_cmd("mako")
-        hl.exec_cmd("swayosd-server")
-        hl.exec_cmd("systemctl --user start hyprpolkitagent")
-        hl.exec_cmd("wl-paste --type text --watch cliphist store")
-        hl.exec_cmd("wl-paste --type image --watch cliphist store")
-        hl.exec_cmd("${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill")
-${extraExecLines}
+      ${execLines}
       end)
     '';
   };

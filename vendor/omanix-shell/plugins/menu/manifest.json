@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.menu",
+  "name": "Omanix menu",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Quickshell-powered Omanix command menu",
+  "kinds": [
+    "menu",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "menu": "Menu.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Omanix menu",
+    "description": "Launches the Omanix menu",
+    "category": "Compositor",
+    "allowMultiple": false
+  }
+}

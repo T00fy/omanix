@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.omanix;
-  osdClient = ''swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"'';
 
   mkLua = lib.generators.mkLuaInline;
 
@@ -106,7 +105,7 @@ in
           (mkBind ''mod .. " + C"'' ''hl.dsp.send_shortcut({ mods = "CTRL", key = "Insert" })'' { description = "Copy"; })
           (mkBind ''mod .. " + V"'' ''hl.dsp.send_shortcut({ mods = "SHIFT", key = "Insert" })'' { description = "Paste"; })
           (mkBind ''mod .. " + X"'' ''hl.dsp.send_shortcut({ mods = "CTRL", key = "X" })'' { description = "Cut"; })
-          (mkExec ''mod .. " + CTRL + V"'' "omanix-launch-walker -m clipboard" "Clipboard History")
+          (mkExec ''mod .. " + CTRL + V"'' "omanix-clipboard-open" "Clipboard History")
 
           # ─────────────────────────────────────────────────────────────────
           # Window Management
@@ -202,16 +201,17 @@ in
           # ─────────────────────────────────────────────────────────────────
           # Launchers & Menus
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + SPACE"'' "omanix-launch-walker" "App Launcher")
-          (mkExec ''mod .. " + CTRL + E"'' "omanix-launch-walker -m symbols" "Symbol Picker")
-          (mkExec ''mod .. " + ALT + SPACE"'' "omanix-menu" "Main Menu")
+          (mkExec ''mod .. " + SPACE"'' "omanix-menu" "App Launcher")
+          (mkExec ''mod .. " + CTRL + E"'' "omanix-menu-emoji" "Emoji Picker")
+          (mkExec ''mod .. " + ALT + SPACE"'' "omanix-menu apps" "Apps Menu")
           (mkExec ''mod .. " + ESCAPE"'' "omanix-menu system" "System Menu")
           (mkExec ''mod .. " + K"'' "omanix-menu-keybindings" "Show Keybindings")
+          (mkExec ''mod .. " + G"'' "omanix-agent" "Launch Agent")
 
           # ─────────────────────────────────────────────────────────────────
           # Aesthetics
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + SHIFT + SPACE"'' "bash -c 'systemctl --user is-active --quiet waybar && systemctl --user stop waybar || systemctl --user start waybar'" "Toggle Waybar")
+          (mkExec ''mod .. " + SHIFT + SPACE"'' "omanix-toggle-bar" "Toggle Bar")
           (mkExec ''mod .. " + CTRL + SPACE"'' "omanix-theme-bg-next" "Next Wallpaper")
           (mkExec ''mod .. " + BACKSPACE"'' "omanix-smart-delete" "Smart Delete Line")
           (mkBind ''mod .. " + CTRL + N"'' ''hl.dsp.window.set_prop({prop = "opaque", value = "toggle"})'' { description = "Toggle Opacity"; })
@@ -220,16 +220,16 @@ in
           # ─────────────────────────────────────────────────────────────────
           # Notifications
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + COMMA"'' "makoctl dismiss" "Dismiss Notification")
-          (mkExec ''mod .. " + SHIFT + COMMA"'' "makoctl dismiss --all" "Dismiss All Notifs")
-          (mkExec ''mod .. " + CTRL + COMMA"'' "makoctl mode -t do-not-disturb && makoctl mode | grep -q 'do-not-disturb' && notify-send 'Silenced notifications' || notify-send 'Enabled notifications'" "Toggle Do Not Disturb")
-          (mkExec ''mod .. " + ALT + COMMA"'' "makoctl invoke" "Action on Notif")
-          (mkExec ''mod .. " + SHIFT + ALT + COMMA"'' "makoctl restore" "Restore Last Notif")
+          (mkExec ''mod .. " + COMMA"'' "omanix-shell notifications dismissOne" "Dismiss Notification")
+          (mkExec ''mod .. " + SHIFT + COMMA"'' "omanix-shell notifications dismissAll" "Dismiss All Notifs")
+          (mkExec ''mod .. " + CTRL + COMMA"'' "omanix-shell notifications toggleDnd" "Toggle Do Not Disturb")
+          (mkExec ''mod .. " + ALT + COMMA"'' "omanix-shell notifications invokeLast" "Action on Notif")
+          (mkExec ''mod .. " + SHIFT + ALT + COMMA"'' "omanix-shell notifications showHistory" "Notification History")
 
           # ─────────────────────────────────────────────────────────────────
           # System Toggles
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + I"'' "omanix-toggle-idle" "Toggle Idle Inhibit")
+          (mkExec ''mod .. " + CTRL + I"'' "omanix-toggle-idle" "Stay Awake")
 
           # ─────────────────────────────────────────────────────────────────
           # Screenshots & Screen Recording
@@ -238,30 +238,35 @@ in
           (mkExec ''"SHIFT + PRINT"'' "omanix-cmd-screenshot smart clipboard" "Screenshot to Clipboard")
           (mkExec ''"ALT + PRINT"'' "omanix-cmd-screenrecord" "Screen Record Toggle")
           (mkExec ''mod .. " + PRINT"'' "pkill hyprpicker || hyprpicker -a" "Color Picker")
+          (mkExec ''mod .. " + CTRL + PRINT"'' "omanix-capture-text" "Extract Text (OCR)")
+          (mkExec ''mod .. " + CTRL + PERIOD"'' "omanix-transcode" "Transcode")
 
           # ─────────────────────────────────────────────────────────────────
           # File Sharing
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + S"'' "omanix-menu share" "Share Menu")
+          (mkExec ''mod .. " + CTRL + S"'' "omanix-menu trigger.share" "Share Menu")
 
           # ─────────────────────────────────────────────────────────────────
           # Quick Info (No Waybar)
           # ─────────────────────────────────────────────────────────────────
           (mkExec ''mod .. " + CTRL + ALT + T"'' ''notify-send "    $(date +"%A %H:%M  —  %d %B W%V %Y")"'' "Show Time")
-          (mkExec ''mod .. " + CTRL + ALT + B"'' ''notify-send "󰁹    Battery is at $(omanix-battery-remaining)%"'' "Show Battery")
 
           # ─────────────────────────────────────────────────────────────────
           # Control Panels
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + A"'' "pavucontrol" "Audio Settings")
-          (mkExec ''mod .. " + CTRL + B"'' "omanix-launch-or-focus-tui bluetui" "Bluetooth Settings")
-          (mkExec ''mod .. " + CTRL + W"'' "omanix-launch-or-focus-tui wlctl" "WiFi Settings")
+          (mkExec ''mod .. " + CTRL + A"'' "omanix-shell shell toggle omanix.audio" "Audio Panel")
+          (mkExec ''mod .. " + CTRL + B"'' "omanix-shell shell toggle omanix.bluetooth" "Bluetooth Panel")
+          (mkExec ''mod .. " + CTRL + W"'' "omanix-shell shell toggle omanix.network" "Network Panel")
+          (mkExec ''mod .. " + CTRL + D"'' "omanix-shell shell toggle omanix.monitor" "Display Panel")
+          (mkExec ''mod .. " + SLASH"'' "omanix-hyprland-monitor-scaling up" "Monitor scaling up")
+          (mkExec ''mod .. " + ALT + SLASH"'' "omanix-hyprland-monitor-scaling down" "Monitor scaling down")
+          (mkExec ''mod .. " + CTRL + P"'' "omanix-shell shell toggle omanix.power" "Power Panel")
           (mkExec ''mod .. " + CTRL + T"'' "omanix-launch-tui btop" "System Monitor")
 
           # ─────────────────────────────────────────────────────────────────
           # Lock & Power
           # ─────────────────────────────────────────────────────────────────
-          (mkExec ''mod .. " + CTRL + L"'' "omanix-lock-screen" "Lock Screen")
+          (mkExec ''mod .. " + CTRL + L"'' "omanix-system-lock" "Lock Screen")
         ]
         ++ (
           if cfg.apps.spotify.enable then
@@ -284,16 +289,16 @@ in
         # Media keys (repeat + locked)
         # ─────────────────────────────────────────────────────────────────
         ++ [
-          (mkExecRepeatLocked ''"XF86AudioRaiseVolume"'' "${osdClient} --output-volume raise" "Volume Up")
-          (mkExecRepeatLocked ''"XF86AudioLowerVolume"'' "${osdClient} --output-volume lower" "Volume Down")
-          (mkExecRepeatLocked ''"XF86AudioMute"'' "${osdClient} --output-volume mute-toggle" "Toggle Mute")
-          (mkExecRepeatLocked ''"XF86AudioMicMute"'' "${osdClient} --input-volume mute-toggle" "Toggle Mic Mute")
-          (mkExecRepeatLocked ''"XF86MonBrightnessUp"'' "${osdClient} --brightness raise" "Brightness Up")
-          (mkExecRepeatLocked ''"XF86MonBrightnessDown"'' "${osdClient} --brightness lower" "Brightness Down")
-          (mkExecRepeatLocked ''"ALT + XF86AudioRaiseVolume"'' "${osdClient} --output-volume +1" "Volume Up (Fine)")
-          (mkExecRepeatLocked ''"ALT + XF86AudioLowerVolume"'' "${osdClient} --output-volume -1" "Volume Down (Fine)")
-          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessUp"'' "${osdClient} --brightness +1" "Brightness Up (Fine)")
-          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessDown"'' "${osdClient} --brightness -1" "Brightness Down (Fine)")
+          (mkExecRepeatLocked ''"XF86AudioRaiseVolume"'' "omanix-audio-output-volume raise" "Volume Up")
+          (mkExecRepeatLocked ''"XF86AudioLowerVolume"'' "omanix-audio-output-volume lower" "Volume Down")
+          (mkExecRepeatLocked ''"XF86AudioMute"'' "omanix-audio-output-volume mute-toggle" "Toggle Mute")
+          (mkExecRepeatLocked ''"XF86AudioMicMute"'' "omanix-audio-output-volume mic-mute-toggle" "Toggle Mic Mute")
+          (mkExecRepeatLocked ''"XF86MonBrightnessUp"'' "omanix-brightness up" "Brightness Up")
+          (mkExecRepeatLocked ''"XF86MonBrightnessDown"'' "omanix-brightness down" "Brightness Down")
+          (mkExecRepeatLocked ''"ALT + XF86AudioRaiseVolume"'' "omanix-audio-output-volume +1" "Volume Up (Fine)")
+          (mkExecRepeatLocked ''"ALT + XF86AudioLowerVolume"'' "omanix-audio-output-volume -1" "Volume Down (Fine)")
+          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessUp"'' "omanix-brightness +1" "Brightness Up (Fine)")
+          (mkExecRepeatLocked ''"ALT + XF86MonBrightnessDown"'' "omanix-brightness -1" "Brightness Down (Fine)")
         ]
         ++ cfg.hyprland.extraMediaBindings
 
@@ -301,15 +306,48 @@ in
         # Media keys (locked, no repeat)
         # ─────────────────────────────────────────────────────────────────
         ++ [
-          (mkExecLocked ''"XF86AudioNext"'' "${osdClient} --playerctl next" "Next Track")
-          (mkExecLocked ''"XF86AudioPause"'' "${osdClient} --playerctl play-pause" "Play/Pause")
-          (mkExecLocked ''"XF86AudioPlay"'' "${osdClient} --playerctl play-pause" "Play/Pause")
-          (mkExecLocked ''"XF86AudioPrev"'' "${osdClient} --playerctl previous" "Previous Track")
+          (mkExecLocked ''"XF86AudioNext"'' "playerctl next" "Next Track")
+          (mkExecLocked ''"XF86AudioPause"'' "playerctl play-pause" "Play/Pause")
+          (mkExecLocked ''"XF86AudioPlay"'' "playerctl play-pause" "Play/Pause")
+          (mkExecLocked ''"XF86AudioPrev"'' "playerctl previous" "Previous Track")
           (mkExecLocked ''mod .. " + XF86AudioMute"'' "omanix-cmd-audio-switch" "Switch Audio Output")
           (mkExecLocked ''"XF86PowerOff"'' "omanix-menu system" "Power Menu")
         ]
         ++ cfg.hyprland.extraLockedBindings
         ++ cfg.hyprland.extraBinds;
     };
+
+    # Keyboard-driven window selection while a slurp region picker (layer
+    # namespace "selection") is open, powering omanix-capture-region. These are
+    # event-registered binds, not list binds, so they inject as raw Lua.
+    wayland.windowManager.hyprland.extraConfig = ''
+      local selection_layers = 0
+      local selection_binds = {}
+      hl.on("layer.opened", function(layer)
+        if layer.namespace == "selection" then
+          selection_layers = selection_layers + 1
+          if selection_layers == 1 then
+            selection_binds = {
+              hl.bind("RETURN", hl.dsp.exec_cmd("omanix-capture-region --take-window"), { description = "Capture highlighted window" }),
+              hl.bind("CTRL + RETURN", hl.dsp.exec_cmd("omanix-capture-region --take-fullscreen"), { description = "Capture entire screen" }),
+              hl.bind("TAB", hl.dsp.exec_cmd("omanix-capture-region --select-window next"), { description = "Select next window to capture" }),
+              hl.bind("CTRL + TAB", hl.dsp.exec_cmd("omanix-capture-region --select-window prev"), { description = "Select previous window to capture" }),
+            }
+            for _, direction in ipairs({ "left", "right", "up", "down" }) do
+              table.insert(selection_binds, hl.bind(direction:upper(), hl.dsp.exec_cmd("omanix-capture-region --select-window " .. direction), { description = "Select window to capture" }))
+            end
+          end
+        end
+      end)
+      hl.on("layer.closed", function(layer)
+        if layer.namespace == "selection" and selection_layers > 0 then
+          selection_layers = selection_layers - 1
+          if selection_layers == 0 then
+            for _, keybind in ipairs(selection_binds) do keybind:unbind() end
+            selection_binds = {}
+          end
+        end
+      end)
+    '';
   };
 }

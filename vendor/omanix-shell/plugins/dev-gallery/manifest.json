@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.dev-gallery",
+  "name": "Dev gallery",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Visual reference for omanix-shell common UI components. Summon with: omanix-shell shell summon omanix.dev-gallery '{}' (or run: omanix dev ui-preview).",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "GalleryPanel.qml"
+  }
+}

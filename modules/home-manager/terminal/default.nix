@@ -31,6 +31,28 @@ let
     fi
   '';
 
+  # Config the screensaver terminal launches with: zero padding and a black
+  # background so ttfx paints edge-to-edge. ghostty merges this over the user
+  # config (`--config-file=`); foot's `--config=` replaces it outright, so the
+  # foot variant must be self-contained (font + colors).
+  screensaverConfig =
+    if cfg.emulator == "ghostty" then
+      pkgs.writeText "ghostty-screensaver" ''
+        window-padding-x = 0
+        window-padding-y = 0
+        window-padding-color = "extend-always"
+      ''
+    else
+      pkgs.writeText "foot-screensaver.ini" ''
+        [main]
+        font=${config.omanix.font}:size=18
+        pad=0x0
+
+        [colors-dark]
+        background=000000
+        foreground=ffffff
+      '';
+
   terminalWrapper = pkgs.writeShellScriptBin "omanix-term" ''
     CLASS=""
     CWD=""
@@ -85,6 +107,13 @@ in
       readOnly = true;
       default = terminalWrapper;
       description = "The omanix-term wrapper package.";
+    };
+
+    screensaverConfig = lib.mkOption {
+      type = lib.types.path;
+      readOnly = true;
+      default = screensaverConfig;
+      description = "Emulator config file the screensaver terminal launches with (zero padding, black background).";
     };
   };
 

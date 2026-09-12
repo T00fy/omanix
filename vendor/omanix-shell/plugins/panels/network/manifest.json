@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.network",
+  "name": "Network",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Wi-Fi list and connection state",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Network",
+    "description": "Wi-Fi list and connection state",
+    "category": "Network",
+    "allowMultiple": false
+  }
+}

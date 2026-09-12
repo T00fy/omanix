@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.power",
+  "name": "Power",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Battery, power profile, and system stats",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Power",
+    "description": "Battery, power profile, and system stats",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

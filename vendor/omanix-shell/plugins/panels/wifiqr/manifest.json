@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.wifiqr",
+  "name": "Wi-Fi QR",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Share the connected Wi-Fi network as a scannable QR code",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "Panel.qml"
+  }
+}

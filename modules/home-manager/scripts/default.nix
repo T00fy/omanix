@@ -47,6 +47,16 @@ let
 
   dummyDisplayRealMonitorsEnv =
     if dummyDisplay == null then "" else omanixLib.dummyDisplay.realMonitorsEnv dummyDisplay.realMonitors;
+  # omanix.hardware.isLaptop (NixOS option) forces omanix-hw-laptop's answer.
+  # Read via the same osConfig bridge as scaledDesktop above; null / standalone
+  # HM leaves it auto-detecting ("").
+  isLaptopOption =
+    if osConfig != null && osConfig ? omanix && osConfig.omanix ? hardware then
+      osConfig.omanix.hardware.isLaptop
+    else
+      null;
+  isLaptop = if isLaptopOption == null then "" else lib.boolToString isLaptopOption;
+
   availableThemes = builtins.attrNames omanixLib.themes;
   themeListFormatted = builtins.concatStringsSep "\\n" (map (t: "- ${t}") availableThemes);
 
@@ -68,16 +78,38 @@ let
   gapsInner = toString config.omanix.hyprland.gaps.inner;
   borderSize = toString config.omanix.hyprland.border.size;
 
-  activeTheme = config.omanix.activeTheme;
-  wallpaperList = builtins.concatStringsSep "\n" (map toString activeTheme.assets.wallpapers);
-
+  # Per-monitor mode offsets each monitor's workspaces by idx*10; shared mode
+  # keeps every base at 0 so omanix-workspace N focuses the global workspace N
+  # (matching Omarchy). See omanix.hyprland.uniqueWorkspacePerMonitor.
   monitorMap = lib.concatStringsSep ":" (
-    lib.imap0 (idx: mon: "${mon.name}=${toString (idx * 10)}") config.omanix.monitors
+    lib.imap0 (
+      idx: mon:
+      "${mon.name}=${toString (if config.omanix.hyprland.uniqueWorkspacePerMonitor then idx * 10 else 0)}"
+    ) config.omanix.monitors
   );
 
   omanixScripts = pkgs.omanix-scripts.override {
-    walker = inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default;
     terminalWrapper = config.omanix.terminal.wrapper;
+    screensaverEmulator = config.omanix.terminal.bin;
+    screensaverTermConfig = config.omanix.terminal.screensaverConfig;
+    shellDefaults = config.omanix.quickshell.declaredBaseFile;
+    quickshellThemesDir = config.omanix.quickshell.themesDir;
+    audioTuningsDir = "${pkgs.omanix-audio-tunings}/share/omanix/audio";
+    # Only wire the LV2 limiter path (and so pull lsp-plugins into the closure)
+    # when the tuning subsystem is enabled.
+    audioLv2Path =
+      if config.omanix.audio.speakerTuning.enable then "${pkgs.lsp-plugins}/lib/lv2" else null;
+    # Resolve the libretro core dir from the built retroarch package (never a
+    # hardcoded /usr/lib/libretro or store hash); null keeps retroarch out of
+    # the closure when the feature is off.
+    retroCoresDir =
+      if config.omanix.gaming.retroarch.enable then
+        "${config.omanix.gaming.retroarch.package}/lib/retroarch/cores"
+      else
+        null;
+    protonPath =
+      if config.omanix.gaming.battlenet.enable then "${pkgs.proton-ge-bin.steamcompattool}" else null;
+    inherit isLaptop;
     inherit
       themesJson
       docStylePreview
@@ -91,15 +123,11 @@ let
       gapsOuter
       gapsInner
       borderSize
-      wallpaperList
       monitorMap
       ;
-    walkerWidth = toString config.omanix.walker.width;
-    walkerHeight = toString config.omanix.walker.height;
-    walkerScaledWidth = toString config.omanix.walker.scaledWidth;
-    walkerScaledHeight = toString config.omanix.walker.scaledHeight;
     menuWidth = toString config.omanix.menu.width;
     menuMaxHeight = toString config.omanix.menu.maxHeight;
+    textSizeDefault = toString config.omanix.monitor.textSize;
     scaledDesktopMonitor = if scaledDesktop != null then scaledDesktop.monitor else "";
     scaledDesktopMode = if scaledDesktop != null then scaledDesktop.mode else "";
     scaledDesktopPosition = if scaledDesktop != null then scaledDesktop.position else "";
@@ -128,7 +156,18 @@ in
     ./screensaver.nix
   ];
 
-  home.packages = with pkgs; [
+  # Expose the configuration-specific wrapped package so other modules can
+  # reference a wrapped binary by absolute store path (systemd user services
+  # don't inherit the interactive PATH) without rebuilding the override.
+  options.omanix.scripts.package = lib.mkOption {
+    type = lib.types.package;
+    readOnly = true;
+    internal = true;
+    default = omanixScripts;
+    description = "The wrapped omanix-scripts package built for this configuration.";
+  };
+
+  config.home.packages = with pkgs; [
     omanixScripts
     config.omanix.browser.package
 
@@ -146,8 +185,6 @@ in
     libxkbcommon
     gawk
     gnused
-    envsubst
-    swaybg
     wlctl
     glow
 

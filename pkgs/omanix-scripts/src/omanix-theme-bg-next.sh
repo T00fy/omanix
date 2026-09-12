@@ -1,44 +1,47 @@
-#!/usr/bin/env bash
-# Cycles through theme wallpapers temporarily (non-persistent across reboots).
-# OMANIX_WALLPAPERS is a newline-separated list of paths injected by the Nix wrapper.
+#!/bin/bash
 
-STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/omanix-current-wallpaper"
+# omanix:summary=Cycle to the next background for the current theme
+# omanix:examples=omanix-theme-bg-next
 
-# Build wallpaper array from env var
-mapfile -t WALLPAPERS <<< "$OMANIX_WALLPAPERS"
-TOTAL=${#WALLPAPERS[@]}
+# One source of truth: the current/background symlink (repointed by
+# omanix-theme-bg-set, re-seeded to the declared wallpaper on rebuild).
+# Cycles the active theme's declared wallpapers (current/theme/backgrounds).
 
-if [[ $TOTAL -eq 0 || -z "${WALLPAPERS[0]}" ]]; then
-  notify-send "No wallpapers found for theme" -t 2000
+THEME_BACKGROUNDS_PATH="$HOME/.local/state/omanix/current/theme/backgrounds/"
+CURRENT_BACKGROUND_LINK="$HOME/.local/state/omanix/current/background"
+
+mapfile -d '' -t BACKGROUNDS < <(
+  find -L "$THEME_BACKGROUNDS_PATH" -maxdepth 1 -type f \
+    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.webp' \) \
+    -print0 2>/dev/null | sort -z
+)
+TOTAL=${#BACKGROUNDS[@]}
+
+if (( TOTAL == 0 )); then
+  echo "No background was found for theme" >&2
   exit 1
 fi
 
-# Read current wallpaper from state file
-CURRENT=""
-if [[ -f "$STATE_FILE" ]]; then
-  CURRENT=$(cat "$STATE_FILE")
-fi
+# Resolve the current background through the symlink so a match is found
+# regardless of the store path the wallpaper lives at.
+CURRENT_BACKGROUND=$(readlink -f "$CURRENT_BACKGROUND_LINK" 2>/dev/null)
 
-# Find current index
+# Find current background index
 INDEX=-1
-for i in "${!WALLPAPERS[@]}"; do
-  if [[ "${WALLPAPERS[$i]}" == "$CURRENT" ]]; then
+for i in "${!BACKGROUNDS[@]}"; do
+  if [[ $(readlink -f "${BACKGROUNDS[$i]}") == "$CURRENT_BACKGROUND" ]]; then
     INDEX=$i
     break
   fi
 done
 
-# Get next wallpaper (wrap around)
-if [[ $INDEX -eq -1 ]]; then
-  NEW_BG="${WALLPAPERS[0]}"
+# Get next background (wrap around)
+if (( INDEX == -1 )); then
+  # Use the first background when no match was found
+  NEW_BACKGROUND="${BACKGROUNDS[0]}"
 else
   NEXT_INDEX=$(((INDEX + 1) % TOTAL))
-  NEW_BG="${WALLPAPERS[$NEXT_INDEX]}"
+  NEW_BACKGROUND="${BACKGROUNDS[$NEXT_INDEX]}"
 fi
 
-# Save state
-echo "$NEW_BG" > "$STATE_FILE"
-
-# Relaunch swaybg
-pkill -x swaybg
-setsid swaybg -i "$NEW_BG" -m fill >/dev/null 2>&1 &
+omanix-theme-bg-set "$NEW_BACKGROUND"

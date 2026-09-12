@@ -6,6 +6,7 @@
     ./core/fonts.nix
     ./core/gtk.nix
     ./core/shell.nix
+    ./core/state.nix
     ./core/git.nix
     ./core/languages.nix
     ./apps/firefox.nix
@@ -20,7 +21,9 @@
     ./apps/satty.nix
     ./apps/btop.nix
     ./apps/tmux.nix
+    ./apps/herdr.nix
     ./apps/gh.nix
+    ./apps/gaming.nix
     ./desktop/hyprland/autostart.nix
     ./desktop/hyprland/envs.nix
     ./desktop/hyprland/visuals.nix
@@ -28,15 +31,11 @@
     ./desktop/hyprland/input.nix
     ./desktop/hyprland/rules.nix
     ./desktop/hyprland/monitors.nix
-    ./desktop/hyprpaper.nix
-    ./desktop/hypridle.nix
-    ./desktop/hyprlock.nix
-    ./ui/waybar.nix
-    ./ui/elephant.nix
-    ./ui/walker.nix
+    ./desktop/lock-before-sleep.nix
+    ./desktop/quickshell.nix
+    ./desktop/tailscale.nix
+    ./audio.nix
     ./ui/hidden-apps.nix
-    ./ui/swayosd.nix
-    ./ui/mako.nix
     ./terminal
     ./core/bat.nix
   ];

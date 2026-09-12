@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-# Get current focused monitor for OSD
-MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
+# omanix:summary=Cycle the default audio output to the next sink and show the OSD
 
 # Get Sinks
 SINKS=$(pactl -f json list sinks)
 COUNT=$(echo "$SINKS" | jq length)
 
 if [ "$COUNT" -eq 0 ]; then
-  swayosd-client --monitor "$MONITOR" --custom-message "No audio devices"
+  omanix-osd -i volume-muted -m "No audio devices"
   exit 1
 fi
 
@@ -22,17 +21,20 @@ FIRST_SINK=""
 
 while IFS= read -r SINK; do
   if [ -z "$FIRST_SINK" ]; then FIRST_SINK="$SINK"; fi
-  
+
   if [ "$FOUND_CURRENT" = true ]; then
     NEXT_SINK="$SINK"
     break
   fi
   if [ "$SINK" = "$CURRENT" ]; then FOUND_CURRENT=true; fi
-done <<< "$NAMES"
+done <<<"$NAMES"
 
 if [ -z "$NEXT_SINK" ]; then NEXT_SINK="$FIRST_SINK"; fi
 
-pactl set-default-sink "$NEXT_SINK"
+# Resolve the node id so the shell/wireplumber default is set too, then persist
+# and move active streams via the shared helper.
+NODE_ID=$(echo "$SINKS" | jq -r --arg name "$NEXT_SINK" '.[] | select(.name == $name) | .index')
+omanix-audio-output-set-default "${NODE_ID:-0}" "$NEXT_SINK"
 
 DESC=$(echo "$SINKS" | jq -r --arg name "$NEXT_SINK" '.[] | select(.name == $name) | .description')
-swayosd-client --monitor "$MONITOR" --custom-message "$DESC" --custom-icon "audio-volume-high"
+omanix-osd -i volume-high -m "$DESC"

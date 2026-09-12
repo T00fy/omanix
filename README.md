@@ -1,32 +1,34 @@
 # Omanix
 
-![Omanix running with default settings](docs/example.jpg)
+![Omanix running with default settings](docs/example.png)
 
 Omanix is a NixOS port of [Omarchy](https://omarchy.org). It brings the same curated, keyboard-driven Hyprland experience to NixOS while embracing the Nix philosophy: everything is declarative, reproducible, and configured at build time.
+
+> [!NOTE]
+> Omanix has been upgraded to bring the features of **Omarchy Quattro** to NixOS. The whole desktop now runs on a single [Quickshell](https://quickshell.outfoxxed.me/) shell (bar, launcher, menus, notifications, OSD, lock, wallpaper), with new weather and agent-usage widgets, a gaming module, and theme-colored boot splash.
 
 ## What You Get
 
 A complete Hyprland desktop out of the box:
 
-- **Window Management** - Hyprland with sensible defaults, dwindle layout, animations, and blur
-- **App Launcher** - Walker with Elephant as the data provider (apps, files, clipboard, calculator, web search, symbols)
-- **Status Bar** - Waybar, fully themed, toggleable
+- **Window Management** - Hyprland (driven through its Lua config/IPC API) with sensible defaults, dwindle layout, animations, and blur
+- **Desktop Shell** - A single [Quickshell](https://quickshell.outfoxxed.me/) shell hosts the bar, app launcher, nested menus, notifications, on-screen display, lock screen, clipboard, and wallpaper — one unified, fully themed surface
+- **Widgets** - Workspaces, active window, media, clock, tray, network/bluetooth/audio/power, plus weather and agent-usage widgets; the bar layout is configurable per section
 - **Terminal** - Ghostty with Zsh, Starship prompt, and a curated set of shell tools (eza, ripgrep, fd, fzf, bat, direnv)
 - **Editor** - Neovim via LazyVim with per-language support you opt into
-- **Notifications** - Mako with Do Not Disturb mode
-- **Lock Screen** - Hyprlock with themed clock and wallpaper blur
-- **Idle Management** - Hypridle with screensaver, dimming, locking, DPMS, and suspend, all configurable
+- **Idle Management** - A single Quickshell idle owner: a fullscreen screensaver, then lock, each with a configurable timeout
 - **Screenshots** - Region/window/fullscreen capture via grim + slurp + Satty editor
 - **Screen Recording** - wl-screenrec with VAAPI hardware encoding and optional audio
-- **Theming** - Declarative themes that propagate to every component (terminal, bar, lock screen, notifications, browser chrome, btop, bat, Walker, SwayOSD)
-- **Menu System** - Nested Walker-based menus for style, capture, sharing, system controls, and documentation
+- **Theming** - Declarative themes that propagate to every component (terminal, shell/bar, lock screen, notifications, browser chrome, btop, bat), with live runtime preview
+- **Menu System** - Nested Quickshell menus for style, capture, sharing, system controls, and documentation
+- **Gaming & Boot** - Optional gaming module (Battle.net via umu/GE-Proton + RetroArch) and a theme-colored Plymouth boot splash
 
 ### Where Omanix Departs from Omarchy
 
 Since NixOS is a fundamentally different paradigm from Arch, some things work differently:
 
-- **No runtime theme switching.** Themes are applied at build time. You change your theme in your flake and rebuild. A preview mode lets you try wallpapers temporarily.
-- **No TUI package installer.** Installing packages imperatively goes against the Nix philosophy. Everything is declared in your config.
+- **Themes are declarative.** Your flake is the source of truth: you set `omanix.theme` and rebuild. You can still live-preview any bundled theme at runtime (the "Change Theme" menu / `omanix-theme-set`), but that's an ephemeral overlay — the next rebuild re-asserts your declared theme.
+- **No TUI package installer.** Installing packages imperatively goes against the Nix philosophy. Everything — including shell plugins — is declared in your config and built into the store; nothing is fetched at runtime.
 - **Zsh instead of Bash.** Omanix uses Zsh with Oh My Zsh, autosuggestions, and syntax highlighting as the default shell.
 - **Everything is a module option.** Apps, languages, visual tweaks, and idle behaviour are all configurable through typed NixOS/Home Manager options.
 - **wl-screenrec instead of gpu-screen-recorder.** Omanix records the screen with wl-screenrec (Hyprland's screencopy + VAAPI hardware encoding) for a simpler setup. There is no webcam overlay.
@@ -99,12 +101,12 @@ Full documentation is available at **[t00fy.github.io/omanix](https://t00fy.gith
 Omanix ships with comprehensive keybindings that closely match Omarchy. Rather than listing them all here, you can:
 
 - Press **Super+K** to open the keybindings viewer from within Omanix
-- Press **Super+Alt+Space** to open the main menu, then navigate to **Learn → Keybindings**
+- Press **Super+Space** to open the launcher, or **Super+Escape** for the system menu
 - Refer to the [Omarchy Hotkeys Manual](https://learn.omacom.io/2/the-omarchy-manual/53/hotkeys) - the bindings are nearly identical
 
 ## Themes
 
-Omanix currently ships with **Tokyo Night**. Themes are defined in `lib/themes.nix` and contain everything: colour palette, wallpapers, bat syntax theme, and icon theme.
+Omanix ships with **Tokyo Night** and **Catppuccin Mocha**. Themes are defined in `lib/themes.nix` (the source of truth for the current set) and contain everything: colour palette, wallpapers, bat syntax theme, and icon theme.
 
 ### Adding a Theme
 
@@ -117,6 +119,7 @@ To add a new theme, create a PR that adds an entry to `lib/themes.nix`. Each the
       name = "My Theme";
       slug = "my-theme";
       icon_theme = "Yaru-blue";      # Any icon theme available in nixpkgs
+      mode = "dark";                 # "dark" or "light"
     };
 
     assets.wallpapers = [

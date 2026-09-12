@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.notifications",
+  "name": "Notifications",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Notification daemon, popups, DND, and history",
+  "kinds": [
+    "service"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.keyboard-layout",
+  "name": "Keyboard layout",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Current xkb layout, click cycles",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "KeyboardLayout.qml"
+  },
+  "barWidget": {
+    "displayName": "Keyboard layout",
+    "description": "Current xkb layout, click cycles",
+    "category": "Compositor",
+    "allowMultiple": false
+  },
+  "omanix": {
+    "clonePaths": [
+      {
+        "source": "KeyboardLayoutModel.js",
+        "target": "KeyboardLayoutModel.js"
+      }
+    ]
+  }
+}

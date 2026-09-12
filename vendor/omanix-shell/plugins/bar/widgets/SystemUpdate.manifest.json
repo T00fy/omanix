@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.system-update",
+  "name": "Omanix update",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Indicates available Omanix updates",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "SystemUpdate.qml"
+  },
+  "barWidget": {
+    "displayName": "Omanix update",
+    "description": "Indicates available Omanix updates",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

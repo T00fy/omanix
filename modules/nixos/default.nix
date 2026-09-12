@@ -8,10 +8,16 @@ in
   imports = [
     ./hyprland.nix
     ./login.nix
+    ./plymouth.nix
+    ./browser-policy.nix
+    ./security.nix
+    ./hardware.nix
+    ./idle.nix
     ./steam.nix
     ./libreoffice.nix
     ./docker.nix
     ./sunshine.nix
+    ./tailscale.nix
   ];
 
   options.omanix = {

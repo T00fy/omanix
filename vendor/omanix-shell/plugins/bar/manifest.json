@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.bar",
+  "name": "Bar",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Status bar with widgets",
+  "kinds": [
+    "bar"
+  ],
+  "entryPoints": {
+    "bar": "Bar.qml"
+  }
+}

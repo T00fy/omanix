@@ -5,6 +5,7 @@
 }:
 let
   cfg = config.omanix.apps.tmux;
+  colors = config.omanix.activeTheme.colors;
 in
 {
   options.omanix.apps.tmux = {
@@ -119,6 +120,14 @@ in
         set -g message-command-style "bg=default,fg=blue"
         set -g mode-style "bg=blue,fg=black"
         setw -g clock-mode-colour blue
+
+        # Declarative palette baseline: pin the editor surface + cursor to the
+        # active theme's hex, so a rebuild sets the declared theme. The live
+        # switch (omanix-theme-set-tmux) sets the same options on a running
+        # server; both must agree.
+        set -g window-style "fg=${colors.foreground},bg=${colors.background}"
+        set -g window-active-style "fg=${colors.foreground},bg=${colors.background}"
+        set -g cursor-colour "${colors.cursor}"
       '';
     };
 

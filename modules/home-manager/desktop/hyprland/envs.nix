@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{ config, lib, ... }: {
   wayland.windowManager.hyprland.settings = {
     env = [
       { _args = [ "XCURSOR_THEME" "Adwaita" ]; }
@@ -14,6 +14,8 @@
       { _args = [ "XDG_SESSION_DESKTOP" "Hyprland" ]; }
       { _args = [ "GTK_THEME" "Adwaita-dark" ]; }
       { _args = [ "GTK_IM_MODULE" "" ]; }
-    ];
+    ] ++ lib.optional config.omanix.quickshell.enable {
+      _args = [ "OMANIX_PATH" "${config.omanix.quickshell.package}/share/omanix" ];
+    };
   };
 }

@@ -101,24 +101,6 @@ in
         };
       };
 
-      dimScreen = {
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Enable screen dimming on idle.";
-        };
-        timeout = mkOption {
-          type = types.int;
-          default = 840;
-          description = "Seconds of inactivity before screen dims (default: 840 = 14 minutes).";
-        };
-        brightness = mkOption {
-          type = types.int;
-          default = 10;
-          description = "Brightness percentage when dimmed (default: 10).";
-        };
-      };
-
       lock = {
         enable = mkOption {
           type = types.bool;
@@ -129,32 +111,6 @@ in
           type = types.int;
           default = 900;
           description = "Seconds of inactivity before screen locks (default: 900 = 15 minutes).";
-        };
-      };
-
-      dpms = {
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Enable DPMS (turn off screen) on idle.";
-        };
-        timeout = mkOption {
-          type = types.int;
-          default = 960;
-          description = "Seconds of inactivity before screen turns off (default: 960 = 16 minutes).";
-        };
-      };
-
-      suspend = {
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Enable automatic suspend on idle.";
-        };
-        timeout = mkOption {
-          type = types.int;
-          default = 1800;
-          description = "Seconds of inactivity before system suspends (default: 1800 = 30 minutes).";
         };
       };
     };
@@ -168,8 +124,20 @@ in
         type = types.str;
         default = "auto";
         description = ''
-          Monitor scaling factor. Can be a number (e.g., "1", "1.5", "2") 
+          Monitor scaling factor. Can be a number (e.g., "1", "1.5", "2")
           or "auto" for automatic detection.
+        '';
+      };
+
+      textSize = mkOption {
+        type = types.int;
+        default = 12;
+        description = ''
+          Declared shell font base-size in px (9–20), the anchor for the Display
+          panel's Text Size slider and `omanix-display-text-size`. Rendered into
+          every theme's shell.toml as `[font] base-size`. The runtime slider is
+          an ephemeral overlay (~/.config/omanix/shell.toml) that a rebuild
+          re-asserts back to this value.
         '';
       };
     };
