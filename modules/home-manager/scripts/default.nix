@@ -78,8 +78,14 @@ let
   gapsInner = toString config.omanix.hyprland.gaps.inner;
   borderSize = toString config.omanix.hyprland.border.size;
 
+  # Per-monitor mode offsets each monitor's workspaces by idx*10; shared mode
+  # keeps every base at 0 so omanix-workspace N focuses the global workspace N
+  # (matching Omarchy). See omanix.hyprland.uniqueWorkspacePerMonitor.
   monitorMap = lib.concatStringsSep ":" (
-    lib.imap0 (idx: mon: "${mon.name}=${toString (idx * 10)}") config.omanix.monitors
+    lib.imap0 (
+      idx: mon:
+      "${mon.name}=${toString (if config.omanix.hyprland.uniqueWorkspacePerMonitor then idx * 10 else 0)}"
+    ) config.omanix.monitors
   );
 
   omanixScripts = pkgs.omanix-scripts.override {

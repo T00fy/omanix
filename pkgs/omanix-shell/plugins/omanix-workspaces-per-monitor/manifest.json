@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "omanix.workspaces-per-monitor",
+  "name": "Workspaces (per monitor)",
+  "version": "1.0.0",
+  "author": "Omanix",
+  "description": "Per-monitor workspace indicators: each bar shows only its own monitor's workspaces (omanix.hyprland.uniqueWorkspacePerMonitor)",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Workspaces.qml"
+  },
+  "barWidget": {
+    "displayName": "Workspaces (per monitor)",
+    "description": "Per-monitor workspace indicators",
+    "category": "Compositor",
+    "allowMultiple": false
+  }
+}

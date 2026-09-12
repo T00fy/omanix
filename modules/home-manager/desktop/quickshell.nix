@@ -67,6 +67,24 @@ let
   # enablement and refresh interval carried as inline settings; a disabled
   # provider is skipped by the widget and its collector run. Empty list when off,
   # so the plugin never activates and nothing polls for usage.
+  # Workspace indicator selection. Shared mode (default) uses the vendored,
+  # Omarchy-identical omanix.workspaces widget verbatim. Per-monitor mode swaps
+  # in the omanix-owned omanix.workspaces-per-monitor widget (bundled outside
+  # the vendored tree), handing it a name -> workspace id base map that matches
+  # monitors.nix / OMANIX_MONITOR_MAP. See
+  # omanix.hyprland.uniqueWorkspacePerMonitor.
+  workspaceMonitorBases = lib.listToAttrs (
+    lib.imap0 (idx: mon: lib.nameValuePair mon.name (idx * 10)) config.omanix.monitors
+  );
+  workspacesBarEntry =
+    if config.omanix.hyprland.uniqueWorkspacePerMonitor then
+      {
+        id = "omanix.workspaces-per-monitor";
+        monitorBases = workspaceMonitorBases;
+      }
+    else
+      { id = "omanix.workspaces"; };
+
   aiUsage = config.omanix.apps.ai.usageWidget;
   agentsBarEntry = lib.optional aiUsage.enable {
     id = "omanix.agents";
@@ -239,7 +257,7 @@ in
               type = lib.types.listOf layoutEntry;
               default = [
                 { id = "omanix.menu"; }
-                { id = "omanix.workspaces"; }
+                workspacesBarEntry
                 { id = "omanix.active-window"; }
               ];
               description = "Widget entries in the bar's left section.";

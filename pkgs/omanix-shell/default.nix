@@ -23,6 +23,13 @@ stdenv.mkDerivation {
     mkdir -p "$out/share/omanix/shell"
     cp -r ./. "$out/share/omanix/shell/"
     install -Dm644 ${./defaults/omanix-menu.jsonc} "$out/share/omanix/shell/defaults/omanix-menu.jsonc"
+    # Omanix-owned bar-widget plugins kept out of the vendored upstream tree so
+    # re-vendoring Omarchy never conflicts with them. Installed under plugins/
+    # where PluginRegistry discovers them (find -mindepth 2 -maxdepth 3).
+    install -Dm644 ${./plugins/omanix-workspaces-per-monitor/manifest.json} \
+      "$out/share/omanix/shell/plugins/omanix-workspaces-per-monitor/manifest.json"
+    install -Dm644 ${./plugins/omanix-workspaces-per-monitor/Workspaces.qml} \
+      "$out/share/omanix/shell/plugins/omanix-workspaces-per-monitor/Workspaces.qml"
     runHook postInstall
   '';
 

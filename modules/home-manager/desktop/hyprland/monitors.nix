@@ -3,6 +3,11 @@ let
   cfg = config.omanix;
   mkLua = lib.generators.mkLuaInline;
 
+  # Shared (Omarchy) mode leaves workspaces global — no monitor pinning, no
+  # per-monitor id offset. Only the legacy unique-per-monitor mode pins each
+  # monitor's own 1..workspaceCount range at base = idx * 10.
+  perMonitor = cfg.hyprland.uniqueWorkspacePerMonitor;
+
   workspaceRules = lib.flatten (
     lib.imap0 (
       idx: mon:
@@ -49,6 +54,25 @@ let
     };
 in
 {
+  options.omanix.hyprland.uniqueWorkspacePerMonitor = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    example = true;
+    description = ''
+      Workspace model across monitors.
+
+      false (default) — shared workspaces (Omarchy behavior): one global set of
+      workspaces 1-5 shared across every monitor. Super+N focuses global
+      workspace N wherever you are (pulling it to the focused monitor), and
+      every bar shows the same set, highlighting the single focused workspace.
+
+      true — unique workspace per monitor (legacy Omanix): each monitor gets its
+      own independent 1-5, pinned to that output (real ids 10*monitorIndex + N).
+      Super+N focuses the focused monitor's Nth workspace, and each bar shows and
+      highlights only its own monitor's workspaces.
+    '';
+  };
+
   options.omanix.monitors = lib.mkOption {
     type = lib.types.listOf (
       lib.types.submodule {
@@ -136,7 +160,7 @@ in
 
   config = lib.mkIf (cfg.monitors != [ ]) {
     wayland.windowManager.hyprland.settings = lib.mkMerge [
-      { workspace_rule = workspaceRules; }
+      (lib.mkIf perMonitor { workspace_rule = workspaceRules; })
       (lib.mkIf (explicitMonitorLines != [ ]) {
         monitor = map mkMonitorSpec explicitMonitorLines;
       })
