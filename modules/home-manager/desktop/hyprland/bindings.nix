@@ -27,9 +27,16 @@ in
     browser = {
       package = lib.mkOption {
         type = lib.types.package;
-        default = pkgs.firefox;
-        defaultText = lib.literalExpression "pkgs.firefox";
-        description = "The browser package to use.";
+        default = config.programs.firefox.finalPackage;
+        defaultText = lib.literalExpression "config.programs.firefox.finalPackage";
+        description = ''
+          The browser package to use. Defaults to the Firefox package that
+          Home Manager actually installs via `programs.firefox` (the wrapped
+          package with the configured profile), rather than the raw
+          `pkgs.firefox`. Using the wrapped package avoids a `buildEnv`
+          collision between two different `firefox` derivations that both
+          provide `bin/firefox`.
+        '';
       };
       bin = lib.mkOption {
         type = lib.types.str;
