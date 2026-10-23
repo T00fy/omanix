@@ -204,16 +204,35 @@ let
     ];
   };
 
+  # Same dummy-plug swap, but at the client's requested mode and scale 1 (see
+  # omanix.sunshine.dummyDisplay.apps). Prepended, so Sunshine runs it first
+  # on connect and last on disconnect: the app's own undo (e.g. closing a
+  # game) still runs while the dummy plug is the active output.
+  dummyClientPrepCmd = {
+    do = "${omanixScaleBin} --dummy-on-client";
+    undo = "${omanixScaleBin} --dummy-off";
+  };
+  dummyClientApps = map (
+    app: app // { prep-cmd = [ dummyClientPrepCmd ] ++ (app.prep-cmd or [ ]); }
+  ) dummyCfg.apps;
+
   sunshineApps =
     lib.optionals scaledCfg.enable [
       scaledDesktopApp
       nativeDesktopApp
     ]
-    ++ lib.optionals dummyCfg.enable [ dummyDisplayApp ]
+    ++ lib.optionals dummyCfg.enable ([ dummyDisplayApp ] ++ dummyClientApps)
     ++ cfg.sunshine.extraApps;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.sunshine.enable) {
+    assertions = [
+      {
+        assertion = dummyCfg.apps == [ ] || dummyCfg.enable;
+        message = "omanix.sunshine.dummyDisplay.apps needs omanix.sunshine.dummyDisplay.enable (the dummy plug's connector and your real monitors).";
+      }
+    ];
+
     environment.systemPackages = [
       toggleScript
       toggleDesktopItem

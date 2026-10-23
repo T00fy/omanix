@@ -249,8 +249,11 @@ restore_hidden_windows() {
 # problem restart_waybar exists to fix.
 dummy_display_on() {
   [[ -n "$OMANIX_DUMMY_DISPLAY_CONNECTOR" ]] || return 0
+  # Optional overrides, used by --dummy-on-client; default to the configured
+  # dummyDisplay mode/scale.
+  local mode="${1:-$OMANIX_DUMMY_DISPLAY_MODE}" scale="${2:-$OMANIX_DUMMY_DISPLAY_SCALE}"
 
-  hyprctl eval "hl.monitor({ output = '$OMANIX_DUMMY_DISPLAY_CONNECTOR', mode = '$OMANIX_DUMMY_DISPLAY_MODE', position = '$OMANIX_DUMMY_DISPLAY_POSITION', scale = '$OMANIX_DUMMY_DISPLAY_SCALE', disabled = false })"
+  hyprctl eval "hl.monitor({ output = '$OMANIX_DUMMY_DISPLAY_CONNECTOR', mode = '$mode', position = '$OMANIX_DUMMY_DISPLAY_POSITION', scale = '$scale', disabled = false })"
   wait_for_monitor_state "$OMANIX_DUMMY_DISPLAY_CONNECTOR" true
   sleep "$DUMMY_SETTLE_SECONDS"
 
@@ -268,10 +271,23 @@ dummy_display_on() {
     sleep "$DUMMY_SETTLE_SECONDS"
   done <<< "$OMANIX_DUMMY_DISPLAY_REAL_MONITORS"
 
-  apply_waybar_variant "$OMANIX_DUMMY_DISPLAY_SCALE" restart
+  apply_waybar_variant "$scale" restart
 
   touch "$DUMMY_STATE_FILE"
   [[ -t 0 ]] || notify-send "Dummy Display" "Streaming display enabled"
+}
+
+# omanix.sunshine.dummyDisplay.apps: the same swap, but at the mode the
+# Moonlight client asked for (Sunshine exports SUNSHINE_CLIENT_WIDTH/HEIGHT/FPS
+# to prep-cmd) and scale 1, e.g. 3840x2160@60 for a TV. Games under XWayland
+# would render at reduced resolution on a 2x-scaled output. Falls back to the
+# configured mode when run outside Sunshine.
+dummy_display_on_client() {
+  local mode="$OMANIX_DUMMY_DISPLAY_MODE"
+  if [[ -n "${SUNSHINE_CLIENT_WIDTH:-}" && -n "${SUNSHINE_CLIENT_HEIGHT:-}" ]]; then
+    mode="${SUNSHINE_CLIENT_WIDTH}x${SUNSHINE_CLIENT_HEIGHT}@${SUNSHINE_CLIENT_FPS:-60}"
+  fi
+  dummy_display_on "$mode" 1
 }
 
 # OMANIX_DUMMY_DISPLAY_REAL_MONITORS is a static list baked in by the Nix
@@ -330,6 +346,7 @@ case "${1:-}" in
   --off)         scale_off ;;
   --dummy-status) show_dummy_status ;;
   --dummy-on)    dummy_display_on ;;
+  --dummy-on-client) dummy_display_on_client ;;
   --dummy-off)   dummy_display_off ;;
   *)
     if [[ -f "$STATE_FILE" ]]; then

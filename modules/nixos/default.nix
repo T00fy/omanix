@@ -395,6 +395,31 @@ in
           from the same source values.
         '';
       };
+      apps = lib.mkOption {
+        type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
+        default = [ ];
+        description = ''
+          Additional Sunshine application entries streamed on the dummy plug
+          at the *client's* requested resolution and frame rate (Sunshine's
+          SUNSHINE_CLIENT_WIDTH/HEIGHT/FPS), at scale 1 — e.g. games streamed
+          to a TV, where the client picks 4K or 1440p. The configured `mode`
+          and `scale` above stay specific to this module's own Desktop entry.
+
+          Each entry is passed to Sunshine like `omanix.sunshine.extraApps`,
+          with a dummy-display prep-cmd prepended to its own `prep-cmd` list:
+          the dummy plug is switched on before the app starts and the real
+          monitors are restored after the app's own undo commands have run.
+          The client's mode must be one the dummy plug's EDID advertises.
+        '';
+        example = lib.literalExpression ''
+          [
+            {
+              name = "Baldur's Gate 3";
+              detached = [ "setsid steam steam://rungameid/1086940" ];
+            }
+          ]
+        '';
+      };
     };
     sunshine.extraApps = lib.mkOption {
       type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
