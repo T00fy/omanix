@@ -4,8 +4,8 @@ import qs.Commons
 import qs.Commons as Commons
 
 // Themed single-select dropdown. Trigger row paints with the kit's focus
-// chrome; the popup anchors below and uses Color.popups.background +
-// Color.popups.border so it reads as a panel surface rather than the
+// chrome; the popup anchors below and uses Commons.Color.popups.background +
+// Commons.Color.popups.border so it reads as a panel surface rather than the
 // platform-native ComboBox look.
 //
 // `options` accepts either a plain string[] or an array of

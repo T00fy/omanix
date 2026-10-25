@@ -82,7 +82,7 @@ Item {
   property bool deleteConfirmOpen: false
   property var deleteTarget: null
   onOpenedChanged: if (!opened) { deleteConfirmOpen = false; deleteTarget = null }
-  // Bound to the central [menu] section in shell.toml via Color.qml.
+  // Bound to the central [menu] section in shell.toml via Commons.Color.qml.
   // Each color already includes its alpha companion (composed in the
   // singleton), so consumers can drop them straight into a Rectangle.
   property color background: Commons.Color.menu.background

@@ -380,7 +380,7 @@ QtObject {
   }
 
   // Pull typography, bar dimensions, state tokens, and spacing out of the
-  // shell.toml dict that Color already parsed. Called by Color.loadShell so
+  // shell.toml dict that Color already parsed. Called by Commons.Color.loadShell so
   // a single parse pass feeds both singletons.
   function applyShellValues(values) {
     var fontOut = {}

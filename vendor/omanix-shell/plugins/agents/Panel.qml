@@ -103,10 +103,12 @@ Panel {
   // titled after its model, and a name like "Opus 5 (1M context)" would parse
   // as a one-minute window.
   function limitWindow(label, percent, resetAt, title) {
+    var reset = new Date(String(resetAt || "")).getTime()
+    var expired = isFinite(reset) && reset <= root.nowMs
     return {
       title: String(title || "") !== "" ? String(title) : windowTitle(label),
-      percent: Number(percent),
-      resetAt: String(resetAt || "")
+      percent: expired ? 0 : Number(percent),
+      resetAt: expired ? "" : String(resetAt || "")
     }
   }
 

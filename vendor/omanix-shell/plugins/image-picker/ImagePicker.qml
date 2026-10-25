@@ -31,7 +31,7 @@ Item {
   property string doneFile: ""
   property string filterText: ""
   property var doneFilesToRelease: []
-  // Bound to the central [image-picker] section in shell.toml via Color.qml.
+  // Bound to the central [image-picker] section in shell.toml via Commons.Color.qml.
   // `dimColor` tints unselected slices and text outlines on top of the scrim;
   // it intentionally tracks the foundational background, not a surface role.
   property color dimColor: Commons.Color.background

@@ -77,7 +77,7 @@ Item {
     if (pendingThemeVersion < 0) return
     pendingThemeFallbackTimer.stop()
     Commons.Color.loadColors(pendingColorsRaw)
-    // Color.loadShell also refreshes Style so the type scale flips with the
+    // Commons.Color.loadShell also refreshes Style so the type scale flips with the
     // background reveal instead of waiting for a separate reload path.
     Commons.Color.loadShell(pendingShellRaw)
     Style.scheduleRefresh()

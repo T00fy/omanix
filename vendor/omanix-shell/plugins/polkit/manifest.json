@@ -5,6 +5,11 @@
   "version": "1.0.0",
   "author": "Omanix",
   "description": "Theme-aware authentication dialog for privileged actions.",
+  "omanix": {
+    "capabilities": [
+      "authentication"
+    ]
+  },
   "kinds": [
     "service"
   ],

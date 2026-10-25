@@ -41,7 +41,9 @@ Panel {
   property int viewYear: today.getFullYear()
   property int viewMonth: today.getMonth()
 
-  readonly property date viewDate: new Date(viewYear, viewMonth, 1)
+  // Local noon, so a first of the month with no midnight (Havana, April 2012)
+  // still names its own month; UTC would name the previous one west of Greenwich.
+  readonly property date viewDate: new Date(viewYear, viewMonth, 1, 12)
   readonly property bool viewingCurrentMonth: viewYear === today.getFullYear() && viewMonth === today.getMonth()
 
   // Pinned to today, not to the month being browsed — stepping through the
@@ -120,7 +122,9 @@ Panel {
   // Summoning by hotkey moves no pointer, so a hover the bar was still
   // holding must not keep the center indicators revealed behind the panel.
   function setCenterHoverRevealSuppressed(value) {
-    if (root.bar && "centerHoverRevealSuppressed" in root.bar)
+    if (root.bar && typeof root.bar.setCenterHoverRevealSuppressed === "function")
+      root.bar.setCenterHoverRevealSuppressed(value)
+    else if (root.bar && "centerHoverRevealSuppressed" in root.bar)
       root.bar.centerHoverRevealSuppressed = value
   }
 

@@ -234,6 +234,16 @@ let
       ];
     }
     {
+      # Invoked by the lock plugin to recover a lock whose locker died.
+      name = "omanix-hyprland-session-lock-stranded";
+      selfPath = true;
+      deps = [
+        bash
+        gnugrep
+        procps
+      ];
+    }
+    {
       name = "omanix-restart-shell";
       deps = [
         bash

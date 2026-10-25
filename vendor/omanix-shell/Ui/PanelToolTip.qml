@@ -10,7 +10,7 @@ import qs.Commons as Commons
 //     text: "Forget network"
 //   }
 //
-// Defaults pull from [tooltip] in shell.toml via Color.tooltip.*. Override
+// Defaults pull from [tooltip] in shell.toml via Commons.Color.tooltip.*. Override
 // the panel* properties per-instance only when you need a tooltip that
 // intentionally diverges from the theme.
 //

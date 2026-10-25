@@ -5,6 +5,11 @@
   "version": "1.0.0",
   "author": "Omanix",
   "description": "Quickshell session lock with separate password and fingerprint PAM flows.",
+  "omanix": {
+    "capabilities": [
+      "authentication"
+    ]
+  },
   "kinds": [
     "service"
   ],

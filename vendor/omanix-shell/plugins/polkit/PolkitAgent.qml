@@ -12,7 +12,7 @@ Item {
   id: root
 
   property string fontFamily: Style.font.menuFamily
-  // Bound to the central [polkit] section in shell.toml via Color.qml.
+  // Bound to the central [polkit] section in shell.toml via Commons.Color.qml.
   property color accent: Commons.Color.polkit.accent
   property color background: Commons.Color.polkit.background
   property color foreground: Commons.Color.polkit.text

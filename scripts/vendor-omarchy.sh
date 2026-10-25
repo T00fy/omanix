@@ -18,7 +18,7 @@
 #   scripts/vendor-omarchy.sh [rev]
 #     rev   upstream git rev/tag/branch to vendor. Defaults to the exact commit SHA
 #           currently recorded in vendor/PROVENANCE.md, so a re-run with no argument
-#           is byte-reproducible even if upstream re-points the v4.0.2 tag. Pass a
+#           is byte-reproducible even if upstream re-points the v4.0.6 tag. Pass a
 #           tag/branch explicitly to sync a newer upstream.
 #
 # Env:
@@ -30,9 +30,9 @@
 
 set -euo pipefail
 
-# Default to the exact commit recorded in vendor/PROVENANCE.md (tag v4.0.2 at the
+# Default to the exact commit recorded in vendor/PROVENANCE.md (tag v4.0.6 at the
 # time of vendoring), not the mutable tag, so a no-arg re-vendor is deterministic.
-REV="${1:-346e69e1cec6c4e8924531874af6ba010a1bc99e}"
+REV="${1:-237f1b4071a0bff2296c6d740ba2b9fd695ebfa0}"
 OMARCHY_REMOTE="${OMARCHY_REMOTE:-https://github.com/omacom/omarchy.git}"
 
 # Repo root = parent of this script's dir.
