@@ -1,4 +1,4 @@
-import QtQuick 6.11
+import QtQuick
 
 // Drop-in key dispatcher for keyboard-driven panels. Wraps panel content
 // and emits semantic signals so each panel keeps its own state machine

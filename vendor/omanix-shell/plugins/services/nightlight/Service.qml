@@ -1,4 +1,4 @@
-import QtQuick 6.11
+import QtQuick
 import Quickshell.Io
 import "NightlightModel.js" as NightlightModel
 

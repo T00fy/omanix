@@ -1,4 +1,4 @@
-import QtQuick 6.11
+import QtQuick
 
 // Hyprland leaves an already-mapped layer surface at its old global position
 // when its monitor moves within the layout: undocking disables the internal

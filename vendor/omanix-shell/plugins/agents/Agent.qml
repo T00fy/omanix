@@ -1,4 +1,4 @@
-import QtQuick 6.11
+import QtQuick
 import Quickshell.Io
 
 // One agent's usage record, read straight off the data file that

@@ -1,8 +1,9 @@
-import QtQuick 6.11
+import QtQuick
 import QtQuick.Controls
 import Quickshell
 import qs.Ui
 import qs.Commons
+import qs.Commons as Commons
 
 // Visual reference + live playground for omanix-shell's common UI
 // components. Summon with `omanix dev ui-preview`, or directly via:
@@ -66,10 +67,10 @@ Item {
   property var shell: null
 
   // ---- theme --------------------------------------------------------------
-  readonly property color foreground: Color.foreground
-  readonly property color background: Color.background
-  readonly property color accent: Color.accent
-  readonly property color urgent: Color.urgent
+  readonly property color foreground: Commons.Color.foreground
+  readonly property color background: Commons.Color.background
+  readonly property color accent: Commons.Color.accent
+  readonly property color urgent: Commons.Color.urgent
   readonly property string fontFamily: "monospace"
 
   // Fake `bar` for components that take a whole bar object (e.g. Slider).

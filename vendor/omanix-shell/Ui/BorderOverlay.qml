@@ -1,4 +1,4 @@
-import QtQuick 6.11
+import QtQuick
 import QtQuick.Shapes
 import qs.Commons
 import "../Commons/BorderGeometry.js" as Geometry

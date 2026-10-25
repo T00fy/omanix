@@ -1,4 +1,4 @@
-import QtQuick 6.11
+import QtQuick
 import qs.Commons
 
 BarIconButton {

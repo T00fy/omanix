@@ -1,5 +1,5 @@
 pragma Singleton
-import QtQuick 6.11
+import QtQuick
 import Quickshell
 import Quickshell.Io
 import "BorderGeometry.js" as Geometry
