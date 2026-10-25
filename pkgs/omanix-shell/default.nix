@@ -14,7 +14,8 @@ stdenv.mkDerivation {
   dontConfigure = true;
   dontBuild = true;
 
-  # Plain recursive copy — no text mutation (preserves embedded Nerd Font glyphs).
+  # Plain recursive copy; the only text mutation is the byte-safe QtQuick import
+  # pin below (preserves embedded Nerd Font glyphs).
   # The default menu tree is omanix-owned content (D5: a Nix-shipped file, not
   # part of the vendored snapshot); install it where Menu.qml:defaultMenuPath
   # resolves ($OMANIX_PATH/shell/defaults/omanix-menu.jsonc).
@@ -30,6 +31,12 @@ stdenv.mkDerivation {
       "$out/share/omanix/shell/plugins/omanix-workspaces-per-monitor/manifest.json"
     install -Dm644 ${./plugins/omanix-workspaces-per-monitor/Workspaces.qml} \
       "$out/share/omanix/shell/plugins/omanix-workspaces-per-monitor/Workspaces.qml"
+
+    # Qt 6.12 added a QtQuick `Color` singleton that shadows Commons/Color.qml,
+    # leaving every Color.* lookup undefined. Pin QtQuick (and QtQuick.Window,
+    # which re-imports QtQuick auto) below 6.12. Byte-level, import lines only.
+    find "$out/share/omanix/shell" -name '*.qml' -exec env LC_ALL=C sed -i -E \
+      's/^([[:space:]]*import QtQuick(\.Window)?)[[:space:]]*$/\1 6.11/' {} +
     runHook postInstall
   '';
 
