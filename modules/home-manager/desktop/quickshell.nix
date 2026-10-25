@@ -160,11 +160,11 @@ in
       type = lib.types.str;
       readOnly = true;
       internal = true;
-      default = "${config.xdg.dataHome}/omanix";
+      default = "${config.home.profileDirectory}/share/omanix";
       description = ''
-        Stable OMANIX_PATH, linked to the package's share/omanix and repointed
-        on every activation. quickshell matches running instances by config
-        path, so a store path would orphan the live shell after a rebuild.
+        Stable OMANIX_PATH through the user profile, which every generation
+        switch repoints. quickshell matches running instances by config path,
+        so a store path would orphan the live shell after a rebuild.
       '';
     };
 
@@ -431,9 +431,8 @@ in
       pkgs.util-linux
       pkgs.procps
       pkgs.perl
+      cfg.package
     ];
-
-    xdg.dataFile."omanix".source = "${cfg.package}/share/omanix";
 
     # Install declared third-party plugins as read-only store symlinks into the
     # dir the shell's PluginRegistry scans. Nothing is fetched at runtime; the

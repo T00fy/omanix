@@ -13,6 +13,10 @@ in
     # acquire it, freezing the system with no TTY escape possible.
     programs.hyprland.withUWSM = false;
 
+    # With home-manager.useUserPackages the user profile is built from these
+    # paths only; OMANIX_PATH resolves through it.
+    environment.pathsToLink = [ "/share/omanix" ];
+
     services.displayManager.sessionPackages = lib.mkForce [
       (pkgs.runCommand "hyprland-sessions" {
         passthru.providedSessions = [ "hyprland" ];
