@@ -127,6 +127,9 @@ in
             # but stop firing until the session restarts). Suppress the on-save
             # autoreload; config is asserted at session start, not mutated live.
             disable_autoreload = true;
+            # Let a fresh shell re-acquire the session lock after the lock
+            # client died, so a crashed lock screen can be recovered.
+            allow_session_lock_restore = true;
           };
         };
 

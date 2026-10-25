@@ -48,6 +48,7 @@
   wl-clipboard,
   wtype,
   pulseaudio,
+  pipewire,
   wireplumber,
   brightnessctl,
   ddcutil,
@@ -686,6 +687,9 @@ let
         bash
         coreutils
         gawk
+        gnugrep
+        gnused
+        pipewire
         pulseaudio
       ];
     }
