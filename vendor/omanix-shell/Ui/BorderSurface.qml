@@ -1,4 +1,4 @@
-import QtQuick
+import QtQuick 6.11
 import qs.Commons
 
 // Rectangle-compatible surface with Omanix border specs. Uses native
