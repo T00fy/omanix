@@ -261,6 +261,12 @@ in
         enable = true;
         userServices = true;
       };
+      # Don't advertise container bridge addresses
+      denyInterfaces = [ "docker0" ];
     };
+
+    # Avahi is the mDNS responder; resolved's built-in mDNS fights it over
+    # port 5353 and causes "Host name conflict" renames (host-2.local, ...).
+    services.resolved.settings.Resolve.MulticastDNS = lib.mkDefault false;
   };
 }
