@@ -156,6 +156,18 @@ in
       description = "The Quickshell shell code package. OMANIX_PATH resolves to its share/omanix directory.";
     };
 
+    path = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      internal = true;
+      default = "${config.xdg.dataHome}/omanix";
+      description = ''
+        Stable OMANIX_PATH, linked to the package's share/omanix and repointed
+        on every activation. quickshell matches running instances by config
+        path, so a store path would orphan the live shell after a rebuild.
+      '';
+    };
+
     disabledPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [
@@ -420,6 +432,8 @@ in
       pkgs.procps
       pkgs.perl
     ];
+
+    xdg.dataFile."omanix".source = "${cfg.package}/share/omanix";
 
     # Install declared third-party plugins as read-only store symlinks into the
     # dir the shell's PluginRegistry scans. Nothing is fetched at runtime; the

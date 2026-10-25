@@ -15,7 +15,7 @@
       { _args = [ "GTK_THEME" "Adwaita-dark" ]; }
       { _args = [ "GTK_IM_MODULE" "" ]; }
     ] ++ lib.optional config.omanix.quickshell.enable {
-      _args = [ "OMANIX_PATH" "${config.omanix.quickshell.package}/share/omanix" ];
+      _args = [ "OMANIX_PATH" config.omanix.quickshell.path ];
     };
   };
 }

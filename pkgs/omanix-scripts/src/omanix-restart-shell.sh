@@ -67,7 +67,8 @@ while timeout 5 quickshell kill -p "$CONFIG_DIR" --any-display >/dev/null 2>&1; 
 # Spawn from Hyprland so the shell inherits the canonical session environment,
 # not transient variables from a terminal, SSH connection, or development tool.
 # Mirrors the Hyprland autostart launch command.
-hyprctl dispatch exec "quickshell -n -p $session_omanix_path/shell" >/dev/null
+printf -v launch '%q ' quickshell -n -p "$session_omanix_path/shell"
+hyprctl dispatch "hl.dsp.exec_cmd([[$launch]])" >/dev/null
 
 for (( attempt = 0; attempt < 20; attempt++ )); do
   if OMANIX_PATH="$session_omanix_path" OMANIX_SHELL_IPC_TIMEOUT=0.5s omanix-shell shell ping >/dev/null 2>&1; then

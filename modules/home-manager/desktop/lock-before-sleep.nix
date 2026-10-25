@@ -18,7 +18,7 @@ let
       true;
 
   systemLock = "${config.omanix.scripts.package}/bin/omanix-system-lock";
-  shell = "${config.omanix.quickshell.package}/bin/omanix-shell";
+  shell = "${config.omanix.scripts.package}/bin/omanix-shell";
 
   # The watcher: blocks on the system bus for one logind PrepareForSleep(true),
   # locks, then waits for the lock surface to actually report secure before
