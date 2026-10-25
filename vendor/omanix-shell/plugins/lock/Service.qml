@@ -510,14 +510,22 @@ Item {
   IpcHandler {
     target: "lock"
 
+    // `locked` is a composite binding over lockRequested, sessionLock.locked
+    // and sessionLock.secure. With quickshell 0.3.2 the secure -> false
+    // transition after an unlock does not re-evaluate the binding, so the
+    // composite can stick at true after every unlock. Do not trust it
+    // here: short-circuit only when the underlying reads agree, and
+    // otherwise arm a fresh lock (beginLock is idempotent while a lock is
+    // already being requested).
     function lock(): string {
       if (!root.passwordPamConfigured) return "missing-pam"
-      if (!root.locked && !root.beginLock()) return "failed"
+      if (root.locked && (root.lockRequested || sessionLock.locked || sessionLock.secure)) return "ok"
+      if (!root.beginLock()) return "failed"
       return "ok"
     }
 
     function isLocked(): string {
-      return root.locked ? "true" : "false"
+      return (root.lockRequested || sessionLock.locked || sessionLock.secure) ? "true" : "false"
     }
 
     function status(): string {
