@@ -83,6 +83,21 @@ Item {
     }
   }
 
+  // hyprsunset's temperature can also be set from outside the shell
+  // (scripts, schedulers, direct `hyprctl hyprsunset temperature` calls),
+  // and those writers emit no event we can observe — the probe previously
+  // ran only at shell startup and after our own applies, so externally-set
+  // temperatures left the bar indicator and the IPC status stale until a
+  // manual `nightlight refresh`. Poll for external changes, at the same
+  // cadence the battery service uses. Ticks are skipped while our own
+  // apply is in flight; the apply-exit path refreshes then.
+  Timer {
+    interval: 30000
+    running: true
+    repeat: true
+    onTriggered: if (!applyProcess.running && !root.hasPendingTemperature) root.refresh()
+  }
+
   Component.onCompleted: refresh()
 
   IpcHandler {
