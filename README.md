@@ -49,7 +49,7 @@ Add Omanix as an input and import its two modules (the NixOS module and the Home
 ```nix
 # flake.nix inputs
 omanix = {
-  url = "github:T00fy/omanix";
+  url = "github:T00fy/omanix";   # or pin: github:T00fy/omanix/v2.1.1, https://flakehub.com/f/T00fy/omanix/2.*
   inputs.nixpkgs.follows = "nixpkgs";
   inputs.home-manager.follows = "home-manager";
 };

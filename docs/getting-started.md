@@ -2,6 +2,17 @@
 
 ## Add Omanix to Your Flake
 
+The example below tracks `main`. To pin a release instead, use one of:
+
+```nix
+omanix.url = "github:T00fy/omanix/v2.1.1";                     # exact tag
+omanix.url = "https://flakehub.com/f/T00fy/omanix/2.*";         # latest 2.x
+```
+
+Releases follow semver: a major bump means some `omanix.*` options changed and
+your config may need updating — check the
+[changelog](https://github.com/T00fy/omanix/blob/main/CHANGELOG.md) first.
+
 ```nix
 # flake.nix
 {

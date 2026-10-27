@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "c92fac354c81c35a70964cb920e6e3c1ee442324",
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "omanix",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
