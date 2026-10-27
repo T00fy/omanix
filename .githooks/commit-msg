@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Enforce Conventional Commits (see CONTRIBUTING.md).
+# Enable once per clone: git config core.hooksPath .githooks
+
+subject=$(grep -v '^#' "$1" | head -n1)
+
+case "$subject" in
+  "Merge "* | "Revert \""* | "fixup! "* | "squash! "* | "amend! "*) exit 0 ;;
+esac
+
+types='feat|fix|perf|refactor|docs|build|ci|chore|revert|style|test'
+if [[ $subject =~ ^($types)(\([a-z0-9._/-]+\))?!?:\ .+ ]]; then
+  exit 0
+fi
+
+cat >&2 <<MSG
+commit-msg: subject is not a Conventional Commit:
+
+  $subject
+
+Expected: <type>(<scope>)!: <summary>
+  types: ${types//|/, }
+  e.g.   fix(scripts): quote monitor name in omanix-workspace
+
+See CONTRIBUTING.md. Bypass with --no-verify if you really must.
+MSG
+exit 1

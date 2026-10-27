@@ -26,6 +26,13 @@ Omanix uses [Conventional Commits](https://www.conventionalcommits.org/).
 | `chore` | Anything else that users won't notice | none |
 | `revert` | Reverting an earlier commit | patch |
 
+A `commit-msg` hook rejects messages that don't match. Enable it once per
+clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 Scopes are optional; prefer the area of the repo that changed: `hyprland`,
 `quickshell`, `theme`, `plugins`, `scripts`, `apps`, `terminal`, `languages`,
 `nixos`, `sddm`, `vendor`, `flake`, `docs`.
