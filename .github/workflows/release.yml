@@ -38,7 +38,7 @@ jobs:
     env:
       TAG: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
 
