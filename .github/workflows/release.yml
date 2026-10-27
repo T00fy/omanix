@@ -21,7 +21,7 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
 
   # Runs in this workflow rather than on a tag-push trigger: tags created with
   # GITHUB_TOKEN don't fire other workflows.
