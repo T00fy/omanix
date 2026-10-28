@@ -1,9 +1,20 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.omanix;
+
+  # Hyprland comes from the user's nixpkgs (binary-cached, Mesa-matched), so
+  # Omanix can't pin it. Bump this after testing the generated Lua config
+  # against a new Hyprland release.
+  testedHyprland = "0.56";
+  hyprlandVersion = lib.versions.majorMinor config.programs.hyprland.package.version;
 in
 {
   config = lib.mkIf cfg.enable {
+    warnings = lib.optional (config.programs.hyprland.enable && hyprlandVersion != testedHyprland) ''
+      omanix: tested with Hyprland ${testedHyprland}.x, but nixpkgs provides ${config.programs.hyprland.package.version}.
+      Expect config errors until Omanix supports it (check `hyprctl configerrors`).
+    '';
+
     # withUWSM = false prevents programs.uwsm.enable from being set,
     # but hyprland-uwsm.desktop is baked into the hyprland package itself
     # (upstream ships it in systemd/hyprland-uwsm.desktop via CMake).

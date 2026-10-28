@@ -9,8 +9,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland/v0.55.2";
-
     nix-colors.url = "github:misterio77/nix-colors";
 
     lazyvim = {
