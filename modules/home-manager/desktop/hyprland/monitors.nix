@@ -104,9 +104,9 @@ in
               Note that ALL monitors using "auto" (i.e. every monitor with this
               left null) are re-flowed together whenever any monitor's enabled
               state or mode changes — for example, a script that temporarily
-              disables/enables an unrelated output (see
-              `omanix.sunshine.dummyDisplay`) can silently shift every
-              "auto"-positioned monitor to a new position. If you use any
+              disables/enables an unrelated output (e.g. a streaming dummy
+              plug) can silently shift every "auto"-positioned monitor to a
+              new position. If you use any
               feature that toggles monitors at runtime, set explicit positions
               here for your real monitors so they stay put.
             '';
@@ -123,10 +123,9 @@ in
             description = ''
               Start this monitor disabled at boot. Use for an output that
               should be completely inert during normal local use — for
-              example, a dummy plug used only by
-              `omanix.sunshine.dummyDisplay`, so it's never reachable via
-              workspace switching or the mouse until that feature's prep-cmd
-              explicitly enables it. Still needs a `workspaceCount` entry
+              example, a dummy plug only switched on for streaming, so it's
+              never reachable via workspace switching or the mouse until a
+              script explicitly enables it. Still needs a `workspaceCount` entry
               here so its workspace range is reserved and doesn't collide
               with another monitor's, even while disabled.
             '';
@@ -146,7 +145,7 @@ in
       scale, auto position).
 
       Set explicit positions if you use any feature that toggles monitors at
-      runtime (e.g. `omanix.sunshine.dummyDisplay`), since Hyprland's "auto"
+      runtime (e.g. a streaming dummy plug), since Hyprland's "auto"
       position re-flows every auto-positioned monitor whenever any monitor's
       state changes.
 

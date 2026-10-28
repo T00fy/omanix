@@ -93,18 +93,6 @@
   scaledDesktopRevertSensitivity ? "",
   scaledDesktopCursorSize ? "",
   scaledDesktopRevertCursorSize ? "",
-  # omanix.sunshine.dummyDisplay settings (from osConfig), empty when unset
-  dummyDisplayConnector ? "",
-  dummyDisplayMode ? "",
-  dummyDisplayPosition ? "",
-  dummyDisplayScale ? "",
-  dummyDisplaySensitivity ? "",
-  dummyDisplayRevertSensitivity ? "",
-  dummyDisplayCursorSize ? "",
-  dummyDisplayRevertCursorSize ? "",
-  # Newline-separated "name|mode|position|scale" lines for the real monitors
-  # to disable/re-enable around the dummy display, empty when unset
-  dummyDisplayRealMonitors ? "",
   # Store path of the Nix-generated declarative shell.json base (quickshell.nix).
   # Null when the desktop shell module is disabled.
   shellDefaults ? null,
@@ -432,15 +420,6 @@ let
         OMANIX_SCALE_REVERT_SENSITIVITY = scaledDesktopRevertSensitivity;
         OMANIX_SCALE_CURSOR_SIZE = scaledDesktopCursorSize;
         OMANIX_SCALE_REVERT_CURSOR_SIZE = scaledDesktopRevertCursorSize;
-        OMANIX_DUMMY_DISPLAY_CONNECTOR = dummyDisplayConnector;
-        OMANIX_DUMMY_DISPLAY_MODE = dummyDisplayMode;
-        OMANIX_DUMMY_DISPLAY_POSITION = dummyDisplayPosition;
-        OMANIX_DUMMY_DISPLAY_SCALE = dummyDisplayScale;
-        OMANIX_DUMMY_DISPLAY_SENSITIVITY = dummyDisplaySensitivity;
-        OMANIX_DUMMY_DISPLAY_REVERT_SENSITIVITY = dummyDisplayRevertSensitivity;
-        OMANIX_DUMMY_DISPLAY_CURSOR_SIZE = dummyDisplayCursorSize;
-        OMANIX_DUMMY_DISPLAY_REVERT_CURSOR_SIZE = dummyDisplayRevertCursorSize;
-        OMANIX_DUMMY_DISPLAY_REAL_MONITORS = dummyDisplayRealMonitors;
       };
     }
     {

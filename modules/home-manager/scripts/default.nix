@@ -21,32 +21,6 @@ let
     && osConfig.omanix.sunshine.scaledDesktop.enable;
   scaledDesktop = if hasScaledDesktop then osConfig.omanix.sunshine.scaledDesktop else null;
 
-  # omanix-scale's dummy-display toggle (--dummy-on/--dummy-off) needs the
-  # same osConfig bridge as scaledDesktop above, so a menu-triggered toggle
-  # and Sunshine's prep-cmd-triggered one can never disagree — see
-  # modules/nixos/sunshine.nix for the equivalent NixOS-level instance and
-  # pkgs/omanix-scripts/src/omanix-scale.sh for the runtime logic.
-  hasDummyDisplay =
-    osConfig != null
-    && osConfig ? omanix
-    && osConfig.omanix ? sunshine
-    && osConfig.omanix.sunshine.dummyDisplay.enable;
-  dummyDisplay = if hasDummyDisplay then osConfig.omanix.sunshine.dummyDisplay else null;
-
-  # Shared with the NixOS-level instance (modules/nixos/sunshine.nix) via
-  # lib/dummy-display.nix, so the two instances can never compute a
-  # different default position/env-string.
-  dummyDisplayPosition =
-    if dummyDisplay == null then
-      ""
-    else
-      omanixLib.dummyDisplay.resolvePosition {
-        position = dummyDisplay.position;
-        realMonitors = dummyDisplay.realMonitors;
-      };
-
-  dummyDisplayRealMonitorsEnv =
-    if dummyDisplay == null then "" else omanixLib.dummyDisplay.realMonitorsEnv dummyDisplay.realMonitors;
   # omanix.hardware.isLaptop (NixOS option) forces omanix-hw-laptop's answer.
   # Read via the same osConfig bridge as scaledDesktop above; null / standalone
   # HM leaves it auto-detecting ("").
@@ -139,16 +113,6 @@ let
     scaledDesktopCursorSize = if scaledDesktop != null then toString scaledDesktop.cursorSize else "";
     scaledDesktopRevertCursorSize =
       if scaledDesktop != null then toString scaledDesktop.revertCursorSize else "";
-    dummyDisplayConnector = if dummyDisplay != null then dummyDisplay.connector else "";
-    dummyDisplayMode = if dummyDisplay != null then dummyDisplay.mode else "";
-    inherit dummyDisplayPosition;
-    dummyDisplayScale = if dummyDisplay != null then dummyDisplay.scale else "";
-    dummyDisplaySensitivity = if dummyDisplay != null then dummyDisplay.sensitivity else "";
-    dummyDisplayRevertSensitivity = if dummyDisplay != null then dummyDisplay.revertSensitivity else "";
-    dummyDisplayCursorSize = if dummyDisplay != null then toString dummyDisplay.cursorSize else "";
-    dummyDisplayRevertCursorSize =
-      if dummyDisplay != null then toString dummyDisplay.revertCursorSize else "";
-    dummyDisplayRealMonitors = dummyDisplayRealMonitorsEnv;
   };
 in
 {
