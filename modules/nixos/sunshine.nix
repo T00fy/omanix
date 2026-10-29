@@ -182,12 +182,22 @@ in
       enable = true;
       # With resolved's mDNS off (below), this is what resolves *.local names
       nssmdns4 = true;
+      # nixpkgs' sunshine module still sets the obsolete publish.* options
+      # (mkDefault), which triggers deprecation warnings. Null them out; the
+      # equivalent settings below take their place.
       publish = {
-        enable = true;
-        userServices = true;
+        enable = null;
+        userServices = null;
       };
-      # Don't advertise container bridge addresses
-      denyInterfaces = [ "docker0" ];
+      settings = {
+        publish = {
+          disable-publishing = false;
+          disable-user-service-publishing = false;
+          publish-addresses = true;
+        };
+        # Don't advertise container bridge addresses
+        server.deny-interfaces = [ "docker0" ];
+      };
     };
 
     # Avahi is the mDNS responder; resolved's built-in mDNS fights it over

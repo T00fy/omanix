@@ -17,7 +17,7 @@ in
 
   config = lib.mkIf (cfg.enable && cfg.libreoffice.enable) {
     environment.systemPackages = with pkgs; [
-      libreoffice-fresh
+      libreoffice
     ];
   };
 }
