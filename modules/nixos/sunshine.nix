@@ -180,6 +180,8 @@ in
 
     services.avahi = {
       enable = true;
+      # With resolved's mDNS off (below), this is what resolves *.local names
+      nssmdns4 = true;
       publish = {
         enable = true;
         userServices = true;
