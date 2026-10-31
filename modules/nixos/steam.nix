@@ -15,6 +15,7 @@ let
   # Ref: https://bbs.archlinux.org/viewtopic.php?id=300993
   steamBase = pkgs.steam.override {
     extraEnv = { };
+    inherit (cfg.steam) extraProfile;
   };
 
   steamPatched = steamBase.overrideAttrs (prev: {

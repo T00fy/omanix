@@ -59,6 +59,15 @@ in
       default = true;
       description = "Enable Steam and gaming tools (requires omanix.enable).";
     };
+    steam.extraProfile = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Shell run each time Steam starts, inside its FHS environment, before
+        the Steam client (the steam package's `extraProfile`). Also runs for
+        `steam` commands handed to an already running Steam.
+      '';
+    };
     docker.enable = lib.mkOption {
       type = lib.types.bool;
       default = true;
