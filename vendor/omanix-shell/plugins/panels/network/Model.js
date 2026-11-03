@@ -20,6 +20,22 @@ function connectionIcon(kind, signalStrength) {
   return "󰤮"
 }
 
+// The bar pill's kind. `pollKind` comes from `omanix-network-status` (a
+// fresh process reading the default-route interface via ip/nmcli/iw, so
+// it cannot go stale); the D-Bus flags come from Quickshell.Networking,
+// whose long-lived view can wedge across suspend/resume or a
+// NetworkManager bus-name change (omacom/omarchy#7324) and then never
+// self-corrects. A poll that reports a connection wins — it names the
+// default-route device, which is what the pill is meant to show — and the
+// D-Bus view only speaks when the poll reports nothing, since a link can
+// be up without carrying the default route.
+function resolveKind(pollKind, wiredConnected, wifiConnected) {
+  if (pollKind === "wifi" || pollKind === "ethernet") return pollKind
+  if (wiredConnected) return "ethernet"
+  if (wifiConnected) return "wifi"
+  return "disconnected"
+}
+
 function formatHeaderSpeed(mbps) {
   var v = parseInt(mbps, 10)
   if (!v || v < 0) return ""
@@ -352,6 +368,7 @@ if (typeof module !== "undefined") {
     parseNetworkStatus: parseNetworkStatus,
     wifiIconFor: wifiIconFor,
     connectionIcon: connectionIcon,
+    resolveKind: resolveKind,
     formatHeaderSpeed: formatHeaderSpeed,
     formatHeaderFreq: formatHeaderFreq,
     headerDetail: headerDetail,
