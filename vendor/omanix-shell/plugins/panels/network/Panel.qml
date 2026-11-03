@@ -71,6 +71,10 @@ Panel {
   readonly property var wifiDevice: findDevice(DeviceType.Wifi)
   readonly property var wifiNetworkObjects: wifiDevice && wifiDevice.networks ? wifiDevice.networks.values : []
   readonly property var connectedWifiNetwork: findConnectedWifiNetwork()
+  // Ground truth for the bar pill, sampled by statusPoll in a fresh
+  // `omanix-network-status` process. Starts disconnected until the first
+  // sample lands. See kind below for why the pill needs it.
+  property var pollStatus: ({ kind: "disconnected", label: "", signalStrength: -1, frequency: "" })
   property var wifiNetworks: []
   property bool scanning: false
   property bool wifiStationAvailable: false
@@ -433,18 +437,27 @@ Panel {
     connectDirectly(net.ssid)
   }
 
-  // Bar pill state, derived from the native NetworkManager service so the
-  // icon reflects connection changes without polling. Wired is preferred
-  // when both are up, matching the default-route device.
+  // Bar pill state. The D-Bus view (Quickshell.Networking) reflects
+  // connection changes without polling, but it can wedge stale — across
+  // suspend/resume, or when NetworkManager's bus name changes owner
+  // (omacom/omarchy#7324) — and a stale "disconnected" never
+  // self-corrects. statusPoll keeps pollStatus fresh from a new process
+  // every few seconds, and resolveKind lets that sample win whenever it
+  // reports a connection. The pill therefore shows the default-route
+  // device (per the original intent) and heals itself within one poll
+  // interval after a resume. Wired still wins when both are up and the
+  // poll is silent.
   readonly property var wiredDevice: findDevice(DeviceType.Wired)
-  readonly property string kind: {
-    if (wiredDevice && wiredDevice.connected) return "ethernet"
-    if (connectedWifiNetwork) return "wifi"
-    return "disconnected"
+  readonly property string kind: Model.resolveKind(
+    pollStatus.kind,
+    wiredDevice && wiredDevice.connected,
+    !!connectedWifiNetwork)
+  readonly property int signalStrength: {
+    if (connectedWifiNetwork)
+      return Math.round((connectedWifiNetwork.signalStrength || 0) * 100)
+    if (pollStatus.kind === "wifi") return pollStatus.signalStrength
+    return -1
   }
-  readonly property int signalStrength: connectedWifiNetwork
-    ? Math.round((connectedWifiNetwork.signalStrength || 0) * 100)
-    : -1
 
   function copyToClipboard(value) {
     if (!value || !root.bar) return
@@ -814,6 +827,36 @@ Panel {
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: root.updateDetails(text)
+    }
+  }
+
+  // Ground-truth sample behind the bar pill's kind/signalStrength (see the
+  // kind property). Non-verbose `omanix-network-status`: one fresh process
+  // per run reading the default-route interface via ip/nmcli/iw, immune to
+  // the stale D-Bus view that wedges Quickshell.Networking after
+  // suspend/resume or a NetworkManager bus-name change.
+  Process {
+    id: statusProc
+    command: ["omanix-network-status"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.pollStatus = Model.parseNetworkStatus(text)
+    }
+  }
+
+  // Always-on: a few short-lived processes every 3s, comparable to
+  // bandPoll's cost, and it is what keeps the pill honest after a resume.
+  // triggeredOnStart gives the pill its first sample at shell startup
+  // instead of up to one interval of "disconnected".
+  Timer {
+    id: statusPoll
+    interval: 3000
+    repeat: true
+    running: true
+    triggeredOnStart: true
+    onTriggered: {
+      if (statusProc.running) return
+      statusProc.running = true
     }
   }
 
